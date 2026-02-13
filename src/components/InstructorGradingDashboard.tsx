@@ -412,62 +412,103 @@ const SubmissionsTable = ({
           <TableRow>
             <TableHead>Student</TableHead>
             <TableHead>Assignment</TableHead>
-            <TableHead>Course</TableHead>
-            <TableHead>Submitted</TableHead>
+            <TableHead>Submitted Time</TableHead>
+            <TableHead>Document</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Score</TableHead>
+            <TableHead>Grade</TableHead>
+            <TableHead>Result</TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {submissions.map((submission) => (
-            <TableRow key={submission.id}>
-              <TableCell>
-                <div>
-                  <p className="font-medium">
-                    {submission.profiles?.full_name || "Unknown"}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {submission.profiles?.email}
-                  </p>
-                </div>
-              </TableCell>
-              <TableCell>{submission.assignments?.title || "-"}</TableCell>
-              <TableCell className="text-muted-foreground">
-                {submission.assignments?.courses?.title || "-"}
-              </TableCell>
-              <TableCell>
-                {new Date(submission.submitted_at).toLocaleDateString()}
-              </TableCell>
-              <TableCell>
-                {submission.score !== null ? (
-                  <Badge variant="default" className="gap-1">
-                    <CheckCircle className="h-3 w-3" />
-                    Graded
-                  </Badge>
-                ) : (
-                  <Badge variant="secondary" className="gap-1">
-                    <Clock className="h-3 w-3" />
-                    Pending
-                  </Badge>
-                )}
-              </TableCell>
-              <TableCell>
-                {submission.score !== null ? (
-                  <span className="font-medium">
-                    {submission.score}/{submission.assignments?.max_score}
+          {submissions.map((submission) => {
+            const maxScore = submission.assignments?.max_score || 100;
+            const passed = submission.score !== null ? submission.score >= maxScore * 0.5 : null;
+
+            return (
+              <TableRow key={submission.id}>
+                <TableCell>
+                  <div>
+                    <p className="font-medium">
+                      {submission.profiles?.full_name || "Unknown"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {submission.profiles?.email}
+                    </p>
+                  </div>
+                </TableCell>
+                <TableCell className="text-muted-foreground text-sm">
+                  {submission.assignments?.title || "-"}
+                  <p className="text-xs text-muted-foreground">{submission.assignments?.courses?.title}</p>
+                </TableCell>
+                <TableCell className="text-sm">
+                  {new Date(submission.submitted_at).toLocaleDateString()}{" "}
+                  <span className="text-muted-foreground">
+                    {new Date(submission.submitted_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
-                ) : (
-                  "-"
-                )}
-              </TableCell>
-              <TableCell>
-                <Button size="sm" variant="outline" onClick={() => onGrade(submission)}>
-                  {submission.score !== null ? "Edit Grade" : "Grade"}
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
+                </TableCell>
+                <TableCell>
+                  {submission.file_url ? (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={submission.file_url} target="_blank" rel="noopener noreferrer" className="gap-1">
+                        <FileText className="h-3 w-3" />
+                        View
+                      </a>
+                    </Button>
+                  ) : submission.submission_text ? (
+                    <Badge variant="secondary" className="gap-1">
+                      <FileText className="h-3 w-3" />
+                      Text
+                    </Badge>
+                  ) : (
+                    <span className="text-muted-foreground text-sm">—</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {submission.score !== null ? (
+                    <Badge variant="default" className="gap-1">
+                      <CheckCircle className="h-3 w-3" />
+                      Graded
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="gap-1">
+                      <Clock className="h-3 w-3" />
+                      Pending
+                    </Badge>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {submission.score !== null ? (
+                    <span className="font-medium">
+                      {submission.score}/{maxScore}
+                    </span>
+                  ) : (
+                    "—"
+                  )}
+                </TableCell>
+                <TableCell>
+                  {passed === true && (
+                    <Badge className="bg-green-100 text-green-800 border-green-200 gap-1">
+                      <CheckCircle className="h-3 w-3" />
+                      Passed
+                    </Badge>
+                  )}
+                  {passed === false && (
+                    <Badge className="bg-red-100 text-red-800 border-red-200 gap-1">
+                      <AlertCircle className="h-3 w-3" />
+                      Failed
+                    </Badge>
+                  )}
+                  {passed === null && <span className="text-muted-foreground text-sm">—</span>}
+                </TableCell>
+                <TableCell>
+                  <Button size="sm" variant="outline" onClick={() => onGrade(submission)}>
+                    {submission.score !== null ? "Edit Grade" : "Grade"}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </Card>
