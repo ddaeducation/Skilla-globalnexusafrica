@@ -316,6 +316,11 @@ export function CourseContentSidebar({
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className="space-y-1 mt-1" style={{ paddingLeft: `${paddingLeft + 24}px` }}>
+              {section.description && (
+                <p className="text-xs text-muted-foreground px-2 pb-1">
+                  {section.description}
+                </p>
+              )}
               {children.length > 0 ? (
                 children.map((child) => renderSection(child, depth + 1))
               ) : (
@@ -349,7 +354,7 @@ export function CourseContentSidebar({
             ) : (
               <ChevronRight className="w-4 h-4 flex-shrink-0" />
             )}
-            {getSectionIcon(level)}
+              {getSectionIcon(level)}
             <span className="font-medium text-sm truncate flex-1">
               {section.title}
             </span>
@@ -360,6 +365,11 @@ export function CourseContentSidebar({
         </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="space-y-1 mt-1" style={{ paddingLeft: `${paddingLeft + 24}px` }}>
+            {section.description && (
+              <p className="text-xs text-muted-foreground px-2 pb-1">
+                {section.description}
+              </p>
+            )}
             {sectionContent.length > 0 ? (
               sectionContent.map((item) => renderContentItem(item))
             ) : (
