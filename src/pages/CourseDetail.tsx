@@ -401,7 +401,7 @@ const CourseDetail = () => {
     if (!url) return null;
     const videoIdMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s?]+)/);
     return videoIdMatch 
-      ? `https://www.youtube-nocookie.com/embed/${videoIdMatch[1]}?modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1&disablekb=0&controls=1&cc_load_policy=0&playsinline=1&title=0&origin=${window.location.origin}`
+      ? `https://www.youtube-nocookie.com/embed/${videoIdMatch[1]}?modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=1&disablekb=0&controls=1&cc_load_policy=0&playsinline=1&title=0&autoplay=0&origin=${window.location.origin}`
       : null;
   };
 
@@ -409,7 +409,7 @@ const CourseDetail = () => {
     if (!url) return null;
     const vimeoIdMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
     return vimeoIdMatch
-      ? `https://player.vimeo.com/video/${vimeoIdMatch[1]}?byline=0&portrait=0&title=0`
+      ? `https://player.vimeo.com/video/${vimeoIdMatch[1]}?byline=0&portrait=0&title=0&sidedock=0&controls=1`
       : null;
   };
 
@@ -494,9 +494,9 @@ const CourseDetail = () => {
               src={(() => {
                 const url = lesson.content_url!;
                 const ytEmbed = getYouTubeEmbedUrl(url);
-                if (ytEmbed) return ytEmbed.includes('?') ? ytEmbed + '&rel=0&modestbranding=1' : ytEmbed + '?rel=0&modestbranding=1';
+                if (ytEmbed) return ytEmbed;
                 const vimeoEmbed = getVimeoEmbedUrl(url);
-                if (vimeoEmbed) return vimeoEmbed.includes('?') ? vimeoEmbed + '&title=0&byline=0&portrait=0' : vimeoEmbed + '?title=0&byline=0&portrait=0';
+                if (vimeoEmbed) return vimeoEmbed;
                 return url;
               })()}
               className="w-full h-full"
