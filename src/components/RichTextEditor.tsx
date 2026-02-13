@@ -108,6 +108,7 @@ interface RichTextEditorProps {
   className?: string;
   minHeight?: string;
   courseId?: string;
+  contentContext?: string;
 }
 
 const ToolbarButton = ({
@@ -150,6 +151,7 @@ export const RichTextEditor = ({
   className,
   minHeight = "200px",
   courseId,
+  contentContext,
 }: RichTextEditorProps) => {
   const [linkUrl, setLinkUrl] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -397,6 +399,7 @@ export const RichTextEditor = ({
           topic: aiPrompt,
           courseName: courseId || "General",
           difficulty: aiDifficulty,
+          contentContext: contentContext || "lesson",
         },
       });
       if (error) throw error;
@@ -412,7 +415,7 @@ export const RichTextEditor = ({
     } finally {
       setAiGenerating(false);
     }
-  }, [editor, aiPrompt, courseId, aiDifficulty]);
+  }, [editor, aiPrompt, courseId, aiDifficulty, contentContext]);
 
   if (!editor) {
     return null;

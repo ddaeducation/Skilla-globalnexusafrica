@@ -312,6 +312,7 @@ export const AddContentToSection = ({ courseId, sectionId, onContentCreated }: A
                   onChange={(val) => setForm({ ...form, content_text: val })}
                   placeholder="Write your lesson content here..."
                   minHeight="400px"
+                  contentContext="lesson"
                 />
               </div>
 
@@ -370,6 +371,7 @@ export const AddContentToSection = ({ courseId, sectionId, onContentCreated }: A
                   onChange={(val) => setForm({ ...form, instructions: val })}
                   placeholder="Write assignment instructions with headings, paragraphs, links, and formatting..."
                   minHeight="300px"
+                  contentContext="assignment_instructions"
                 />
               </div>
               <div className="space-y-2 flex-1">
@@ -379,6 +381,7 @@ export const AddContentToSection = ({ courseId, sectionId, onContentCreated }: A
                   onChange={(val) => setForm({ ...form, rubrics: val })}
                   placeholder="Define grading rubrics with criteria, point breakdowns, and expectations..."
                   minHeight="200px"
+                  contentContext="rubrics"
                 />
               </div>
               <div className="space-y-2">

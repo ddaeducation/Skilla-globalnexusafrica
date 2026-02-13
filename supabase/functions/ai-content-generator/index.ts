@@ -14,7 +14,8 @@ interface GenerateRequest {
   questionTypes?: string[];
   difficulty?: "beginner" | "intermediate" | "advanced";
   additionalContext?: string;
-  existingContent?: string; // For context when regenerating
+  existingContent?: string;
+  contentContext?: string;
 }
 
 serve(async (req) => {
@@ -23,7 +24,7 @@ serve(async (req) => {
   }
 
   try {
-    const { type, topic, courseName, lessonCount = 5, questionCount = 5, questionTypes, difficulty = "intermediate", additionalContext, existingContent } = await req.json() as GenerateRequest;
+    const { type, topic, courseName, lessonCount = 5, questionCount = 5, questionTypes, difficulty = "intermediate", additionalContext, existingContent, contentContext } = await req.json() as GenerateRequest;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -198,7 +199,20 @@ Return as JSON array:
   }
 ]`;
     } else if (type === "editor_content") {
-      systemPrompt = `You are an expert content writer and curriculum designer for online education. Generate beautifully structured, well-organized HTML content suitable for a rich text editor. Write at the ${difficulty} level.
+      let contextInstruction = "";
+      if (contentContext === "assignment_instructions") {
+        contextInstruction = `You are writing ASSIGNMENT INSTRUCTIONS for students. Structure the content as clear, step-by-step instructions that tell students exactly what to do.
+Use numbered steps (<ol>) for sequential tasks. Include sections like: Overview, Objectives, Requirements, Steps to Complete, Submission Guidelines.`;
+      } else if (contentContext === "rubrics") {
+        contextInstruction = `You are writing a GRADING RUBRIC for an assignment. Structure it as a clear grading criteria table or list.
+Include criteria categories, point breakdowns, and descriptions of what constitutes excellent, good, satisfactory, and poor work for each criterion. Use tables (<table>) or structured lists.`;
+      } else {
+        contextInstruction = `You are writing LESSON CONTENT for students to study. Structure it as educational material with clear explanations, examples, and key concepts.`;
+      }
+
+      systemPrompt = `You are an expert content writer and curriculum designer for online education. ${contextInstruction}
+
+Write at the ${difficulty} level.
 
 CRITICAL STRUCTURE & FORMATTING RULES:
 1. ALWAYS start with a clear <h2> title that summarizes the topic.
@@ -218,14 +232,10 @@ CONTENT QUALITY RULES:
 - Never output raw text without HTML tags. Every piece of text must be inside a proper tag.
 - Do NOT wrap in a JSON object or markdown code block. Return ONLY the raw HTML content.
 - Do NOT include \`\`\`html or any code fences.`;
-      userPrompt = `Write well-organized, comprehensive educational content about: "${topic}"${courseName ? ` for the course: ${courseName}` : ""}.
-${additionalContext ? `Additional context: ${additionalContext}` : ""}
 
-Structure the content with:
-1. A main title (h2)
-2. An introduction paragraph
-3. 3-5 sections with subheadings (h3), each containing multiple paragraphs and lists
-4. A summary/key takeaways section at the end
+      const contextLabel = contentContext === "assignment_instructions" ? "assignment instructions" : contentContext === "rubrics" ? "grading rubric" : "educational content";
+      userPrompt = `Write well-organized, comprehensive ${contextLabel} about: "${topic}"${courseName ? ` for the course: ${courseName}` : ""}.
+${additionalContext ? `Additional context: ${additionalContext}` : ""}
 
 Return ONLY the HTML content. Start directly with <h2>.`;
     }
