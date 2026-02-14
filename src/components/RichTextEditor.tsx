@@ -169,6 +169,7 @@ export const RichTextEditor = ({
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiDifficulty, setAiDifficulty] = useState<"beginner" | "intermediate" | "advanced">("intermediate");
+  const [aiContentLength, setAiContentLength] = useState<"short" | "medium" | "detailed">("medium");
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");
   const [selectedFontSize, setSelectedFontSize] = useState("16px");
   const [selectedFontFamily, setSelectedFontFamily] = useState("default");
@@ -399,6 +400,7 @@ export const RichTextEditor = ({
           topic: aiPrompt,
           courseName: courseId || "General",
           difficulty: aiDifficulty,
+          contentLength: aiContentLength,
           contentContext: contentContext || "lesson",
         },
       });
@@ -415,7 +417,7 @@ export const RichTextEditor = ({
     } finally {
       setAiGenerating(false);
     }
-  }, [editor, aiPrompt, courseId, aiDifficulty, contentContext]);
+  }, [editor, aiPrompt, courseId, aiDifficulty, aiContentLength, contentContext]);
 
   if (!editor) {
     return null;
@@ -1146,6 +1148,19 @@ export const RichTextEditor = ({
                     <SelectItem value="beginner">Beginner</SelectItem>
                     <SelectItem value="intermediate">Intermediate</SelectItem>
                     <SelectItem value="advanced">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Content Length</Label>
+                <Select value={aiContentLength} onValueChange={(v: "short" | "medium" | "detailed") => setAiContentLength(v)}>
+                  <SelectTrigger className="h-8 text-xs bg-background">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover z-50">
+                    <SelectItem value="short">Short</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="detailed">Detailed</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
