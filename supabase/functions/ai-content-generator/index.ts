@@ -16,6 +16,7 @@ interface GenerateRequest {
   additionalContext?: string;
   existingContent?: string;
   contentContext?: string;
+  contentLength?: "short" | "medium" | "detailed";
 }
 
 serve(async (req) => {
@@ -24,7 +25,7 @@ serve(async (req) => {
   }
 
   try {
-    const { type, topic, courseName, lessonCount = 5, questionCount = 5, questionTypes, difficulty = "intermediate", additionalContext, existingContent, contentContext } = await req.json() as GenerateRequest;
+    const { type, topic, courseName, lessonCount = 5, questionCount = 5, questionTypes, difficulty = "intermediate", additionalContext, existingContent, contentContext, contentLength = "medium" } = await req.json() as GenerateRequest;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -210,7 +211,15 @@ Include criteria categories, point breakdowns, and descriptions of what constitu
         contextInstruction = `You are writing LESSON CONTENT for students to study. Structure it as educational material with clear explanations, examples, and key concepts.`;
       }
 
+      const lengthInstruction = contentLength === "short"
+        ? "Keep the content concise and brief — 2-3 sections with 1-2 short paragraphs each. Aim for roughly 200-400 words total."
+        : contentLength === "detailed"
+        ? "Write comprehensive, in-depth content — 5-7 sections with 3-5 well-developed paragraphs each. Include examples, case studies, or analogies. Aim for 800-1500 words total."
+        : "Write moderately detailed content — 3-5 sections with 2-3 paragraphs each. Aim for 400-800 words total.";
+
       systemPrompt = `You are an expert content writer and curriculum designer for online education. ${contextInstruction}
+
+${lengthInstruction}
 
 Write at the ${difficulty} level.
 
