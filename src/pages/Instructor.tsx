@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, BookOpen, Users, DollarSign, Plus, Pencil, Trash2, FileText, Video, Image, Youtube, FileQuestion, ClipboardList, Eye, ClipboardCheck, CalendarIcon, X, MoreVertical, Ban, UserX, UserCheck, GraduationCap, CheckCircle, Clock, TrendingUp, Users2 } from "lucide-react";
+import { Loader2, BookOpen, Users, DollarSign, Plus, Pencil, Trash2, FileText, Video, Image, Youtube, FileQuestion, ClipboardList, Eye, ClipboardCheck, CalendarIcon, X, MoreVertical, Ban, UserX, UserCheck, GraduationCap, CheckCircle, Clock, TrendingUp, Users2, Download } from "lucide-react";
+import { exportToExcel, exportToPDF } from "@/lib/exportUtils";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -1190,6 +1191,42 @@ const Instructor = () => {
             <TabsContent value="students" className="space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-semibold">My Students</h2>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Download className="h-4 w-4 mr-2" />
+                      Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => {
+                      const cols = [
+                        { header: "Student", accessor: (r: Enrollment) => r.profiles?.full_name || "-" },
+                        { header: "Email", accessor: (r: Enrollment) => r.profiles?.email || "-" },
+                        { header: "Phone", accessor: (r: Enrollment) => r.profiles?.phone || "-" },
+                        { header: "Course", accessor: (r: Enrollment) => r.courses?.title || "-" },
+                        { header: "Status", accessor: (r: Enrollment) => r.payment_status || "-" },
+                        { header: "Enrolled", accessor: (r: Enrollment) => r.enrolled_at ? new Date(r.enrolled_at).toLocaleDateString() : "-" },
+                      ];
+                      exportToExcel(enrollments, cols, "my-students");
+                    }}>
+                      Export as Excel (CSV)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {
+                      const cols = [
+                        { header: "Student", accessor: (r: Enrollment) => r.profiles?.full_name || "-" },
+                        { header: "Email", accessor: (r: Enrollment) => r.profiles?.email || "-" },
+                        { header: "Phone", accessor: (r: Enrollment) => r.profiles?.phone || "-" },
+                        { header: "Course", accessor: (r: Enrollment) => r.courses?.title || "-" },
+                        { header: "Status", accessor: (r: Enrollment) => r.payment_status || "-" },
+                        { header: "Enrolled", accessor: (r: Enrollment) => r.enrolled_at ? new Date(r.enrolled_at).toLocaleDateString() : "-" },
+                      ];
+                      exportToPDF(enrollments, cols, "my-students", "My Students");
+                    }}>
+                      Export as PDF
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               
               {/* Search and Filter Controls */}
@@ -1485,7 +1522,47 @@ const Instructor = () => {
 
             {/* Earnings Tab */}
             <TabsContent value="earnings" className="space-y-4">
-              <h2 className="text-2xl font-semibold">My Earnings (60% Share)</h2>
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-semibold">My Earnings (60% Share)</h2>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Download className="h-4 w-4 mr-2" />
+                      Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => {
+                      const cols = [
+                        { header: "Course", accessor: (r: Earning) => r.courses?.title || "-" },
+                        { header: "Amount", accessor: (r: Earning) => r.amount.toFixed(2) },
+                        { header: "Currency", accessor: (r: Earning) => r.payment_currency || "USD" },
+                        { header: "Platform Fee", accessor: (r: Earning) => r.platform_fee.toFixed(2) },
+                        { header: "Your Share", accessor: (r: Earning) => r.instructor_share.toFixed(2) },
+                        { header: "Status", accessor: (r: Earning) => r.status },
+                        { header: "Date", accessor: (r: Earning) => new Date(r.created_at).toLocaleDateString() },
+                      ];
+                      exportToExcel(earnings, cols, "my-earnings");
+                    }}>
+                      Export as Excel (CSV)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {
+                      const cols = [
+                        { header: "Course", accessor: (r: Earning) => r.courses?.title || "-" },
+                        { header: "Amount", accessor: (r: Earning) => r.amount.toFixed(2) },
+                        { header: "Currency", accessor: (r: Earning) => r.payment_currency || "USD" },
+                        { header: "Platform Fee", accessor: (r: Earning) => r.platform_fee.toFixed(2) },
+                        { header: "Your Share", accessor: (r: Earning) => r.instructor_share.toFixed(2) },
+                        { header: "Status", accessor: (r: Earning) => r.status },
+                        { header: "Date", accessor: (r: Earning) => new Date(r.created_at).toLocaleDateString() },
+                      ];
+                      exportToPDF(earnings, cols, "my-earnings", "My Earnings");
+                    }}>
+                      Export as PDF
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               <p className="text-muted-foreground">Your earnings represent 60% of each course sale. The platform retains 40% for operations and taxes.</p>
               
               {/* USD Earnings Section */}

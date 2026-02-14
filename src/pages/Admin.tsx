@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Users, BookOpen, FileText, Plus, Pencil, Trash2, X, Mail, Shield, Clock, RefreshCw, UserX, GraduationCap, Video, Image, Youtube, ClipboardList, FileQuestion, Eye, CheckCircle, XCircle, CalendarIcon, Search, MoreVertical, Ban, UserCheck, DollarSign, TrendingUp } from "lucide-react";
+import { Loader2, Users, BookOpen, FileText, Plus, Pencil, Trash2, X, Mail, Shield, Clock, RefreshCw, UserX, GraduationCap, Video, Image, Youtube, ClipboardList, FileQuestion, Eye, CheckCircle, XCircle, CalendarIcon, Search, MoreVertical, Ban, UserCheck, DollarSign, TrendingUp, Download } from "lucide-react";
+import { exportToExcel, exportToPDF } from "@/lib/exportUtils";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -1945,7 +1946,49 @@ const Admin = () => {
 
             {/* Users Tab */}
             <TabsContent value="users" className="space-y-4">
-              <h2 className="text-2xl font-semibold">Users</h2>
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-semibold">Users</h2>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Download className="h-4 w-4 mr-2" />
+                      Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => {
+                      const cols = [
+                        { header: "Name", accessor: (r: Profile) => r.full_name || "-" },
+                        { header: "Email", accessor: (r: Profile) => r.email || "-" },
+                        { header: "Phone", accessor: (r: Profile) => r.phone || "-" },
+                        { header: "Role", accessor: (r: Profile) => {
+                          const roles = userRoles.filter(ur => ur.user_id === r.id).map(ur => ur.role);
+                          return roles.length > 0 ? roles.join(", ") : "user";
+                        }},
+                        { header: "Joined", accessor: (r: Profile) => r.created_at ? new Date(r.created_at).toLocaleDateString() : "-" },
+                      ];
+                      exportToExcel(profiles, cols, "users");
+                    }}>
+                      Export as Excel (CSV)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {
+                      const cols = [
+                        { header: "Name", accessor: (r: Profile) => r.full_name || "-" },
+                        { header: "Email", accessor: (r: Profile) => r.email || "-" },
+                        { header: "Phone", accessor: (r: Profile) => r.phone || "-" },
+                        { header: "Role", accessor: (r: Profile) => {
+                          const roles = userRoles.filter(ur => ur.user_id === r.id).map(ur => ur.role);
+                          return roles.length > 0 ? roles.join(", ") : "user";
+                        }},
+                        { header: "Joined", accessor: (r: Profile) => r.created_at ? new Date(r.created_at).toLocaleDateString() : "-" },
+                      ];
+                      exportToPDF(profiles, cols, "users", "All Users");
+                    }}>
+                      Export as PDF
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               
               {/* Filters */}
               <div className="flex flex-col sm:flex-row gap-4">
@@ -2555,6 +2598,36 @@ const Admin = () => {
               <div>
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-2xl font-semibold">Current Instructors</h2>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Download className="h-4 w-4 mr-2" />
+                        Export
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => {
+                        const cols = [
+                          { header: "Name", accessor: (r: InstructorUser) => r.profiles?.full_name || "-" },
+                          { header: "Email", accessor: (r: InstructorUser) => r.profiles?.email || "-" },
+                          { header: "Added", accessor: (r: InstructorUser) => r.created_at ? new Date(r.created_at).toLocaleDateString() : "-" },
+                        ];
+                        exportToExcel(instructorUsers, cols, "instructors");
+                      }}>
+                        Export as Excel (CSV)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => {
+                        const cols = [
+                          { header: "Name", accessor: (r: InstructorUser) => r.profiles?.full_name || "-" },
+                          { header: "Email", accessor: (r: InstructorUser) => r.profiles?.email || "-" },
+                          { header: "Added", accessor: (r: InstructorUser) => r.created_at ? new Date(r.created_at).toLocaleDateString() : "-" },
+                        ];
+                        exportToPDF(instructorUsers, cols, "instructors", "Current Instructors");
+                      }}>
+                        Export as PDF
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
                 <Card>
                   <Table>
