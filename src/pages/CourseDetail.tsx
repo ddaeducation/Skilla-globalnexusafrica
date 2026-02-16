@@ -258,12 +258,64 @@ const CourseDetail = () => {
   };
 
 
-  // Create unified content list sorted by order_index
-  const unifiedContent: ContentItem[] = [
-    ...lessons.map((l) => ({ type: "lesson" as const, data: l, order_index: l.order_index })),
-    ...quizzes.map((q) => ({ type: "quiz" as const, data: q, order_index: q.order_index })),
-    ...assignments.map((a) => ({ type: "assignment" as const, data: a, order_index: a.order_index })),
-  ].sort((a, b) => a.order_index - b.order_index);
+  // Create unified content list sorted by section hierarchy then by order_index within each section
+  const unifiedContent: ContentItem[] = (() => {
+    const items: ContentItem[] = [
+      ...lessons.map((l) => ({ type: "lesson" as const, data: l, order_index: l.order_index })),
+      ...quizzes.map((q) => ({ type: "quiz" as const, data: q, order_index: q.order_index })),
+      ...assignments.map((a) => ({ type: "assignment" as const, data: a, order_index: a.order_index })),
+    ];
+
+    // Build section ordering maps for hierarchical sorting
+    const sectionOrderMap = new Map<string, number>();
+    const sectionParentMap = new Map<string, string | null>();
+    sections.forEach((s) => {
+      sectionOrderMap.set(s.id, s.order_index);
+      sectionParentMap.set(s.id, s.parent_id);
+    });
+
+    // Get the root (level 1) section order for a given section
+    const getRootSectionOrder = (sectionId: string | null): number => {
+      if (!sectionId) return -1;
+      let currentId: string | null = sectionId;
+      let rootId = sectionId;
+      while (currentId && sectionParentMap.has(currentId)) {
+        const parentId = sectionParentMap.get(currentId);
+        if (!parentId || !sectionParentMap.has(parentId)) break;
+        rootId = parentId;
+        currentId = parentId;
+      }
+      // If the current section has a parent, the root is the parent
+      const directParent = sectionParentMap.get(sectionId);
+      if (directParent && sectionOrderMap.has(directParent)) {
+        return sectionOrderMap.get(directParent) ?? 0;
+      }
+      return sectionOrderMap.get(sectionId) ?? 0;
+    };
+
+    const getSectionOrder = (sectionId: string | null): number => {
+      if (!sectionId) return -1;
+      return sectionOrderMap.get(sectionId) ?? 0;
+    };
+
+    return items.sort((a, b) => {
+      const aSectionId = a.data.section_id;
+      const bSectionId = b.data.section_id;
+
+      // First sort by root/parent section order
+      const aRoot = getRootSectionOrder(aSectionId);
+      const bRoot = getRootSectionOrder(bSectionId);
+      if (aRoot !== bRoot) return aRoot - bRoot;
+
+      // Then sort by child section order
+      const aSection = getSectionOrder(aSectionId);
+      const bSection = getSectionOrder(bSectionId);
+      if (aSection !== bSection) return aSection - bSection;
+
+      // Finally sort by item order_index within the same section
+      return a.order_index - b.order_index;
+    });
+  })();
 
   // Set first content as active when content is loaded
   useEffect(() => {
