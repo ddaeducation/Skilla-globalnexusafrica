@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { RichTextEditor } from "@/components/RichTextEditor";
+import { QuizQuestionManager } from "@/components/QuizQuestionManager";
 
 interface LessonData {
   id: string;
@@ -63,6 +64,7 @@ export const ContentItemEditDialog = ({
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showQuizQuestions, setShowQuizQuestions] = useState(false);
 
   // Lesson form state
   const [lessonForm, setLessonForm] = useState<LessonData | null>(null);
@@ -77,6 +79,7 @@ export const ContentItemEditDialog = ({
   useEffect(() => {
     if (open && itemId) {
       fetchItemData();
+      setShowQuizQuestions(false);
     }
   }, [open, itemId, type]);
 
@@ -290,56 +293,79 @@ export const ContentItemEditDialog = ({
             {/* Quiz Form */}
             {type === 'quiz' && quizForm && (
               <>
-                <div className="space-y-2">
-                  <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    value={quizForm.title}
-                    onChange={(e) => setQuizForm({ ...quizForm, title: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={quizForm.description || ""}
-                    onChange={(e) => setQuizForm({ ...quizForm, description: e.target.value })}
-                    rows={2}
-                  />
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="passing_score">Passing Score (%)</Label>
-                    <Input
-                      id="passing_score"
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={quizForm.passing_score}
-                      onChange={(e) => setQuizForm({ ...quizForm, passing_score: parseInt(e.target.value) || 70 })}
+                {!showQuizQuestions ? (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Title</Label>
+                      <Input
+                        id="title"
+                        value={quizForm.title}
+                        onChange={(e) => setQuizForm({ ...quizForm, title: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="description">Description</Label>
+                      <Textarea
+                        id="description"
+                        value={quizForm.description || ""}
+                        onChange={(e) => setQuizForm({ ...quizForm, description: e.target.value })}
+                        rows={2}
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="passing_score">Passing Score (%)</Label>
+                        <Input
+                          id="passing_score"
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={quizForm.passing_score}
+                          onChange={(e) => setQuizForm({ ...quizForm, passing_score: parseInt(e.target.value) || 70 })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="time_limit">Time Limit (minutes)</Label>
+                        <Input
+                          id="time_limit"
+                          type="number"
+                          value={quizForm.time_limit_minutes || ""}
+                          onChange={(e) => setQuizForm({ ...quizForm, time_limit_minutes: parseInt(e.target.value) || null })}
+                          placeholder="No limit"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="max_attempts">Max Attempts</Label>
+                        <Input
+                          id="max_attempts"
+                          type="number"
+                          value={quizForm.max_attempts || ""}
+                          onChange={(e) => setQuizForm({ ...quizForm, max_attempts: parseInt(e.target.value) || null })}
+                          placeholder="Unlimited"
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => setShowQuizQuestions(true)}
+                    >
+                      Manage Quiz Questions
+                    </Button>
+                  </>
+                ) : (
+                  <div className="flex-1">
+                    <QuizQuestionManager
+                      quizId={itemId}
+                      quizTitle={quizForm.title}
+                      passingScore={quizForm.passing_score}
+                      timeLimitMinutes={quizForm.time_limit_minutes}
+                      quizDescription={quizForm.description}
+                      onClose={() => setShowQuizQuestions(false)}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="time_limit">Time Limit (minutes)</Label>
-                    <Input
-                      id="time_limit"
-                      type="number"
-                      value={quizForm.time_limit_minutes || ""}
-                      onChange={(e) => setQuizForm({ ...quizForm, time_limit_minutes: parseInt(e.target.value) || null })}
-                      placeholder="No limit"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="max_attempts">Max Attempts</Label>
-                    <Input
-                      id="max_attempts"
-                      type="number"
-                      value={quizForm.max_attempts || ""}
-                      onChange={(e) => setQuizForm({ ...quizForm, max_attempts: parseInt(e.target.value) || null })}
-                      placeholder="Unlimited"
-                    />
-                  </div>
-                </div>
+                )}
               </>
             )}
 
@@ -396,14 +422,16 @@ export const ContentItemEditDialog = ({
           </div>
         )}
 
-        <DialogFooter className="flex-shrink-0 pt-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave} disabled={loading || saving}>
-            {saving ? "Saving..." : "Save Changes"}
-          </Button>
-        </DialogFooter>
+        {!showQuizQuestions && (
+          <DialogFooter className="flex-shrink-0 pt-4 border-t">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={loading || saving}>
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );
