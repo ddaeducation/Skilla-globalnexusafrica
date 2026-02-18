@@ -943,7 +943,7 @@ const CourseDetail = () => {
                   </p> */}
                   <Button onClick={handleEnrollClick} size="lg" className="w-full">
                     <Play className="w-4 h-4 mr-2" />
-                    Enroll Now
+                    {Number(course.price) === 0 ? "Enroll for Free" : "Enroll Now"}
                   </Button>
                 </div>
               </CardContent>
