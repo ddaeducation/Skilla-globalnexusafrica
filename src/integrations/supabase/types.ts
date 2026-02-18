@@ -698,6 +698,7 @@ export type Database = {
           learning_outcomes: string[] | null
           monthly_price: number | null
           price: number
+          publish_status: string
           school: string
           title: string
         }
@@ -715,6 +716,7 @@ export type Database = {
           learning_outcomes?: string[] | null
           monthly_price?: number | null
           price?: number
+          publish_status?: string
           school: string
           title: string
         }
@@ -732,6 +734,7 @@ export type Database = {
           learning_outcomes?: string[] | null
           monthly_price?: number | null
           price?: number
+          publish_status?: string
           school?: string
           title?: string
         }
