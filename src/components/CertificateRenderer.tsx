@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 interface Placeholder {
   id: string;
@@ -42,6 +42,22 @@ function getQRUrl(url: string, size: number) {
   return `${QR_API_BASE}?chs=${size}x${size}&cht=qr&chl=${encodeURIComponent(url)}&choe=UTF-8`;
 }
 
+async function fetchQRAsDataUrl(url: string, size: number): Promise<string> {
+  try {
+    const apiUrl = getQRUrl(url, size);
+    const resp = await fetch(apiUrl);
+    const blob = await resp.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return getQRUrl(url, size); // fallback to direct URL
+  }
+}
+
 function getPlaceholderText(ph: Placeholder, data: CertificateData): string {
   switch (ph.type) {
     case "student_name": return data.studentName;
@@ -67,6 +83,25 @@ const CertificateRenderer = React.forwardRef<HTMLDivElement, CertificateRenderer
     const template = data.template;
     const width = template?.width || 842;
     const height = template?.height || 595;
+
+    // Pre-fetch QR codes as base64 so html2canvas can render them cross-origin
+    const [qrDataUrls, setQrDataUrls] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+      if (!template?.placeholders) return;
+      const qrPlaceholders = template.placeholders.filter((ph) => ph.type === "qr_code");
+      if (qrPlaceholders.length === 0) return;
+
+      Promise.all(
+        qrPlaceholders.map(async (ph) => {
+          const size = Math.round(ph.width || 150);
+          const dataUrl = await fetchQRAsDataUrl(data.verificationUrl, size);
+          return [ph.id, dataUrl] as [string, string];
+        })
+      ).then((entries) => {
+        setQrDataUrls(Object.fromEntries(entries));
+      });
+    }, [template, data.verificationUrl]);
 
     const containerStyle: React.CSSProperties = {
       position: "relative",
@@ -142,11 +177,11 @@ const CertificateRenderer = React.forwardRef<HTMLDivElement, CertificateRenderer
           };
 
           if (isQR) {
-            const qrPx = Math.round(placeholderWidth);
+            const qrSrc = qrDataUrls[ph.id] || getQRUrl(data.verificationUrl, Math.round(ph.width || 150));
             return (
               <div key={ph.id} style={containerStyle}>
                 <img
-                  src={getQRUrl(data.verificationUrl, Math.round(ph.width || 150))}
+                  src={qrSrc}
                   alt="Verification QR Code"
                   crossOrigin="anonymous"
                   style={{ width: "100%", height: "100%", display: "block" }}
