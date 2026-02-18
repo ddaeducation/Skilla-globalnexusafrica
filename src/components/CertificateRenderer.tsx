@@ -34,6 +34,7 @@ export interface CertificateData {
 interface CertificateRendererProps {
   data: CertificateData;
   scale?: number; // for preview sizing
+  onReady?: () => void; // called once QR codes are loaded and ready for capture
 }
 
 const QR_API_BASE = "https://chart.googleapis.com/chart";
@@ -79,7 +80,7 @@ function getPlaceholderText(ph: Placeholder, data: CertificateData): string {
  * for PDF capture pass scale=1 (or omit).
  */
 const CertificateRenderer = React.forwardRef<HTMLDivElement, CertificateRendererProps>(
-  ({ data, scale = 1 }, ref) => {
+  ({ data, scale = 1, onReady }, ref) => {
     const template = data.template;
     const width = template?.width || 842;
     const height = template?.height || 595;
@@ -88,9 +89,16 @@ const CertificateRenderer = React.forwardRef<HTMLDivElement, CertificateRenderer
     const [qrDataUrls, setQrDataUrls] = useState<Record<string, string>>({});
 
     useEffect(() => {
-      if (!template?.placeholders) return;
+      if (!template?.placeholders) {
+        onReady?.();
+        return;
+      }
       const qrPlaceholders = template.placeholders.filter((ph) => ph.type === "qr_code");
-      if (qrPlaceholders.length === 0) return;
+      if (qrPlaceholders.length === 0) {
+        // No QR codes — ready immediately
+        onReady?.();
+        return;
+      }
 
       Promise.all(
         qrPlaceholders.map(async (ph) => {
@@ -100,6 +108,13 @@ const CertificateRenderer = React.forwardRef<HTMLDivElement, CertificateRenderer
         })
       ).then((entries) => {
         setQrDataUrls(Object.fromEntries(entries));
+        // Signal that QR codes are now in state and React will re-render
+        // Use rAF to ensure the DOM has been painted with the new images
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            onReady?.();
+          });
+        });
       });
     }, [template, data.verificationUrl]);
 
