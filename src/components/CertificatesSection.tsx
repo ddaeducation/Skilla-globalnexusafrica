@@ -237,8 +237,8 @@ const CertificatesSection = ({ user }: CertificatesSectionProps) => {
         setTimeout(resolve, 100); // short delay for React to commit
       });
 
-      // 5. Wait a bit more for images to fully load
-      await new Promise((r) => setTimeout(r, 1500));
+      // 5. Wait for QR base64 fetch + images to fully load
+      await new Promise((r) => setTimeout(r, 2500));
 
       // 6. Capture with html2canvas and produce PDF
       const { default: html2canvas } = await import("html2canvas");
