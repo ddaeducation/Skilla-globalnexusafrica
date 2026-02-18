@@ -44,9 +44,11 @@ interface CertificatesSectionProps {
 function HiddenCertificateRenderer({
   data,
   containerRef,
+  onReady,
 }: {
   data: CertificateData | null;
   containerRef: React.RefObject<HTMLDivElement>;
+  onReady?: () => void;
 }) {
   if (!data) return null;
   const w = data.template?.width || 842;
@@ -63,7 +65,7 @@ function HiddenCertificateRenderer({
         pointerEvents: "none",
       }}
     >
-      <CertificateRenderer ref={containerRef} data={data} scale={1} />
+      <CertificateRenderer ref={containerRef} data={data} scale={1} onReady={onReady} />
     </div>
   );
 }
@@ -78,7 +80,8 @@ const CertificatesSection = ({ user }: CertificatesSectionProps) => {
   // For client-side PDF rendering
   const [renderData, setRenderData] = useState<CertificateData | null>(null);
   const renderRef = useRef<HTMLDivElement>(null);
-  const pendingDownloadRef = useRef<{ certNumber: string; resolve: () => void } | null>(null);
+  // Resolves when CertificateRenderer signals it's fully painted (QR included)
+  const rendererReadyResolveRef = useRef<(() => void) | null>(null);
 
   const { toast } = useToast();
 
@@ -229,18 +232,16 @@ const CertificatesSection = ({ user }: CertificatesSectionProps) => {
           : undefined,
       };
 
-      // 4. Mount the hidden renderer with data and wait for images to load
+      // 4. Mount the hidden renderer and wait for it to signal ready
+      //    (which happens after QR codes are fetched and painted into DOM)
       await new Promise<void>((resolve) => {
-        pendingDownloadRef.current = { certNumber: cert.certificate_number, resolve };
+        rendererReadyResolveRef.current = resolve;
         setRenderData(certData);
-        // Resolve will be called from useEffect once renderRef is populated
-        setTimeout(resolve, 100); // short delay for React to commit
+        // Safety fallback: resolve after 6s max to avoid hanging
+        setTimeout(resolve, 6000);
       });
 
-      // 5. Wait for QR base64 fetch + images to fully load
-      await new Promise((r) => setTimeout(r, 2500));
-
-      // 6. Capture with html2canvas and produce PDF
+      // 5. Capture with html2canvas and produce PDF
       const { default: html2canvas } = await import("html2canvas");
       const { default: jsPDF } = await import("jspdf");
 
@@ -273,7 +274,7 @@ const CertificatesSection = ({ user }: CertificatesSectionProps) => {
     } finally {
       setDownloading(null);
       setRenderData(null);
-      pendingDownloadRef.current = null;
+      rendererReadyResolveRef.current = null;
     }
   };
 
@@ -291,7 +292,16 @@ const CertificatesSection = ({ user }: CertificatesSectionProps) => {
   return (
     <div>
       {/* Hidden off-screen certificate renderer for PDF capture */}
-      <HiddenCertificateRenderer data={renderData} containerRef={renderRef} />
+      <HiddenCertificateRenderer
+        data={renderData}
+        containerRef={renderRef}
+        onReady={() => {
+          if (rendererReadyResolveRef.current) {
+            rendererReadyResolveRef.current();
+            rendererReadyResolveRef.current = null;
+          }
+        }}
+      />
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Certificates</h1>
