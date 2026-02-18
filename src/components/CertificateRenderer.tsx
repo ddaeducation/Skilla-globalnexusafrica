@@ -37,26 +37,18 @@ interface CertificateRendererProps {
   onReady?: () => void; // called once QR codes are loaded and ready for capture
 }
 
-const QR_API_BASE = "https://chart.googleapis.com/chart";
-
-function getQRUrl(url: string, size: number) {
-  return `${QR_API_BASE}?chs=${size}x${size}&cht=qr&chl=${encodeURIComponent(url)}&choe=UTF-8`;
-}
-
-async function fetchQRAsDataUrl(url: string, size: number): Promise<string> {
-  try {
-    const apiUrl = getQRUrl(url, size);
-    const resp = await fetch(apiUrl);
-    const blob = await resp.blob();
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  } catch {
-    return getQRUrl(url, size); // fallback to direct URL
-  }
+/**
+ * Generates a QR code as a base64 PNG data URL using the local `qrcode` package.
+ * This avoids any cross-origin issues with html2canvas.
+ */
+async function generateQRDataUrl(text: string, size: number): Promise<string> {
+  const QRCode = (await import("qrcode")).default;
+  return QRCode.toDataURL(text, {
+    width: size,
+    margin: 1,
+    color: { dark: "#000000", light: "#ffffff" },
+    errorCorrectionLevel: "M",
+  });
 }
 
 function getPlaceholderText(ph: Placeholder, data: CertificateData): string {
@@ -103,7 +95,7 @@ const CertificateRenderer = React.forwardRef<HTMLDivElement, CertificateRenderer
       Promise.all(
         qrPlaceholders.map(async (ph) => {
           const size = Math.round(ph.width || 150);
-          const dataUrl = await fetchQRAsDataUrl(data.verificationUrl, size);
+          const dataUrl = await generateQRDataUrl(data.verificationUrl, size);
           return [ph.id, dataUrl] as [string, string];
         })
       ).then((entries) => {
@@ -192,13 +184,14 @@ const CertificateRenderer = React.forwardRef<HTMLDivElement, CertificateRenderer
           };
 
           if (isQR) {
-            const qrSrc = qrDataUrls[ph.id] || getQRUrl(data.verificationUrl, Math.round(ph.width || 150));
+            // Use pre-generated base64 data URL; fallback renders nothing until ready
+            const qrSrc = qrDataUrls[ph.id] || "";
+            if (!qrSrc) return null; // wait until QR data URL is ready
             return (
               <div key={ph.id} style={containerStyle}>
                 <img
                   src={qrSrc}
                   alt="Verification QR Code"
-                  crossOrigin="anonymous"
                   style={{ width: "100%", height: "100%", display: "block" }}
                 />
               </div>
