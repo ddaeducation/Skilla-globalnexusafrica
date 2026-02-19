@@ -4,8 +4,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Loader2, CheckCircle, Search, X, ArrowUpDown } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle, Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -47,13 +46,6 @@ const categoryConfig: Record<string, { color: string; gradient: string; route: s
 };
 
 const CATEGORIES = ["Short-Course", "Professional", "Masterclass"];
-const SORT_OPTIONS = [
-  { label: "Default (Random)", value: "default" },
-  { label: "Price: Low to High", value: "price_asc" },
-  { label: "Price: High to Low", value: "price_desc" },
-  { label: "Newest First", value: "newest" },
-];
-
 const PRICE_FILTERS = [
   { label: "All Prices", value: "all" },
   { label: "Free", value: "free" },
@@ -127,7 +119,6 @@ const AllPrograms = () => {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedPrice, setSelectedPrice] = useState("all");
-  const [selectedSort, setSelectedSort] = useState("default");
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -144,17 +135,11 @@ const AllPrograms = () => {
     fetchCourses();
   }, []);
 
-  const isFiltering = search.trim() !== "" || selectedCategory !== "all" || selectedPrice !== "all" || selectedSort !== "default";
-
-  const sortCourses = (courses: Course[]) => {
-    if (selectedSort === "price_asc") return [...courses].sort((a, b) => (a.monthly_price ?? a.price) - (b.monthly_price ?? b.price));
-    if (selectedSort === "price_desc") return [...courses].sort((a, b) => (b.monthly_price ?? b.price) - (a.monthly_price ?? a.price));
-    if (selectedSort === "newest") return [...courses]; // already sorted by DB insertion; keep order
-    return courses;
-  };
+  const isFiltering = search.trim() !== "" || selectedCategory !== "all" || selectedPrice !== "all";
 
   const filteredCourses = useMemo(() => {
-    const filtered = allCourses.filter((course) => {
+    return allCourses.filter((course) => {
+      // Keyword search
       const q = search.toLowerCase();
       const matchesSearch =
         !q ||
@@ -162,9 +147,11 @@ const AllPrograms = () => {
         (course.description?.toLowerCase().includes(q) ?? false) ||
         (course.learning_outcomes?.some((s) => s.toLowerCase().includes(q)) ?? false);
 
+      // Category filter
       const matchesCategory =
         selectedCategory === "all" || course.category === selectedCategory;
 
+      // Price filter
       const price = course.monthly_price ?? course.price;
       const matchesPrice =
         selectedPrice === "all" ||
@@ -175,10 +162,9 @@ const AllPrograms = () => {
 
       return matchesSearch && matchesCategory && matchesPrice;
     });
-    return sortCourses(filtered);
-  }, [allCourses, search, selectedCategory, selectedPrice, selectedSort]);
+  }, [allCourses, search, selectedCategory, selectedPrice]);
 
-  // When not filtering/sorting, show 6 random per category; otherwise flat grid
+  // When not filtering, show 6 random per category; when filtering, show all matches flat
   const coursesByCategory = useMemo(() => {
     if (isFiltering) return null;
     const grouped: Record<string, Course[]> = {};
@@ -195,7 +181,6 @@ const AllPrograms = () => {
     setSearch("");
     setSelectedCategory("all");
     setSelectedPrice("all");
-    setSelectedSort("default");
   };
 
   return (
@@ -288,24 +273,6 @@ const AllPrograms = () => {
                     {pf.label}
                   </button>
                 ))}
-              </div>
-
-              {/* Divider */}
-              <div className="h-6 w-px bg-border hidden sm:block" />
-
-              {/* Sort selector */}
-              <div className="flex items-center gap-2">
-                <ArrowUpDown className="h-4 w-4 text-muted-foreground shrink-0" />
-                <Select value={selectedSort} onValueChange={setSelectedSort}>
-                  <SelectTrigger className="h-9 w-48 text-sm">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SORT_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
 
               {/* Clear all */}
