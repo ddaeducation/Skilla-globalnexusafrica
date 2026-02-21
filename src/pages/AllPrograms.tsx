@@ -134,30 +134,30 @@ const CourseCard = ({
             {price > 0 ? `$${price}/mo` : "Free"}
           </span>
           <div className="flex items-center gap-2">
-            {instructorName && instructor?.bio && (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button size="sm" variant="outline" className="gap-1.5">
-                    <User className="h-3.5 w-3.5" />
-                    Bio
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-72" align="end">
-                  <div className="flex items-start gap-3">
-                    <Avatar className="h-10 w-10 shrink-0">
-                      <AvatarImage src={instructor?.avatar_url || ""} alt={instructorName} />
-                      <AvatarFallback className="text-xs">
-                        {instructorName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-foreground">{instructorName}</p>
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{instructor.bio}</p>
-                    </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button size="sm" variant="outline" className="gap-1.5">
+                  <User className="h-3.5 w-3.5" />
+                  Bio
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72" align="end">
+                <div className="flex items-start gap-3">
+                  <Avatar className="h-10 w-10 shrink-0">
+                    <AvatarImage src={instructor?.avatar_url || ""} alt={instructorName || "Instructor"} />
+                    <AvatarFallback className="text-xs">
+                      {(instructorName || "IN").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground">{instructorName || "Instructor"}</p>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                      {instructor?.bio || "Bio coming soon."}
+                    </p>
                   </div>
-                </PopoverContent>
-              </Popover>
-            )}
+                </div>
+              </PopoverContent>
+            </Popover>
             <Button asChild size="sm" className="bg-primary hover:bg-primary/90">
               <Link to={`/course/${course.id}`}>Enroll Now</Link>
             </Button>
