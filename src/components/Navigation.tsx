@@ -153,6 +153,9 @@ const Navigation = () => {
           <a href="#career" className="text-sm font-medium transition-colors hover:text-primary">
             Career
           </a>
+          <Link to="/corporate-training" className="text-sm font-medium transition-colors hover:text-primary">
+            Corporate
+          </Link>
           <a href="#resources" className="text-sm font-medium transition-colors hover:text-primary">
             Resources
           </a>

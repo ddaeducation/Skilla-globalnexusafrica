@@ -411,6 +411,359 @@ export type Database = {
           },
         ]
       }
+      corporate_accounts: {
+        Row: {
+          address: string | null
+          admin_user_id: string
+          created_at: string
+          email: string
+          id: string
+          logo_url: string | null
+          max_seats: number | null
+          name: string
+          notes: string | null
+          phone: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          admin_user_id: string
+          created_at?: string
+          email: string
+          id?: string
+          logo_url?: string | null
+          max_seats?: number | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          admin_user_id?: string
+          created_at?: string
+          email?: string
+          id?: string
+          logo_url?: string | null
+          max_seats?: number | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      corporate_course_licenses: {
+        Row: {
+          corporate_account_id: string
+          course_id: string
+          created_at: string
+          currency: string
+          expires_at: string | null
+          id: string
+          price_per_seat: number
+          status: string
+          total_price: number
+          total_seats: number
+          updated_at: string
+          used_seats: number
+        }
+        Insert: {
+          corporate_account_id: string
+          course_id: string
+          created_at?: string
+          currency?: string
+          expires_at?: string | null
+          id?: string
+          price_per_seat?: number
+          status?: string
+          total_price?: number
+          total_seats?: number
+          updated_at?: string
+          used_seats?: number
+        }
+        Update: {
+          corporate_account_id?: string
+          course_id?: string
+          created_at?: string
+          currency?: string
+          expires_at?: string | null
+          id?: string
+          price_per_seat?: number
+          status?: string
+          total_price?: number
+          total_seats?: number
+          updated_at?: string
+          used_seats?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corporate_course_licenses_corporate_account_id_fkey"
+            columns: ["corporate_account_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corporate_course_licenses_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      corporate_enrollments: {
+        Row: {
+          assigned_at: string
+          completed_at: string | null
+          corporate_account_id: string
+          course_id: string
+          created_at: string
+          enrolled_at: string | null
+          id: string
+          license_id: string
+          member_id: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          assigned_at?: string
+          completed_at?: string | null
+          corporate_account_id: string
+          course_id: string
+          created_at?: string
+          enrolled_at?: string | null
+          id?: string
+          license_id: string
+          member_id: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          assigned_at?: string
+          completed_at?: string | null
+          corporate_account_id?: string
+          course_id?: string
+          created_at?: string
+          enrolled_at?: string | null
+          id?: string
+          license_id?: string
+          member_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corporate_enrollments_corporate_account_id_fkey"
+            columns: ["corporate_account_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corporate_enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corporate_enrollments_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_course_licenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "corporate_enrollments_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      corporate_invoices: {
+        Row: {
+          amount: number
+          corporate_account_id: string
+          created_at: string
+          created_by: string | null
+          currency: string
+          description: string | null
+          due_date: string | null
+          id: string
+          invoice_number: string
+          items: Json
+          notes: string | null
+          paid_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          corporate_account_id: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number: string
+          items?: Json
+          notes?: string | null
+          paid_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          corporate_account_id?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number?: string
+          items?: Json
+          notes?: string | null
+          paid_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corporate_invoices_corporate_account_id_fkey"
+            columns: ["corporate_account_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      corporate_members: {
+        Row: {
+          corporate_account_id: string
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          invited_at: string
+          joined_at: string | null
+          role: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          corporate_account_id: string
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id?: string
+          invited_at?: string
+          joined_at?: string | null
+          role?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          corporate_account_id?: string
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          invited_at?: string
+          joined_at?: string | null
+          role?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corporate_members_corporate_account_id_fkey"
+            columns: ["corporate_account_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      corporate_quote_requests: {
+        Row: {
+          admin_notes: string | null
+          company_name: string
+          contact_email: string
+          contact_name: string
+          contact_phone: string | null
+          corporate_account_id: string | null
+          courses_interested: Json | null
+          created_at: string
+          id: string
+          message: string | null
+          number_of_employees: number
+          quoted_amount: number | null
+          quoted_currency: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          company_name: string
+          contact_email: string
+          contact_name: string
+          contact_phone?: string | null
+          corporate_account_id?: string | null
+          courses_interested?: Json | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          number_of_employees?: number
+          quoted_amount?: number | null
+          quoted_currency?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          company_name?: string
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string | null
+          corporate_account_id?: string | null
+          courses_interested?: Json | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          number_of_employees?: number
+          quoted_amount?: number | null
+          quoted_currency?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corporate_quote_requests_corporate_account_id_fkey"
+            columns: ["corporate_account_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coupon_usages: {
         Row: {
           coupon_id: string

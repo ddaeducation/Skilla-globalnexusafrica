@@ -26,6 +26,7 @@ import {
   User,
   Ticket,
   DollarSign,
+  Building2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -46,6 +47,7 @@ const navigationItems = [
   { id: "coupons", title: "Coupons", icon: Ticket },
   { id: "instructors", title: "Instructors", icon: Users },
   { id: "earnings", title: "Earnings", icon: DollarSign },
+  { id: "corporate", title: "Corporate", icon: Building2 },
   { id: "admins", title: "Admins", icon: Shield },
   { id: "certificates", title: "Templates", icon: Award },
 ];
