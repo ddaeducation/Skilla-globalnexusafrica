@@ -4,10 +4,11 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, Video, Award, ArrowLeft, CheckCircle, Loader2, Star } from "lucide-react";
+import { Clock, Video, Award, ArrowLeft, CheckCircle, Loader2, Star, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface Course {
   id: string;
@@ -248,46 +249,20 @@ const Programs = () => {
                       <CardDescription className="text-sm leading-relaxed line-clamp-2">
                         {course.description}
                       </CardDescription>
-                      {/* Rating */}
-                      <div className="flex items-center gap-1 mt-2">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`h-4 w-4 ${
-                              star <= Math.floor(rating)
-                                ? "text-yellow-500 fill-yellow-500"
-                                : star - 0.5 <= rating
-                                ? "text-yellow-500 fill-yellow-500/50"
-                                : "text-muted-foreground/30"
-                            }`}
-                          />
-                        ))}
-                        <span className="text-xs text-muted-foreground ml-1">
-                          {rating.toFixed(1)}{ratingCount > 0 && ` (${ratingCount})`}
+                      {/* Rating as number */}
+                      <div className="flex items-center gap-1.5 mt-2">
+                        <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                        <span className="text-sm font-semibold text-foreground">
+                          {rating.toFixed(1)}
                         </span>
+                        {ratingCount > 0 && (
+                          <span className="text-xs text-muted-foreground">
+                            ({ratingCount} {ratingCount === 1 ? "rating" : "ratings"})
+                          </span>
+                        )}
                       </div>
                     </CardHeader>
                     <CardContent className="flex-1 flex flex-col">
-                      {/* Instructor Bio */}
-                      {instructorName && (
-                        <div className="flex items-start gap-3 mb-4 p-3 rounded-lg bg-muted/50">
-                          <Avatar className="h-9 w-9 shrink-0">
-                            <AvatarImage src={instructor?.avatar_url || ""} alt={instructorName} />
-                            <AvatarFallback className="text-xs">
-                              {instructorName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-foreground">{instructorName}</p>
-                            {instructor?.bio && (
-                              <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                                {instructor.bio}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
                       {course.learning_outcomes && course.learning_outcomes.length > 0 && (
                         <div className="flex-1">
                           <h4 className="text-sm font-semibold mb-3">What you'll learn:</h4>
@@ -305,15 +280,43 @@ const Programs = () => {
                         <span className="text-sm font-semibold text-primary">
                           {price > 0 ? `$${price}/mo` : "Free"}
                         </span>
-                        {isUpcoming ? (
-                          <Button size="sm" disabled variant="outline">
-                            Coming Soon
-                          </Button>
-                        ) : (
-                          <Button asChild size="sm" className="bg-primary hover:bg-primary/90">
-                            <Link to={`/course/${course.id}`}>Enroll Now</Link>
-                          </Button>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {instructorName && instructor?.bio && (
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button size="sm" variant="outline" className="gap-1.5">
+                                  <User className="h-3.5 w-3.5" />
+                                  Bio
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-72" align="end">
+                                <div className="flex items-start gap-3">
+                                  <Avatar className="h-10 w-10 shrink-0">
+                                    <AvatarImage src={instructor?.avatar_url || ""} alt={instructorName} />
+                                    <AvatarFallback className="text-xs">
+                                      {instructorName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-semibold text-foreground">{instructorName}</p>
+                                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                      {instructor.bio}
+                                    </p>
+                                  </div>
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          )}
+                          {isUpcoming ? (
+                            <Button size="sm" disabled variant="outline">
+                              Coming Soon
+                            </Button>
+                          ) : (
+                            <Button asChild size="sm" className="bg-primary hover:bg-primary/90">
+                              <Link to={`/course/${course.id}`}>Enroll Now</Link>
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
