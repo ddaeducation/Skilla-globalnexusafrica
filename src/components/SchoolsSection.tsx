@@ -81,15 +81,16 @@ const SchoolsSection = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-6">{school.description}</p>
-                  <Link to={`/schools/${school.slug}`}>
-                    <Button
-                      variant="ghost"
-                      className="group/btn p-0 h-auto font-semibold text-primary hover:text-primary/80"
-                    >
+                  <Button
+                    variant="ghost"
+                    className="group/btn p-0 h-auto font-semibold text-primary hover:text-primary/80"
+                    asChild
+                  >
+                    <Link to={`/schools/${school.slug}`}>
                       Learn More
                       <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 </CardContent>
               </Card>
             );
