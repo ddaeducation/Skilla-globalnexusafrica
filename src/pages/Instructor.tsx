@@ -30,6 +30,8 @@ import InstructorWithdrawal from "@/components/InstructorWithdrawal";
 import { CourseInstructorManager } from "@/components/CourseInstructorManager";
 import { CourseDuplicateDialog } from "@/components/CourseDuplicateDialog";
 import { AIFullCourseGenerator } from "@/components/AIFullCourseGenerator";
+import InstructorLMSView from "@/components/InstructorLMSView";
+import { CommunicationHub } from "@/components/communication/CommunicationHub";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
@@ -1804,6 +1806,24 @@ const Instructor = () => {
             <TabsContent value="settings" className="space-y-4">
               <h2 className="text-2xl font-semibold">Settings</h2>
               <InstructorPayoutSettings />
+            </TabsContent>
+
+            {/* LMS View Tab */}
+            <TabsContent value="lms-view" className="space-y-4">
+              {currentUserId && (
+                <InstructorLMSView instructorId={currentUserId} />
+              )}
+            </TabsContent>
+
+            {/* Communication Tab */}
+            <TabsContent value="communication" className="space-y-4">
+              {currentUserId && (
+                <CommunicationHub
+                  userId={currentUserId}
+                  userRole="instructor"
+                  courses={courses.map(c => ({ id: c.id, title: c.title }))}
+                />
+              )}
             </TabsContent>
           </Tabs>
         </div>
