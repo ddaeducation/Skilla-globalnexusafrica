@@ -40,7 +40,7 @@ interface InstructorSidebarProps {
 const navigationItems = [
   { id: "courses", title: "My Courses", icon: BookOpen },
   { id: "lms-view", title: "LMS View", icon: Monitor },
-  { id: "communication", title: "Communication", icon: MessageSquare },
+  { id: "comms", title: "Comms", icon: MessageSquare },
   { id: "grading", title: "Grading", icon: ClipboardCheck },
   { id: "progress", title: "Progress", icon: TrendingUp },
   { id: "students", title: "Students", icon: Users },

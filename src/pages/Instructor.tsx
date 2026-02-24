@@ -1815,8 +1815,8 @@ const Instructor = () => {
               )}
             </TabsContent>
 
-            {/* Communication Tab */}
-            <TabsContent value="communication" className="space-y-4">
+            {/* Comms Tab */}
+            <TabsContent value="comms" className="space-y-4">
               {currentUserId && (
                 <CommunicationHub
                   userId={currentUserId}
