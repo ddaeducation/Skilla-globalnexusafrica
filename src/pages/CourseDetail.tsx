@@ -41,6 +41,7 @@ import { StudentQuizTaker } from "@/components/StudentQuizTaker";
 import { StudentAssignmentSubmission } from "@/components/StudentAssignmentSubmission";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import CodePlayground from "@/components/CodePlayground";
+import PdfPresentationViewer from "@/components/PdfPresentationViewer";
 
 interface CourseSection {
   id: string;
@@ -687,7 +688,7 @@ const CourseDetail = () => {
         {/* PDF */}
         {lesson.content_type === "pdf" && lesson.content_url && (
           <div className="space-y-2">
-            <iframe src={lesson.content_url} className="w-full h-[600px] rounded-lg border" title={lesson.title} />
+            <PdfPresentationViewer url={lesson.content_url} title={lesson.title} />
             <Button variant="outline" asChild>
               <a href={lesson.content_url} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="w-4 h-4 mr-2" />
