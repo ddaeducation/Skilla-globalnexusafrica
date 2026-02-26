@@ -6,6 +6,7 @@ import { getFallbackRating } from "@/lib/courseUtils";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import CourseAssistant from "@/components/CourseAssistant";
+import ModuleRatingDialog from "@/components/ModuleRatingDialog";
 import { CourseContentSidebar } from "@/components/CourseContentSidebar";
 import { CourseCommuncationTabs } from "@/components/CourseCommuncationTabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -153,6 +154,12 @@ const CourseDetail = () => {
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
   const [assignmentOpen, setAssignmentOpen] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
+
+  // Module rating dialog state
+  const [moduleRatingOpen, setModuleRatingOpen] = useState(false);
+  const [moduleRatingSectionId, setModuleRatingSectionId] = useState<string | null>(null);
+  const [moduleRatingSectionTitle, setModuleRatingSectionTitle] = useState("");
+  const [ratedSections, setRatedSections] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     checkUserAndCourse();
@@ -527,6 +534,51 @@ const CourseDetail = () => {
     return currentIndex > 0;
   };
 
+  // Check if all items in a section are complete after an update
+  const checkSectionCompletion = useCallback((sectionId: string | null, updatedProgress: StudentProgress[], updatedQuizAttempts: QuizAttempt[], updatedAssignmentSubmissions: AssignmentSubmission[]) => {
+    if (!sectionId || !user || ratedSections.has(sectionId)) return;
+    
+    const sectionLessons = lessons.filter(l => l.section_id === sectionId);
+    const sectionQuizzes = quizzes.filter(q => q.section_id === sectionId);
+    const sectionAssignments = assignments.filter(a => a.section_id === sectionId);
+    
+    const totalItems = sectionLessons.length + sectionQuizzes.length + sectionAssignments.length;
+    if (totalItems === 0) return;
+    
+    const completedLessonCount = sectionLessons.filter(l => 
+      updatedProgress.some(p => p.lesson_id === l.id && p.completed)
+    ).length;
+    const passedQuizCount = sectionQuizzes.filter(q => 
+      updatedQuizAttempts.some(a => a.quiz_id === q.id && a.passed)
+    ).length;
+    const submittedAssignmentCount = sectionAssignments.filter(a => 
+      updatedAssignmentSubmissions.some(s => s.assignment_id === a.id)
+    ).length;
+    
+    if (completedLessonCount + passedQuizCount + submittedAssignmentCount >= totalItems) {
+      const section = sections.find(s => s.id === sectionId);
+      setModuleRatingSectionId(sectionId);
+      setModuleRatingSectionTitle(section?.title || "Module");
+      setModuleRatingOpen(true);
+    }
+  }, [lessons, quizzes, assignments, sections, user, ratedSections]);
+
+  // Fetch already-rated sections on mount
+  useEffect(() => {
+    if (user && courseId) {
+      supabase
+        .from("module_ratings")
+        .select("section_id")
+        .eq("user_id", user.id)
+        .eq("course_id", courseId)
+        .then(({ data }) => {
+          if (data) {
+            setRatedSections(new Set(data.map(r => r.section_id)));
+          }
+        });
+    }
+  }, [user, courseId]);
+
   const markLessonComplete = async (lessonId: string) => {
     if (!user) return;
 
@@ -544,14 +596,21 @@ const CourseDetail = () => {
     );
 
     if (!error) {
-      setProgress((prev) => [
-        ...prev.filter((p) => p.lesson_id !== lessonId),
+      const updatedProgress = [
+        ...progress.filter((p) => p.lesson_id !== lessonId),
         { lesson_id: lessonId, completed: true },
-      ]);
+      ];
+      setProgress(updatedProgress);
       toast({
         title: "Lesson Completed!",
         description: "Your progress has been saved.",
       });
+      
+      // Check if this completes the section
+      const lesson = lessons.find(l => l.id === lessonId);
+      if (lesson?.section_id) {
+        checkSectionCompletion(lesson.section_id, updatedProgress, quizAttempts, assignmentSubmissions);
+      }
     }
   };
 
@@ -567,10 +626,16 @@ const CourseDetail = () => {
 
   const handleQuizComplete = (passed: boolean, score: number, maxScore: number) => {
     if (selectedQuiz) {
-      setQuizAttempts((prev) => [
-        ...prev.filter((a) => a.quiz_id !== selectedQuiz.id),
+      const updatedAttempts = [
+        ...quizAttempts.filter((a) => a.quiz_id !== selectedQuiz.id),
         { quiz_id: selectedQuiz.id, passed, score, max_score: maxScore },
-      ]);
+      ];
+      setQuizAttempts(updatedAttempts);
+      
+      // Check if this completes the section
+      if (passed && selectedQuiz.section_id) {
+        checkSectionCompletion(selectedQuiz.section_id, progress, updatedAttempts, assignmentSubmissions);
+      }
     }
   };
 
@@ -1431,11 +1496,34 @@ const CourseDetail = () => {
           }}
           onSubmit={() => {
             if (selectedAssignment) {
-              setAssignmentSubmissions((prev) => [
-                ...prev.filter((s) => s.assignment_id !== selectedAssignment.id),
+              const updatedSubs = [
+                ...assignmentSubmissions.filter((s) => s.assignment_id !== selectedAssignment.id),
                 { assignment_id: selectedAssignment.id, score: null, graded_at: null },
-              ]);
+              ];
+              setAssignmentSubmissions(updatedSubs);
+              
+              // Check if this completes the section
+              if (selectedAssignment.section_id) {
+                checkSectionCompletion(selectedAssignment.section_id, progress, quizAttempts, updatedSubs);
+              }
             }
+          }}
+        />
+      )}
+
+      {/* Module Rating Dialog */}
+      {moduleRatingSectionId && courseId && user && (
+        <ModuleRatingDialog
+          open={moduleRatingOpen}
+          onOpenChange={setModuleRatingOpen}
+          courseId={courseId}
+          sectionId={moduleRatingSectionId}
+          sectionTitle={moduleRatingSectionTitle}
+          userId={user.id}
+          onRatingSubmitted={() => {
+            setModuleRatingOpen(false);
+            setRatedSections(prev => new Set([...prev, moduleRatingSectionId]));
+            setModuleRatingSectionId(null);
           }}
         />
       )}
