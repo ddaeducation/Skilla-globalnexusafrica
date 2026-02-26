@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Trophy, Medal, Award, TrendingUp } from "lucide-react";
+import { Loader2, Trophy, Medal, Award, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { User } from "@supabase/supabase-js";
 
 interface LeaderboardEntry {
@@ -27,12 +28,15 @@ interface LeaderboardSectionProps {
   enrolledCourseIds: string[];
 }
 
+const ITEMS_PER_PAGE = 20;
+
 const LeaderboardSection = ({ user, enrolledCourseIds }: LeaderboardSectionProps) => {
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<string>("");
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [currentUserRank, setCurrentUserRank] = useState<LeaderboardEntry | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchEnrolledCourses();
@@ -40,6 +44,7 @@ const LeaderboardSection = ({ user, enrolledCourseIds }: LeaderboardSectionProps
 
   useEffect(() => {
     if (selectedCourse) {
+      setCurrentPage(1);
       fetchLeaderboard(selectedCourse);
     }
   }, [selectedCourse]);
@@ -291,82 +296,95 @@ const LeaderboardSection = ({ user, enrolledCourseIds }: LeaderboardSectionProps
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {leaderboard.slice(0, 20).map((entry) => (
-                <div
-                  key={entry.userId}
-                  className={`flex items-center justify-between p-3 rounded-lg ${
-                    entry.userId === user?.id
-                      ? "bg-primary/10 border border-primary/20"
-                      : "bg-muted/50"
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center justify-center w-8 h-8">
-                      {getRankIcon(entry.rank)}
-                    </div>
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={entry.avatarUrl || undefined} />
-                      <AvatarFallback>
-                        {entry.fullName.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">
-                        {entry.fullName}
-                        {entry.userId === user?.id && (
-                          <Badge variant="secondary" className="ml-2">
-                            You
-                          </Badge>
-                        )}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {entry.lessonsCompleted} lessons • {entry.quizzesPassed} quizzes
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold">{entry.score}</p>
-                    <p className="text-xs text-muted-foreground">points</p>
-                  </div>
-                </div>
-              ))}
+            {(() => {
+              const totalPages = Math.ceil(leaderboard.length / ITEMS_PER_PAGE);
+              const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+              const pageEntries = leaderboard.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+              const userOnCurrentPage = pageEntries.some(e => e.userId === user?.id);
 
-              {/* Show current user's position if outside top 20 */}
-              {currentUserRank && currentUserRank.rank > 20 && (
+              return (
                 <>
-                  <div className="flex items-center justify-center py-2 text-muted-foreground text-xs">
-                    ••• {currentUserRank.rank - 21} more students •••
-                  </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/20">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center justify-center w-8 h-8">
-                        {getRankIcon(currentUserRank.rank)}
+                  <div className="space-y-2">
+                    {pageEntries.map((entry) => (
+                      <div
+                        key={entry.userId}
+                        className={`flex items-center justify-between p-3 rounded-lg ${
+                          entry.userId === user?.id
+                            ? "bg-primary/10 border border-primary/20"
+                            : "bg-muted/50"
+                        }`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center justify-center w-8 h-8">
+                            {getRankIcon(entry.rank)}
+                          </div>
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={entry.avatarUrl || undefined} />
+                            <AvatarFallback>
+                              {entry.fullName.slice(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">
+                              {entry.fullName}
+                              {entry.userId === user?.id && (
+                                <Badge variant="secondary" className="ml-2">You</Badge>
+                              )}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {entry.lessonsCompleted} lessons • {entry.quizzesPassed} quizzes
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold">{entry.score}</p>
+                          <p className="text-xs text-muted-foreground">points</p>
+                        </div>
                       </div>
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={currentUserRank.avatarUrl || undefined} />
-                        <AvatarFallback>
-                          {currentUserRank.fullName.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">
-                          {currentUserRank.fullName}
-                          <Badge variant="secondary" className="ml-2">You</Badge>
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {currentUserRank.lessonsCompleted} lessons • {currentUserRank.quizzesPassed} quizzes
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold">{currentUserRank.score}</p>
-                      <p className="text-xs text-muted-foreground">points</p>
-                    </div>
+                    ))}
                   </div>
+
+                  {/* Pagination controls */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+                      </Button>
+                      <span className="text-sm text-muted-foreground">
+                        Page {currentPage} of {totalPages} ({leaderboard.length} students)
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                      >
+                        Next <ChevronRight className="h-4 w-4 ml-1" />
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Jump to your position button */}
+                  {currentUserRank && !userOnCurrentPage && (
+                    <div className="mt-3">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => setCurrentPage(Math.ceil(currentUserRank.rank / ITEMS_PER_PAGE))}
+                      >
+                        Jump to your position (Rank #{currentUserRank.rank})
+                      </Button>
+                    </div>
+                  )}
                 </>
-              )}
-            </div>
+              );
+            })()}
           </CardContent>
         </Card>
       )}
