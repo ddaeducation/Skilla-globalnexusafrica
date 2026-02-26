@@ -42,7 +42,7 @@ const BecomeInstructor = () => {
           description: "Please sign in to apply as an instructor",
           variant: "destructive",
         });
-        navigate("/auth?redirect=/become-instructor");
+        navigate("/signin?redirect=/become-instructor");
         return;
       }
 
