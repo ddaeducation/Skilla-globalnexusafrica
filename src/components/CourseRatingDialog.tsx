@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Star, Loader2 } from "lucide-react";
+import { Star, Loader2, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import SocialSharePrompt from "@/components/SocialSharePrompt";
@@ -37,11 +37,13 @@ const CourseRatingDialog = ({
   const [submitting, setSubmitting] = useState(false);
   const [existingRating, setExistingRating] = useState<number | null>(null);
   const [showSharePrompt, setShowSharePrompt] = useState(false);
+  const [moduleAverage, setModuleAverage] = useState<number | null>(null);
+  const [moduleCount, setModuleCount] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
     if (open && courseId && userId) {
-      // Check if user already rated
+      // Check existing overall rating
       supabase
         .from("course_ratings")
         .select("rating, review")
@@ -59,6 +61,27 @@ const CourseRatingDialog = ({
             setExistingRating(null);
           }
         });
+
+      // Fetch module ratings average
+      supabase
+        .from("module_ratings")
+        .select("rating")
+        .eq("course_id", courseId)
+        .eq("user_id", userId)
+        .then(({ data }) => {
+          if (data && data.length > 0) {
+            const avg = data.reduce((sum, r) => sum + r.rating, 0) / data.length;
+            setModuleAverage(Math.round(avg * 10) / 10);
+            setModuleCount(data.length);
+            // Pre-fill with rounded average if no existing overall rating
+            if (!existingRating) {
+              setRating(Math.round(avg));
+            }
+          } else {
+            setModuleAverage(null);
+            setModuleCount(0);
+          }
+        });
     }
   }, [open, courseId, userId]);
 
@@ -71,7 +94,6 @@ const CourseRatingDialog = ({
     setSubmitting(true);
     try {
       if (existingRating !== null) {
-        // Update existing
         const { error } = await supabase
           .from("course_ratings")
           .update({ rating, review: review || null })
@@ -79,7 +101,6 @@ const CourseRatingDialog = ({
           .eq("user_id", userId);
         if (error) throw error;
       } else {
-        // Insert new
         const { error } = await supabase
           .from("course_ratings")
           .insert({ course_id: courseId, user_id: userId, rating, review: review || null });
@@ -87,8 +108,10 @@ const CourseRatingDialog = ({
       }
 
       toast({ title: "Thank you!", description: "Your rating has been submitted." });
-      
-      if (rating >= 4) {
+
+      // Show social share only if average >= 4
+      const effectiveAvg = moduleAverage || rating;
+      if (effectiveAvg >= 4) {
         setShowSharePrompt(true);
       } else {
         onRatingSubmitted();
@@ -115,11 +138,29 @@ const CourseRatingDialog = ({
           <DialogHeader>
             <DialogTitle className="text-center text-xl">Rate this Course</DialogTitle>
             <DialogDescription className="text-center">
-              How was your experience with <span className="font-semibold text-foreground">{courseTitle}</span>?
+              How was your overall experience with <span className="font-semibold text-foreground">{courseTitle}</span>?
             </DialogDescription>
           </DialogHeader>
 
           <div className="flex flex-col items-center gap-4 py-4">
+            {/* Module average summary */}
+            {moduleAverage !== null && moduleCount > 0 && (
+              <div className="w-full rounded-lg border bg-muted/50 p-3 text-center space-y-1">
+                <div className="flex items-center justify-center gap-2 text-sm font-medium">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                  Your Module Average: 
+                  <span className="text-primary font-bold">{moduleAverage.toFixed(1)}</span>
+                  <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Based on {moduleCount} module {moduleCount === 1 ? "rating" : "ratings"}. 
+                  {existingRating !== null 
+                    ? " Would you like to update your overall rating?" 
+                    : " Set your overall course rating below."}
+                </p>
+              </div>
+            )}
+
             {/* Stars */}
             <div className="flex items-center gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -142,14 +183,12 @@ const CourseRatingDialog = ({
               ))}
             </div>
 
-            {/* Label */}
             {displayRating > 0 && (
               <p className="text-sm font-medium text-muted-foreground">
                 {ratingLabels[displayRating]}
               </p>
             )}
 
-            {/* Review textarea */}
             <Textarea
               placeholder="Share your experience (optional)..."
               value={review}

@@ -291,22 +291,10 @@ const CertificatesSection = ({ user }: CertificatesSectionProps) => {
       return;
     }
 
-    // Check if already rated
-    const { data: existingRating } = await supabase
-      .from("course_ratings")
-      .select("id")
-      .eq("course_id", courseId)
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (existingRating) {
-      // Already rated, download directly
-      downloadCertificate(cert);
-    } else {
-      // Show rating dialog first
-      setPendingDownloadCert(cert);
-      setRatingDialogOpen(true);
-    }
+    // Always show rating dialog at download so user can see their
+    // module average and optionally improve their overall rating
+    setPendingDownloadCert(cert);
+    setRatingDialogOpen(true);
   };
 
   if (loading) {
