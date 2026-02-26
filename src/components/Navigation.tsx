@@ -67,7 +67,7 @@ const Navigation = () => {
   };
 
   return (
-    <nav role="navigation" aria-label="Main navigation" className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav role="navigation" aria-label="Main navigation" className="sticky top-0 z-50 w-full border-b border-border bg-background shadow-sm">
       <div className="container flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <a href="/" className="flex items-center space-x-2">
@@ -80,7 +80,7 @@ const Navigation = () => {
             Home
           </Link>
           <a href="#why" className="text-sm font-medium transition-colors hover:text-primary">
-            Why Choose Us
+            Why Us
           </a>
           <a href="#career" className="text-sm font-medium transition-colors hover:text-primary">
             Career
@@ -151,7 +151,7 @@ const Navigation = () => {
                 Home
               </Link>
               <a href="#why" className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-accent" onClick={() => setIsMenuOpen(false)}>
-                Why Choose Us
+                Why Us
               </a>
               <a href="#career" className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-accent" onClick={() => setIsMenuOpen(false)}>
                 Career
