@@ -14,12 +14,12 @@ const Hero = () => {
   const navigate = useNavigate();
 
   const students = [
-    { src: student1, alt: "Student studying with tablet" },
-    { src: student2, alt: "Professional student with glasses" },
-    { src: student3, alt: "Student with books outdoors" },
-    { src: student4, alt: "Group of students collaborating" },
-    { src: student5, alt: "Students celebrating with certificates" },
-    { src: student6, alt: "Professional working on laptop" },
+    { src: student1, alt: "Students learning in a modern workspace" },
+    { src: student2, alt: "Professional mentorship session" },
+    { src: student3, alt: "Group collaboration workshop" },
+    { src: student4, alt: "Team working on a project together" },
+    { src: student5, alt: "Students discussing ideas at Global Nexus Institute" },
+    { src: student6, alt: "Diverse group of learners collaborating" },
   ];
 
   return (
@@ -65,7 +65,7 @@ const Hero = () => {
             </div>
             <div className="text-left">
               <div className="font-semibold">Accredited by RTB</div>
-              <div className="text-xs">(Rwanda TVET Board (coming soon))</div>
+              <div className="text-xs">Rwanda TVET Board</div>
             </div>
           </div>
           <div className="flex items-center gap-4 text-sm text-primary-foreground/80">
