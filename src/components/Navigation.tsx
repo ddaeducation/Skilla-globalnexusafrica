@@ -148,6 +148,9 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
           <Link to="/corporate-training" className="text-sm font-medium transition-colors hover:text-primary">
             Corporate
           </Link>
+          <Link to="/collaborate" className="text-sm font-medium transition-colors hover:text-primary">
+            Collaborate
+          </Link>
           {[
             { id: "faqs" as NavTab, label: "FAQs" },
             { id: "donate" as NavTab, label: "Donate" },
@@ -288,6 +291,9 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
               ))}
               <Link to="/corporate-training" className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-accent" onClick={() => setIsMenuOpen(false)}>
                 Corporate
+              </Link>
+              <Link to="/collaborate" className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-accent" onClick={() => setIsMenuOpen(false)}>
+                Collaborate
               </Link>
               {[
                 { id: "faqs" as NavTab, label: "FAQs" },
