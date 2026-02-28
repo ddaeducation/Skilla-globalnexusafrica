@@ -304,6 +304,30 @@ export const StudentQuizTaker = ({
           feedback = isCorrect 
             ? "Correct! " + (question.explanation || "")
             : `Incorrect. The correct answer was: ${correctOption?.option_text}. ${question.explanation || ""}`;
+        } else if (question.question_type === "matching") {
+          // Answer is an array of selected right-side values, one per pair
+          const pairs = questionOptions.map(o => {
+            const [, right] = o.option_text.split("|||");
+            return right;
+          });
+          const studentMatches = Array.isArray(answer) ? answer : [];
+          isCorrect = pairs.length === studentMatches.length && pairs.every((right, idx) => studentMatches[idx] === right);
+          
+          // Partial credit: award points per correct match
+          if (!isCorrect && pairs.length > 0) {
+            let correctCount = 0;
+            pairs.forEach((right, idx) => {
+              if (studentMatches[idx] === right) correctCount++;
+            });
+            pointsEarned = Math.round((correctCount / pairs.length) * question.points);
+            isCorrect = correctCount === pairs.length;
+          } else {
+            pointsEarned = isCorrect ? question.points : 0;
+          }
+          
+          feedback = isCorrect
+            ? "All matches correct! " + (question.explanation || "")
+            : "Some matches were incorrect. " + (question.explanation || "");
         } else if (question.question_type === "ordering" || question.question_type === "drag_drop") {
           const correctOrder = questionOptions.map(o => o.id);
           const selectedOrder = Array.isArray(answer) ? answer : [];
@@ -472,22 +496,45 @@ export const StudentQuizTaker = ({
           </div>
         );
 
-      case "matching":
+      case "matching": {
+        const matchingAnswer = (Array.isArray(answer) ? answer : []) as string[];
+        const pairs = currentOptions.map((opt) => {
+          const [left, right] = opt.option_text.split("|||");
+          return { id: opt.id, left, right };
+        });
+        // Shuffle right side options for student to pick from
+        const rightOptions = [...pairs].sort((a, b) => a.right.localeCompare(b.right));
         return (
-          <div className="space-y-3">
-            {currentOptions.map((option) => {
-              const [left, right] = option.option_text.split("|||");
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Select the correct match for each item on the left.</p>
+            {pairs.map((pair, idx) => {
+              const selectedRight = matchingAnswer[idx] || "";
               return (
-                <div key={option.id} className="flex items-center gap-4 p-3 rounded-lg border">
-                  <span className="flex-1">{left}</span>
-                  <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
-                  <span className="flex-1 text-primary">{right}</span>
+                <div key={pair.id} className="flex items-center gap-3 p-3 rounded-lg border">
+                  <span className="flex-1 font-medium">{pair.left}</span>
+                  <ArrowRightLeft className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <select
+                    className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={selectedRight}
+                    onChange={(e) => {
+                      const newMatches = [...matchingAnswer];
+                      // Ensure array is long enough
+                      while (newMatches.length < pairs.length) newMatches.push("");
+                      newMatches[idx] = e.target.value;
+                      setAnswers((prev) => ({ ...prev, [currentQuestion.id]: newMatches }));
+                    }}
+                  >
+                    <option value="">-- Select --</option>
+                    {rightOptions.map((ro) => (
+                      <option key={ro.id} value={ro.right}>{ro.right}</option>
+                    ))}
+                  </select>
                 </div>
               );
             })}
-            <p className="text-sm text-muted-foreground">Match the items above.</p>
           </div>
         );
+      }
 
       case "fill_in":
       case "numerical":

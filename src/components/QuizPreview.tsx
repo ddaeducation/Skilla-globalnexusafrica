@@ -105,6 +105,17 @@ export const QuizPreview = ({ quiz, questions, options, open, onOpenChange }: Qu
         ) {
           correct += question.points;
         }
+      } else if (question.question_type === "matching") {
+        const pairs = questionOptions.map(o => {
+          const [, right] = o.option_text.split("|||");
+          return right;
+        });
+        const studentMatches = Array.isArray(answer) ? answer : [];
+        let correctCount = 0;
+        pairs.forEach((right, idx) => {
+          if (studentMatches[idx] === right) correctCount++;
+        });
+        correct += Math.round((correctCount / Math.max(pairs.length, 1)) * question.points);
       } else if (question.question_type === "fill_in" || question.question_type === "short_answer" || question.question_type === "numerical") {
         const correctOption = questionOptions.find((o) => o.is_correct);
         if (correctOption && typeof answer === "string" && answer.toLowerCase().trim() === correctOption.option_text.toLowerCase().trim()) {
@@ -193,22 +204,43 @@ export const QuizPreview = ({ quiz, questions, options, open, onOpenChange }: Qu
           />
         );
 
-      case "matching":
+      case "matching": {
+        const matchAnswer = (Array.isArray(questionAnswer) ? questionAnswer : []) as string[];
+        const pairs = currentOptions.map((opt) => {
+          const [left, right] = opt.option_text.split("|||");
+          return { id: opt.id, left, right };
+        });
+        const rightOpts = [...pairs].sort((a, b) => a.right.localeCompare(b.right));
         return (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Match the items on the left with their corresponding items on the right.</p>
-            {currentOptions.map((option) => {
-              const [left, right] = option.option_text.split("|||");
+            <p className="text-sm text-muted-foreground">Select the correct match for each item on the left.</p>
+            {pairs.map((pair, idx) => {
+              const selectedRight = matchAnswer[idx] || "";
               return (
-                <div key={option.id} className="flex items-center gap-4 p-3 rounded-lg border bg-muted/30">
-                  <span className="flex-1 font-medium">{left}</span>
-                  <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
-                  <span className="flex-1 text-right text-muted-foreground">{right}</span>
+                <div key={pair.id} className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30">
+                  <span className="flex-1 font-medium">{pair.left}</span>
+                  <ArrowRightLeft className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <select
+                    className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={selectedRight}
+                    onChange={(e) => {
+                      const newMatches = [...matchAnswer];
+                      while (newMatches.length < pairs.length) newMatches.push("");
+                      newMatches[idx] = e.target.value;
+                      setAnswers({ ...answers, [currentQuestion.id]: newMatches });
+                    }}
+                  >
+                    <option value="">-- Select --</option>
+                    {rightOpts.map((ro) => (
+                      <option key={ro.id} value={ro.right}>{ro.right}</option>
+                    ))}
+                  </select>
                 </div>
               );
             })}
           </div>
         );
+      }
 
       case "ordering":
       case "drag_drop":
