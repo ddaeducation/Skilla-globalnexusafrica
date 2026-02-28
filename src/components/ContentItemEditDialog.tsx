@@ -22,6 +22,7 @@ interface LessonData {
   is_free_preview: boolean;
   order_index: number;
   section_id: string | null;
+  required_watch_percentage: number | null;
 }
 
 interface QuizData {
@@ -133,6 +134,7 @@ export const ContentItemEditDialog = ({
             content_text: lessonForm.content_text,
             duration_minutes: lessonForm.duration_minutes,
             is_free_preview: lessonForm.is_free_preview,
+            required_watch_percentage: lessonForm.required_watch_percentage,
           })
           .eq("id", itemId);
         if (error) throw error;
@@ -287,6 +289,26 @@ export const ContentItemEditDialog = ({
                   />
                   <Label htmlFor="free_preview">Free Preview</Label>
                 </div>
+                {['video', 'youtube', 'vimeo', 'embed'].includes(lessonForm.content_type) && (
+                  <div className="space-y-2">
+                    <Label htmlFor="watch_percentage">Required Watch Percentage (%)</Label>
+                    <Input
+                      id="watch_percentage"
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={lessonForm.required_watch_percentage ?? ""}
+                      onChange={(e) => setLessonForm({ 
+                        ...lessonForm, 
+                        required_watch_percentage: e.target.value ? parseInt(e.target.value) : null 
+                      })}
+                      placeholder="e.g. 80 (leave empty for no requirement)"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Students must watch this percentage of the video before they can mark the lesson complete. Leave empty to allow immediate completion.
+                    </p>
+                  </div>
+                )}
               </>
             )}
 

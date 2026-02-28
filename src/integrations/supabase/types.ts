@@ -1670,6 +1670,7 @@ export type Database = {
           id: string
           is_free_preview: boolean
           order_index: number
+          required_watch_percentage: number | null
           section_id: string | null
           title: string
           updated_at: string
@@ -1685,6 +1686,7 @@ export type Database = {
           id?: string
           is_free_preview?: boolean
           order_index?: number
+          required_watch_percentage?: number | null
           section_id?: string | null
           title: string
           updated_at?: string
@@ -1700,6 +1702,7 @@ export type Database = {
           id?: string
           is_free_preview?: boolean
           order_index?: number
+          required_watch_percentage?: number | null
           section_id?: string | null
           title?: string
           updated_at?: string
