@@ -49,6 +49,7 @@ import CodePlayground from "@/components/CodePlayground";
 import CodeLessonPlayer from "@/components/CodeLessonPlayer";
 import PdfPresentationViewer from "@/components/PdfPresentationViewer";
 import { PeerReviewPanel } from "@/components/PeerReviewPanel";
+import { useVideoWatchProgress } from "@/hooks/useVideoWatchProgress";
 
 interface CourseSection {
   id: string;
@@ -71,6 +72,7 @@ interface LessonContent {
   duration_minutes: number | null;
   is_free_preview: boolean;
   section_id: string | null;
+  required_watch_percentage: number | null;
 }
 
 interface Quiz {
@@ -146,6 +148,7 @@ const CourseDetail = () => {
 
   // Get active lesson ID for time tracking
   const activeLessonId = activeContent?.type === "lesson" ? activeContent.data.id : undefined;
+  const activeLesson = activeContent?.type === "lesson" ? activeContent.data as LessonContent : null;
   
   // Time tracking for the active lesson
   const { timeSpent: lessonTimeSpent, isTracking } = useLessonTimeTracking(
@@ -153,6 +156,21 @@ const CourseDetail = () => {
     activeLessonId,
     courseId
   );
+
+  // Video watch progress tracking
+  const isVideoLesson = activeLesson && ['video', 'youtube', 'vimeo', 'embed'].includes(activeLesson.content_type);
+  const {
+    watchedPercentage,
+    hasMetRequirement: hasMetWatchRequirement,
+    reset: resetWatchProgress,
+    videoRefCallback,
+    enableYouTubeJSApi,
+  } = useVideoWatchProgress(isVideoLesson ? activeLesson?.required_watch_percentage ?? null : null);
+
+  // Reset watch progress when active lesson changes
+  useEffect(() => {
+    resetWatchProgress();
+  }, [activeLessonId, resetWatchProgress]);
 
   // Quiz and Assignment dialogs
   const [quizTakerOpen, setQuizTakerOpen] = useState(false);
@@ -209,6 +227,7 @@ const CourseDetail = () => {
         duration_minutes: item.duration_minutes,
         is_free_preview: item.is_free_preview,
         section_id: item.section_id,
+        required_watch_percentage: null,
       }));
       setLessons(mappedLessons);
     }
@@ -501,6 +520,7 @@ const CourseDetail = () => {
         duration_minutes: item.duration_minutes,
         is_free_preview: item.is_free_preview,
         section_id: item.section_id,
+        required_watch_percentage: null,
       });
     }
     setLoadingPreview(false);
@@ -752,7 +772,8 @@ const CourseDetail = () => {
         {embedUrl && (
           <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
             <iframe
-              src={embedUrl}
+              ref={(el) => { if (el) enableYouTubeJSApi(el); }}
+              src={embedUrl + (embedUrl.includes('?') ? '&' : '?') + 'enablejsapi=1'}
               className="w-full h-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
@@ -840,7 +861,7 @@ const CourseDetail = () => {
               );
             }
             return (
-              <video controls className="w-full rounded-lg">
+              <video controls className="w-full rounded-lg" ref={videoRefCallback}>
                 <source src={videoUrl} />
                 Your browser does not support the video tag.
               </video>
@@ -883,6 +904,27 @@ const CourseDetail = () => {
           />
         )}
 
+        {/* Video watch progress indicator */}
+        {lesson.required_watch_percentage != null && lesson.required_watch_percentage > 0 && isVideoLesson && !isLessonCompleted(lesson.id) && (
+          <div className="space-y-2 p-3 bg-muted/50 rounded-lg">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">
+                Watch progress: {watchedPercentage}% / {lesson.required_watch_percentage}% required
+              </span>
+              {hasMetWatchRequirement ? (
+                <Badge variant="outline" className="text-primary border-primary">
+                  <CheckCircle className="w-3 h-3 mr-1" /> Requirement met
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-muted-foreground">
+                  <Lock className="w-3 h-3 mr-1" /> Keep watching
+                </Badge>
+              )}
+            </div>
+            <Progress value={Math.min(100, (watchedPercentage / lesson.required_watch_percentage) * 100)} className="h-2" />
+          </div>
+        )}
+
         {/* Mark Complete and Next Buttons */}
         <div className="flex justify-between items-center gap-2 pt-4">
           <div>
@@ -900,13 +942,21 @@ const CourseDetail = () => {
               Completed
             </Badge>
           ) : (
-            <Button onClick={() => markLessonComplete(lesson.id)}>
+            <Button 
+              onClick={() => markLessonComplete(lesson.id)}
+              disabled={!hasMetWatchRequirement}
+              title={!hasMetWatchRequirement ? `Watch at least ${lesson.required_watch_percentage}% of the video to continue` : undefined}
+            >
               <CheckCircle className="w-4 h-4 mr-2" />
               Mark as Complete
             </Button>
           )}
           {hasNextContent() && (
-            <Button variant="outline" onClick={goToNextContent}>
+            <Button 
+              variant="outline" 
+              onClick={goToNextContent}
+              disabled={!hasMetWatchRequirement && !isLessonCompleted(lesson.id)}
+            >
               Next
               <ChevronRight className="w-4 h-4 ml-2" />
             </Button>
