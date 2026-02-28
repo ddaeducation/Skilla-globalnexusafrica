@@ -256,9 +256,20 @@ export default function PdfPresentationViewer({ url, title }: PdfPresentationVie
   // ─── Inline (non-presentation) mode ───
   if (!isPresenting) {
     return (
-      <div className="border rounded-lg overflow-hidden bg-background shadow-sm" style={{ height: 600 }}>
-        {/* Top toolbar */}
-        <div className="flex items-center justify-between gap-2 px-3 py-2 bg-muted/60 border-b">
+      <div className="border rounded-lg overflow-hidden bg-background shadow-sm flex flex-col" style={{ height: 600 }}>
+        {/* Body: sidebar + canvas */}
+        <div ref={containerRef} className="flex relative flex-1 min-h-0">
+          {showGrid && <GridView />}
+
+          {sidebarOpen && <ThumbnailSidebar />}
+
+          <div ref={mainCanvasAreaRef} className="flex-1 flex items-center justify-center overflow-auto bg-muted/20">
+            <canvas ref={canvasRef} className="max-w-full max-h-full" />
+          </div>
+        </div>
+
+        {/* Bottom toolbar */}
+        <div className="flex items-center justify-between gap-2 px-3 py-2 bg-muted/60 border-t">
           <div className="flex items-center gap-2 min-w-0">
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSidebarOpen((v) => !v)} title="Toggle sidebar">
               <Menu className="w-4 h-4" />
@@ -300,17 +311,6 @@ export default function PdfPresentationViewer({ url, title }: PdfPresentationVie
                 <Download className="w-4 h-4" />
               </a>
             </Button>
-          </div>
-        </div>
-
-        {/* Body: sidebar + canvas */}
-        <div ref={containerRef} className="flex relative" style={{ height: "calc(100% - 44px)" }}>
-          {showGrid && <GridView />}
-
-          {sidebarOpen && <ThumbnailSidebar />}
-
-          <div ref={mainCanvasAreaRef} className="flex-1 flex items-center justify-center overflow-auto bg-muted/20">
-            <canvas ref={canvasRef} className="max-w-full max-h-full" />
           </div>
         </div>
       </div>
