@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,10 +9,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Pencil, Trash2, GripVertical, Check, X, Clock, Image, Code, FileText, ListOrdered, ArrowRightLeft, Play } from "lucide-react";
+import { Plus, Pencil, Trash2, GripVertical, Check, X, Clock, Image, Code, FileText, ListOrdered, ArrowRightLeft, Play, ChevronUp, ChevronDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AIQuestionGenerator } from "@/components/AIQuestionGenerator";
 import { QuizPreview } from "@/components/QuizPreview";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface QuizQuestion {
   id: string;
@@ -78,6 +81,69 @@ const needsSingleAnswer = (type: string) =>
 // Helper to check if question type is free-form (manual grading)
 const isFreeForm = (type: string) => 
   ["long_answer", "scenario", "case_study", "code_based"].includes(type);
+
+interface SortableQuestionCardProps {
+  question: QuizQuestion;
+  index: number;
+  totalCount: number;
+  options: Record<string, QuizOption[]>;
+  getQuestionTypeIcon: (type: string) => string;
+  getQuestionTypeLabel: (type: string) => string;
+  renderQuestionPreview: (question: QuizQuestion) => React.ReactNode;
+  onEdit: (question: QuizQuestion) => void;
+  onDelete: (id: string) => void;
+  onMove: (index: number, direction: "up" | "down") => void;
+}
+
+const SortableQuestionCard = ({ question, index, totalCount, options, getQuestionTypeIcon, getQuestionTypeLabel, renderQuestionPreview, onEdit, onDelete, onMove }: SortableQuestionCardProps) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: question.id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 10 : undefined };
+
+  return (
+    <Card ref={setNodeRef} style={style} className={isDragging ? "shadow-lg" : ""}>
+      <CardContent className="py-4">
+        <div className="flex items-start gap-4">
+          <div className="flex flex-col items-center gap-1 text-muted-foreground">
+            <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1 hover:bg-accent rounded" title="Drag to reorder">
+              <GripVertical className="h-4 w-4" />
+            </button>
+            <span className="font-medium text-sm">{index + 1}</span>
+            <div className="flex flex-col">
+              <Button variant="ghost" size="icon" className="h-6 w-6" disabled={index === 0} onClick={() => onMove(index, "up")} title="Move up">
+                <ChevronUp className="h-3 w-3" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-6 w-6" disabled={index === totalCount - 1} onClick={() => onMove(index, "down")} title="Move down">
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+          <div className="flex-1 space-y-2">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="font-medium">{question.question_text}</p>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <Badge variant="secondary" className="text-xs">
+                    {getQuestionTypeIcon(question.question_type)} {getQuestionTypeLabel(question.question_type)}
+                  </Badge>
+                  <Badge variant="outline">{question.points} pts</Badge>
+                </div>
+              </div>
+              <div className="flex gap-1">
+                <Button variant="ghost" size="icon" onClick={() => onEdit(question)}>
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => onDelete(question.id)}>
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </div>
+            </div>
+            {renderQuestionPreview(question)}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 export const QuizQuestionManager = ({ quizId, quizTitle, passingScore = 70, timeLimitMinutes, quizDescription, onClose }: QuizQuestionManagerProps) => {
   const { toast } = useToast();
@@ -405,6 +471,48 @@ export const QuizQuestionManager = ({ quizId, quizTitle, passingScore = 70, time
       toast({ title: "Error", description: "Failed to delete question", variant: "destructive" });
     }
   };
+
+  const handleReorderQuestions = useCallback(async (reorderedQuestions: QuizQuestion[]) => {
+    try {
+      const updates = reorderedQuestions.map((q, idx) => 
+        supabase.from("quiz_questions").update({ order_index: idx }).eq("id", q.id)
+      );
+      await Promise.all(updates);
+      toast({ title: "Questions reordered" });
+    } catch (error) {
+      console.error("Error reordering:", error);
+      toast({ title: "Error", description: "Failed to reorder questions", variant: "destructive" });
+      fetchQuestions();
+    }
+  }, []);
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    setQuestions(prev => {
+      const oldIndex = prev.findIndex(q => q.id === active.id);
+      const newIndex = prev.findIndex(q => q.id === over.id);
+      const reordered = arrayMove(prev, oldIndex, newIndex);
+      handleReorderQuestions(reordered);
+      return reordered;
+    });
+  }, [handleReorderQuestions]);
+
+  const moveQuestion = useCallback((index: number, direction: "up" | "down") => {
+    setQuestions(prev => {
+      const newIndex = direction === "up" ? index - 1 : index + 1;
+      if (newIndex < 0 || newIndex >= prev.length) return prev;
+      const reordered = arrayMove(prev, index, newIndex);
+      handleReorderQuestions(reordered);
+      return reordered;
+    });
+  }, [handleReorderQuestions]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
 
   const getQuestionTypeLabel = (type: string) => {
     return questionTypes.find(t => t.value === type)?.label || type;
@@ -914,42 +1022,27 @@ export const QuizQuestionManager = ({ quizId, quizTitle, passingScore = 70, time
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
-          {questions.map((question, index) => (
-            <Card key={question.id}>
-              <CardContent className="py-4">
-                <div className="flex items-start gap-4">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <GripVertical className="h-4 w-4" />
-                    <span className="font-medium">{index + 1}</span>
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="font-medium">{question.question_text}</p>
-                        <div className="flex items-center gap-2 mt-1 flex-wrap">
-                          <Badge variant="secondary" className="text-xs">
-                            {getQuestionTypeIcon(question.question_type)} {getQuestionTypeLabel(question.question_type)}
-                          </Badge>
-                          <Badge variant="outline">{question.points} pts</Badge>
-                        </div>
-                      </div>
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditQuestion(question)}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteQuestion(question.id)}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </div>
-                    {renderQuestionPreview(question)}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={questions.map(q => q.id)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-3">
+              {questions.map((question, index) => (
+                <SortableQuestionCard
+                  key={question.id}
+                  question={question}
+                  index={index}
+                  totalCount={questions.length}
+                  options={options}
+                  getQuestionTypeIcon={getQuestionTypeIcon}
+                  getQuestionTypeLabel={getQuestionTypeLabel}
+                  renderQuestionPreview={renderQuestionPreview}
+                  onEdit={handleEditQuestion}
+                  onDelete={handleDeleteQuestion}
+                  onMove={moveQuestion}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       {/* Quiz Preview Dialog */}
