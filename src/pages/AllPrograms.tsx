@@ -302,7 +302,7 @@ const AllPrograms = () => {
                         <p className="text-lg text-muted-foreground">No programs found matching your filters.</p>
                       </div>
                     ) : (
-                      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
+                      <div className="grid gap-6 md:grid-cols-2 max-w-5xl mx-auto">
                         {courses.map(course => (
                           <CourseCard
                             key={course.id}
