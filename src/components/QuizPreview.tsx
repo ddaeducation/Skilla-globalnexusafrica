@@ -116,6 +116,12 @@ export const QuizPreview = ({ quiz, questions, options, open, onOpenChange }: Qu
           if (studentMatches[idx] === right) correctCount++;
         });
         correct += Math.round((correctCount / Math.max(pairs.length, 1)) * question.points);
+      } else if (question.question_type === "ordering" || question.question_type === "drag_drop") {
+        const correctOrder = questionOptions.map(o => o.id);
+        const studentOrder = Array.isArray(answer) ? answer : [];
+        if (JSON.stringify(correctOrder) === JSON.stringify(studentOrder)) {
+          correct += question.points;
+        }
       } else if (question.question_type === "fill_in" || question.question_type === "short_answer" || question.question_type === "numerical") {
         const correctOption = questionOptions.find((o) => o.is_correct);
         if (correctOption && typeof answer === "string" && answer.toLowerCase().trim() === correctOption.option_text.toLowerCase().trim()) {
@@ -243,19 +249,53 @@ export const QuizPreview = ({ quiz, questions, options, open, onOpenChange }: Qu
       }
 
       case "ordering":
-      case "drag_drop":
+      case "drag_drop": {
+        const orderAnswer = (Array.isArray(questionAnswer) ? questionAnswer : []) as string[];
+        const orderItems = orderAnswer.length > 0
+          ? orderAnswer.map(id => currentOptions.find(o => o.id === id)).filter(Boolean) as typeof currentOptions
+          : currentOptions;
+
+        // Initialize with shuffled order if not set
+        if (orderAnswer.length === 0 && currentOptions.length > 0) {
+          const shuffled = [...currentOptions].sort(() => Math.random() - 0.5).map(o => o.id);
+          setTimeout(() => setAnswers(prev => {
+            if (!prev[currentQuestion.id]) {
+              return { ...prev, [currentQuestion.id]: shuffled };
+            }
+            return prev;
+          }), 0);
+        }
+
+        const moveItem = (idx: number, direction: "up" | "down") => {
+          const newIdx = direction === "up" ? idx - 1 : idx + 1;
+          if (newIdx < 0 || newIdx >= orderItems.length) return;
+          const currentIds = orderItems.map(o => o.id);
+          const temp = currentIds[idx];
+          currentIds[idx] = currentIds[newIdx];
+          currentIds[newIdx] = temp;
+          setAnswers({ ...answers, [currentQuestion.id]: currentIds });
+        };
+
         return (
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Arrange the items in the correct order.</p>
-            {currentOptions.map((option, idx) => (
-              <div key={option.id} className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30">
-                <GripVertical className="h-4 w-4 text-muted-foreground" />
-                <span className="text-muted-foreground w-6">{idx + 1}.</span>
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">Arrange the items in the correct order using the arrows.</p>
+            {orderItems.map((option, idx) => (
+              <div key={option.id} className="flex items-center gap-2 p-3 rounded-lg border bg-muted/30">
+                <div className="flex flex-col">
+                  <Button variant="ghost" size="icon" className="h-6 w-6" disabled={idx === 0} onClick={() => moveItem(idx, "up")}>
+                    <ChevronLeft className="h-3 w-3 rotate-90" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" disabled={idx === orderItems.length - 1} onClick={() => moveItem(idx, "down")}>
+                    <ChevronRight className="h-3 w-3 rotate-90" />
+                  </Button>
+                </div>
+                <span className="text-muted-foreground w-6 text-center font-medium">{idx + 1}.</span>
                 <span className="flex-1">{option.option_text}</span>
               </div>
             ))}
           </div>
         );
+      }
 
       default:
         return <p className="text-muted-foreground">This question type is not yet supported in preview mode.</p>;

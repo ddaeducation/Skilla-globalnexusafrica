@@ -536,6 +536,57 @@ export const StudentQuizTaker = ({
         );
       }
 
+      case "ordering":
+      case "drag_drop": {
+        // Initialize answer with shuffled option IDs if not yet set
+        const orderAnswer = Array.isArray(answer) ? (answer as string[]) : [];
+        const orderItems = orderAnswer.length > 0
+          ? orderAnswer.map(id => currentOptions.find(o => o.id === id)).filter(Boolean) as typeof currentOptions
+          : [...currentOptions].sort(() => Math.random() - 0.5);
+        
+        // Set initial shuffled order if not yet answered
+        if (orderAnswer.length === 0 && currentOptions.length > 0) {
+          const shuffled = [...currentOptions].sort(() => Math.random() - 0.5).map(o => o.id);
+          // Use setTimeout to avoid state update during render
+          setTimeout(() => setAnswers(prev => {
+            if (!prev[currentQuestion.id]) {
+              return { ...prev, [currentQuestion.id]: shuffled };
+            }
+            return prev;
+          }), 0);
+        }
+
+        const moveItem = (idx: number, direction: "up" | "down") => {
+          const newIdx = direction === "up" ? idx - 1 : idx + 1;
+          if (newIdx < 0 || newIdx >= orderItems.length) return;
+          const currentIds = orderItems.map(o => o.id);
+          const temp = currentIds[idx];
+          currentIds[idx] = currentIds[newIdx];
+          currentIds[newIdx] = temp;
+          setAnswers(prev => ({ ...prev, [currentQuestion.id]: currentIds }));
+        };
+
+        return (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">Arrange the items in the correct order using the arrows.</p>
+            {orderItems.map((option, idx) => (
+              <div key={option.id} className="flex items-center gap-2 p-3 rounded-lg border bg-muted/30">
+                <div className="flex flex-col">
+                  <Button variant="ghost" size="icon" className="h-6 w-6" disabled={idx === 0} onClick={() => moveItem(idx, "up")}>
+                    <ChevronLeft className="h-3 w-3 rotate-90" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" disabled={idx === orderItems.length - 1} onClick={() => moveItem(idx, "down")}>
+                    <ChevronRight className="h-3 w-3 rotate-90" />
+                  </Button>
+                </div>
+                <span className="text-muted-foreground w-6 text-center font-medium">{idx + 1}.</span>
+                <span className="flex-1">{option.option_text}</span>
+              </div>
+            ))}
+          </div>
+        );
+      }
+
       case "fill_in":
       case "numerical":
         return (
