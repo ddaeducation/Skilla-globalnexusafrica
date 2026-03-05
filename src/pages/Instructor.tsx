@@ -295,7 +295,18 @@ const Instructor = () => {
         .eq("instructor_id", userId)
         .order("created_at", { ascending: false });
 
-      if (coursesData) setCourses(coursesData);
+      if (coursesData) {
+        setCourses(coursesData);
+        // Fetch course instructors
+        if (coursesData.length > 0) {
+          const cIds = coursesData.map(c => c.id);
+          const { data: ciData } = await supabase
+            .from("course_instructors")
+            .select("id, course_id, instructor_id, role")
+            .in("course_id", cIds);
+          if (ciData) setCourseInstructors(ciData);
+        }
+      }
 
       // Fetch enrollments for instructor's courses
       if (coursesData && coursesData.length > 0) {
