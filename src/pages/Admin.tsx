@@ -2129,21 +2129,31 @@ const Admin = () => {
                                 onValueChange={async (value) => {
                                   try {
                                     if (profile.id === currentUserId) return;
-                                    
-                                    if (value === "moderator") {
-                                      if (!profile.roles.includes("moderator")) {
-                                        const { error } = await supabase
-                                          .from("user_roles")
-                                          .insert({ user_id: profile.id, role: "moderator" });
-                                        if (error) throw error;
-                                      }
+                                    const currentRole = profile.roles.includes("admin")
+                                      ? "admin"
+                                      : profile.roles.includes("moderator")
+                                      ? "moderator"
+                                      : "user";
+                                    if (value === currentRole) return;
+
+                                    // Remove old roles (admin/moderator) first
+                                    if (currentRole === "admin") {
+                                      await supabase.from("user_roles").delete().eq("user_id", profile.id).eq("role", "admin");
+                                    }
+                                    if (currentRole === "moderator") {
+                                      await supabase.from("user_roles").delete().eq("user_id", profile.id).eq("role", "moderator");
+                                    }
+
+                                    // Add new role
+                                    if (value === "admin") {
+                                      const { error } = await supabase.from("user_roles").insert({ user_id: profile.id, role: "admin" });
+                                      if (error) throw error;
+                                      toast({ title: "Role updated", description: `${profile.full_name || profile.email} is now an Admin` });
+                                    } else if (value === "moderator") {
+                                      const { error } = await supabase.from("user_roles").insert({ user_id: profile.id, role: "moderator" });
+                                      if (error) throw error;
                                       toast({ title: "Role updated", description: `${profile.full_name || profile.email} is now an Instructor` });
-                                    } else if (value === "user") {
-                                      await supabase
-                                        .from("user_roles")
-                                        .delete()
-                                        .eq("user_id", profile.id)
-                                        .eq("role", "moderator");
+                                    } else {
                                       toast({ title: "Role updated", description: `${profile.full_name || profile.email} is now a regular User` });
                                     }
                                     fetchData();
@@ -2152,7 +2162,7 @@ const Admin = () => {
                                     toast({ title: "Error", description: "Failed to update role", variant: "destructive" });
                                   }
                                 }}
-                                disabled={profile.id === currentUserId || profile.roles.includes("admin")}
+                                disabled={profile.id === currentUserId}
                               >
                                 <SelectTrigger className="w-[130px] h-8">
                                   <SelectValue />
@@ -2160,9 +2170,7 @@ const Admin = () => {
                                 <SelectContent>
                                   <SelectItem value="user">User</SelectItem>
                                   <SelectItem value="moderator">Instructor</SelectItem>
-                                  {profile.roles.includes("admin") && (
-                                    <SelectItem value="admin">Admin</SelectItem>
-                                  )}
+                                  <SelectItem value="admin">Admin</SelectItem>
                                 </SelectContent>
                               </Select>
                             </TableCell>
