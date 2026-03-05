@@ -148,6 +148,7 @@ const Instructor = () => {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [sections, setSections] = useState<{ id: string; course_id: string; title: string; description: string | null; order_index: number; parent_id: string | null; section_level: number | null }[]>([]);
+  const [courseInstructors, setCourseInstructors] = useState<{ id: string; course_id: string; instructor_id: string; role: string }[]>([]);
 
   // Dialog states
   const [courseDialogOpen, setCourseDialogOpen] = useState(false);
@@ -275,6 +276,16 @@ const Instructor = () => {
     }
   };
 
+  const fetchCourseInstructors = async () => {
+    const courseIds = courses.map(c => c.id);
+    if (!courseIds.length) return;
+    const { data } = await supabase
+      .from("course_instructors")
+      .select("id, course_id, instructor_id, role")
+      .in("course_id", courseIds);
+    if (data) setCourseInstructors(data);
+  };
+
   const fetchData = async (userId: string) => {
     try {
       // Fetch instructor's courses
@@ -284,7 +295,18 @@ const Instructor = () => {
         .eq("instructor_id", userId)
         .order("created_at", { ascending: false });
 
-      if (coursesData) setCourses(coursesData);
+      if (coursesData) {
+        setCourses(coursesData);
+        // Fetch course instructors
+        if (coursesData.length > 0) {
+          const cIds = coursesData.map(c => c.id);
+          const { data: ciData } = await supabase
+            .from("course_instructors")
+            .select("id, course_id, instructor_id, role")
+            .in("course_id", cIds);
+          if (ciData) setCourseInstructors(ciData);
+        }
+      }
 
       // Fetch enrollments for instructor's courses
       if (coursesData && coursesData.length > 0) {
@@ -1523,6 +1545,7 @@ const Instructor = () => {
                             <TableHead>Email</TableHead>
                             <TableHead>Phone</TableHead>
                             <TableHead>Course</TableHead>
+                            <TableHead>Role</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Enrolled</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
@@ -1537,6 +1560,72 @@ const Instructor = () => {
                               <TableCell>{enrollment.profiles?.email || "-"}</TableCell>
                               <TableCell>{enrollment.profiles?.phone || "-"}</TableCell>
                               <TableCell>{enrollment.courses?.title || "-"}</TableCell>
+                              <TableCell>
+                                <Select
+                                  value={
+                                    courseInstructors.some(ci => ci.instructor_id === enrollment.user_id && ci.course_id === enrollment.course_id && ci.role === "primary")
+                                      ? "owner"
+                                      : courseInstructors.some(ci => ci.instructor_id === enrollment.user_id && ci.course_id === enrollment.course_id && ci.role === "co_instructor")
+                                      ? "co_instructor"
+                                      : "student"
+                                  }
+                                  onValueChange={async (value) => {
+                                    try {
+                                      const existingEntry = courseInstructors.find(
+                                        ci => ci.instructor_id === enrollment.user_id && ci.course_id === enrollment.course_id
+                                      );
+
+                                      if (value === "student") {
+                                        if (existingEntry) {
+                                          await supabase.from("course_instructors").delete().eq("id", existingEntry.id);
+                                        }
+                                      } else {
+                                        const role = value === "owner" ? "primary" : "co_instructor";
+                                        // Ensure user has moderator role
+                                        const { data: existingRole } = await supabase
+                                          .from("user_roles")
+                                          .select("id")
+                                          .eq("user_id", enrollment.user_id)
+                                          .eq("role", "moderator")
+                                          .maybeSingle();
+                                        if (!existingRole) {
+                                          await supabase.from("user_roles").insert({ user_id: enrollment.user_id, role: "moderator" });
+                                        }
+
+                                        if (existingEntry) {
+                                          await supabase.from("course_instructors").update({ role }).eq("id", existingEntry.id);
+                                        } else {
+                                          await supabase.from("course_instructors").insert({
+                                            course_id: enrollment.course_id,
+                                            instructor_id: enrollment.user_id,
+                                            role,
+                                            added_by: currentUserId,
+                                          });
+                                        }
+
+                                        if (value === "owner") {
+                                          await supabase.from("courses").update({ instructor_id: enrollment.user_id }).eq("id", enrollment.course_id);
+                                        }
+                                      }
+
+                                      toast({ title: "Role updated", description: `Student role updated to ${value === "owner" ? "Owner" : value === "co_instructor" ? "Co-Instructor" : "Student"}` });
+                                      fetchCourseInstructors();
+                                    } catch (error) {
+                                      console.error("Error updating role:", error);
+                                      toast({ title: "Error", description: "Failed to update role", variant: "destructive" });
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger className="w-[140px] h-8">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="student">Student</SelectItem>
+                                    <SelectItem value="co_instructor">Co-Instructor</SelectItem>
+                                    <SelectItem value="owner">Owner</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </TableCell>
                               <TableCell>
                                 <Badge
                                   variant={enrollment.payment_status === "completed" ? "default" : "secondary"}
@@ -1601,7 +1690,7 @@ const Instructor = () => {
                           ))}
                           {paginatedEnrollments.length === 0 && (
                             <TableRow>
-                              <TableCell colSpan={7} className="text-center text-muted-foreground">
+                              <TableCell colSpan={8} className="text-center text-muted-foreground">
                                 {enrollments.length === 0 ? "No students enrolled yet" : "No students match your filters"}
                               </TableCell>
                             </TableRow>
