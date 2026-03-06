@@ -148,7 +148,7 @@ const CourseDetail = () => {
   const [previewLesson, setPreviewLesson] = useState<LessonContent | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [selectedCurriculumSection, setSelectedCurriculumSection] = useState<string | null>(null);
-
+  const [textPageInfo, setTextPageInfo] = useState<{ current: number; total: number }>({ current: 1, total: 1 });
   // Get active lesson ID for time tracking
   const activeLessonId = activeContent?.type === "lesson" ? activeContent.data.id : undefined;
   const activeLesson = activeContent?.type === "lesson" ? activeContent.data as LessonContent : null;
@@ -773,7 +773,7 @@ const CourseDetail = () => {
       lesson.content_type === "vimeo" && lesson.content_url ? getVimeoEmbedUrl(lesson.content_url) : null;
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-2">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <h3 className="text-xl font-semibold">{lesson.title}</h3>
           <div className="flex items-center gap-2">
@@ -965,6 +965,7 @@ const CourseDetail = () => {
           <PaginatedTextContent
             htmlContent={sanitizeYouTubeIframes(lesson.content_text)}
             className="prose prose-sm max-w-none p-6 bg-muted/50 rounded-lg break-words overflow-wrap-anywhere [&>h1]:text-xl [&>h1]:font-bold [&>h1]:mb-3 [&>h2]:text-lg [&>h2]:font-semibold [&>h2]:mb-2 [&>h3]:text-base [&>h3]:font-medium [&>h3]:mb-2 [&>p]:mb-4 [&>p]:leading-relaxed [&>p]:break-words [&>ul]:mb-4 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:mb-4 [&>ol]:list-decimal [&>ol]:pl-5 [&>li]:mb-1 [&>li]:break-words [&>a]:text-primary [&>a]:underline [&>a]:break-all [&>pre]:bg-muted [&>pre]:p-4 [&>pre]:rounded-md [&>pre]:overflow-x-auto [&>pre]:whitespace-pre-wrap [&>pre]:break-words [&>code]:break-words [&>blockquote]:border-l-4 [&>blockquote]:border-primary/30 [&>blockquote]:pl-4 [&>blockquote]:italic [&_*]:max-w-full"
+            onPageInfo={(current, total) => setTextPageInfo({ current, total })}
           />
         )}
 
@@ -990,7 +991,7 @@ const CourseDetail = () => {
         )}
 
         {/* Mark Complete and Next Buttons */}
-        <div className="flex justify-between items-center gap-2 pt-4">
+        <div className="flex justify-between items-center gap-2 pt-2">
           <div>
             {hasPreviousContent() && (
               <Button variant="outline" onClick={goToPreviousContent}>
@@ -999,6 +1000,11 @@ const CourseDetail = () => {
               </Button>
             )}
           </div>
+          {lesson.content_text && textPageInfo.total > 1 && (
+            <span className="text-sm font-medium text-muted-foreground">
+              Page {textPageInfo.current} of {textPageInfo.total}
+            </span>
+          )}
           <div className="flex items-center gap-2">
           {isLessonCompleted(lesson.id) ? (
             <Badge className="bg-green-500">
