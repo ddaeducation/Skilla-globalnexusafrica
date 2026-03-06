@@ -8,7 +8,7 @@ interface PaginatedTextContentProps {
   onPageInfo?: (currentPage: number, totalPages: number, setPage: (page: number) => void) => void;
 }
 
-export default function PaginatedTextContent({ htmlContent, className }: PaginatedTextContentProps) {
+export default function PaginatedTextContent({ htmlContent, className, onPageInfo }: PaginatedTextContentProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,6 +35,10 @@ export default function PaginatedTextContent({ htmlContent, className }: Paginat
   useEffect(() => {
     setCurrentPage(1);
   }, [htmlContent]);
+
+  useEffect(() => {
+    onPageInfo?.(currentPage, totalPages, setCurrentPage);
+  }, [currentPage, totalPages, onPageInfo]);
 
   const scrollOffset = (currentPage - 1) * pageHeight;
 
@@ -70,15 +74,6 @@ export default function PaginatedTextContent({ htmlContent, className }: Paginat
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
         </div>
-
-        {/* Page indicator */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center pt-3">
-            <span className="text-sm font-medium text-muted-foreground">
-              Page {currentPage} of {totalPages}
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Right arrow */}
