@@ -116,6 +116,7 @@ const CertificateVerify = () => {
           student_name: studentName,
           course_title: courseTitle,
           school,
+          duration,
           avg_quiz_score: avgQuiz,
           avg_assignment_score: avgAssignment,
           completed_date: new Date(cert.issued_at).toLocaleDateString("en-US", {
