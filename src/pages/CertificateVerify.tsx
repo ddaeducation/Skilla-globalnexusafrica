@@ -3,8 +3,7 @@ import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, XCircle, Award, User, BookOpen, Calendar, BarChart2, ClipboardList } from "lucide-react";
-import { Loader2 } from "lucide-react";
+import { CheckCircle2, XCircle, Award, User, BookOpen, Calendar, BarChart2, ClipboardList, Clock, GraduationCap, Loader2 } from "lucide-react";
 
 interface CertificateInfo {
   certificate_number: string;
@@ -12,6 +11,7 @@ interface CertificateInfo {
   student_name: string;
   course_title: string;
   school: string;
+  duration: string | null;
   avg_quiz_score: number | null;
   avg_assignment_score: number | null;
   completed_date: string;
@@ -48,12 +48,13 @@ const CertificateVerify = () => {
         // Fetch profile, course in parallel
         const [profileRes, courseRes] = await Promise.all([
           supabase.from("profiles").select("full_name").eq("id", cert.user_id).single(),
-          supabase.from("courses").select("title, school").eq("id", cert.course_id).single(),
+          supabase.from("courses").select("title, school, duration").eq("id", cert.course_id).single(),
         ]);
 
         const studentName = profileRes.data?.full_name || "Student";
         const courseTitle = courseRes.data?.title || "Course";
         const school = courseRes.data?.school || "";
+        const duration = courseRes.data?.duration || null;
 
         // Fetch quiz attempts for average
         const { data: attempts } = await supabase
@@ -115,6 +116,7 @@ const CertificateVerify = () => {
           student_name: studentName,
           course_title: courseTitle,
           school,
+          duration,
           avg_quiz_score: avgQuiz,
           avg_assignment_score: avgAssignment,
           completed_date: new Date(cert.issued_at).toLocaleDateString("en-US", {
@@ -163,7 +165,16 @@ const CertificateVerify = () => {
             </CardContent>
           </Card>
         ) : info ? (
-          <Card className="border-green-500/30">
+          <Card className="border-primary/30 overflow-hidden">
+            {/* School branding banner */}
+            {info.school && (
+              <div className="bg-primary px-6 py-3 flex items-center gap-3">
+                <GraduationCap className="w-5 h-5 text-primary-foreground" />
+                <span className="text-sm font-semibold text-primary-foreground">
+                  School of {info.school}
+                </span>
+              </div>
+            )}
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-8 h-8 text-green-500 shrink-0" />
@@ -188,11 +199,11 @@ const CertificateVerify = () => {
                   label="Course"
                   value={info.course_title}
                 />
-                {info.school && (
+                {info.duration && (
                   <InfoRow
-                    icon={<Award className="w-4 h-4 text-primary" />}
-                    label="School"
-                    value={info.school}
+                    icon={<Clock className="w-4 h-4 text-primary" />}
+                    label="Course Duration"
+                    value={info.duration}
                   />
                 )}
                 <InfoRow
