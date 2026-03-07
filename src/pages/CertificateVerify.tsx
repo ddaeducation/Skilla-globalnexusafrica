@@ -12,6 +12,7 @@ interface CertificateInfo {
   student_name: string;
   course_title: string;
   school: string;
+  duration: string | null;
   avg_quiz_score: number | null;
   avg_assignment_score: number | null;
   completed_date: string;
