@@ -1799,8 +1799,10 @@ const CourseDetail = () => {
           assignmentTitle={selectedAssignment.title}
           assignmentDescription={selectedAssignment.description}
           instructions={selectedAssignment.instructions}
+          rubrics={selectedAssignment.rubrics}
           maxScore={selectedAssignment.max_score}
           dueDate={selectedAssignment.due_date}
+          aiGradingEnabled={selectedAssignment.ai_grading_enabled}
           open={assignmentOpen}
           onClose={() => {
             setAssignmentOpen(false);
