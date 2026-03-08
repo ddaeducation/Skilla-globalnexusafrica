@@ -243,7 +243,19 @@ const CourseDetail = () => {
   };
 
   const fetchCourse = async () => {
-    const { data, error } = await supabase.from("courses").select("*").eq("id", courseId).maybeSingle();
+    // Try fetching by slug first, then fall back to UUID
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(courseParam || "");
+    
+    let data: any = null;
+    let error: any = null;
+
+    if (isUUID) {
+      ({ data, error } = await supabase.from("courses").select("*").eq("id", courseParam).maybeSingle());
+    }
+    
+    if (!data) {
+      ({ data, error } = await supabase.from("courses").select("*").eq("slug", courseParam).maybeSingle());
+    }
 
     if (error || !data) {
       toast({
@@ -254,8 +266,16 @@ const CourseDetail = () => {
       navigate("/lms");
       return;
     }
+    
+    // Set the resolved UUID as courseId for internal use
+    setCourseId(data.id);
     setCourse(data);
     setLoading(false);
+
+    // Redirect UUID URLs to slug URLs for SEO
+    if (isUUID && data.slug && courseParam !== data.slug) {
+      navigate(`/course/${data.slug}`, { replace: true });
+    }
 
     // Fetch instructor profile
     if (data.instructor_id) {
