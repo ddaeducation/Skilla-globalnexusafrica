@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Clock, Video, Award, ArrowLeft, CheckCircle, Loader2, Star, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { getFallbackRating, formatCoursePrice } from "@/lib/courseUtils";
+import { getFallbackRating } from "@/lib/courseUtils";
+import CoursePriceDisplay from "@/components/CoursePriceDisplay";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
