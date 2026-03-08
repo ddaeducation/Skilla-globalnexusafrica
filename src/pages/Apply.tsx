@@ -132,7 +132,9 @@ const Apply = () => {
     },
     customizations: {
       title: "Global Nexus Institute",
-      description: `${numberOfMonths} month${numberOfMonths > 1 ? 's' : ''} subscription for ${programFromUrl || selectedCourse?.title || "Course Access"}`,
+      description: isFullPrice 
+        ? `Lifetime access for ${programFromUrl || selectedCourse?.title || "Course Access"}`
+        : `${numberOfMonths} month${numberOfMonths > 1 ? 's' : ''} subscription for ${programFromUrl || selectedCourse?.title || "Course Access"}`,
       logo: "https://hapixvzfcnawjlttkjtr.supabase.co/storage/v1/object/public/avatars/gni-logo.png",
     },
   };
