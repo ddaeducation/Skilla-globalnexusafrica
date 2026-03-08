@@ -510,13 +510,14 @@ export const CourseInstructorManager = ({
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs">Assign Role</Label>
-                  <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as "co_instructor" | "primary")}>
+                  <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as "co_instructor" | "primary" | "admin")}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="co_instructor">Co-Instructor</SelectItem>
                       <SelectItem value="primary">Owner (Primary Instructor)</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

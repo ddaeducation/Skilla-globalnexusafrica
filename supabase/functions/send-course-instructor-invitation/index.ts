@@ -133,7 +133,7 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "https://skilllafrica.lovable.app";
     const inviteLink = `${origin}/accept-course-instructor-invite?token=${invitation.token}`;
-    const roleLabel = role === "primary" ? "Course Owner" : "Co-Instructor";
+    const roleLabel = role === "primary" ? "Course Owner" : role === "admin" ? "Platform Admin" : "Co-Instructor";
     const inviterName = inviterProfile?.full_name || inviterProfile?.email || "An instructor";
 
     const emailResponse = await fetch("https://api.resend.com/emails", {
