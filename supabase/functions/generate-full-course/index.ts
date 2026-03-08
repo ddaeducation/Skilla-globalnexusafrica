@@ -123,8 +123,9 @@ Return a JSON object with this exact structure:
             "title": "Assignment: Practical Exercise",
             "description": "Plain text brief description without HTML tags",
             "instructions": "<h3>Overview</h3><p>Instructions...</p><ol><li>Step 1</li><li>Step 2</li></ol>",
-            "max_score": 100
-          }` : "null"}
+            "max_score": 100,
+              "ai_grading_enabled": true
+            }` : "null"}
         }
       ]
     }
