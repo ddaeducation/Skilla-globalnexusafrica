@@ -21,9 +21,9 @@ serve(async (req) => {
       );
     }
 
-    if (!["co_instructor", "primary"].includes(role)) {
+    if (!["co_instructor", "primary", "admin"].includes(role)) {
       return new Response(
-        JSON.stringify({ error: "role must be co_instructor or primary" }),
+        JSON.stringify({ error: "role must be co_instructor, primary, or admin" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
