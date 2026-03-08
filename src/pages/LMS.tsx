@@ -233,8 +233,8 @@ const LMS = () => {
     return enrollment?.subscription_expires_at || null;
   };
 
-  const handleEnroll = (courseId: string) => {
-    navigate(`/course/${courseId}`);
+  const handleEnroll = (courseId: string, courseSlug?: string) => {
+    navigate(`/course/${courseSlug || courseId}`);
   };
 
   const handleResendVerification = async () => {
