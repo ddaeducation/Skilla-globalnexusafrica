@@ -459,7 +459,8 @@ const Apply = () => {
           enrollment_id: enrollId,
           coupon_id: appliedCoupon?.id || null,
           discount_applied: appliedCoupon ? totalDiscountUSD : 0,
-          months_paid: numberOfMonths,
+          months_paid: isFullPrice ? null : numberOfMonths,
+          is_full_price: isFullPrice,
         },
       });
 

@@ -25,7 +25,7 @@ serve(async (req) => {
   }
 
   try {
-    const { transaction_id, tx_ref, enrollment_id, coupon_id, discount_applied, months_paid } = await req.json();
+    const { transaction_id, tx_ref, enrollment_id, coupon_id, discount_applied, months_paid, is_full_price } = await req.json();
     
     console.log("Verifying Flutterwave payment:", { transaction_id, tx_ref, enrollment_id, coupon_id });
 
