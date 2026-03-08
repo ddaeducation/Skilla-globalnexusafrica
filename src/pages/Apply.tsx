@@ -527,8 +527,13 @@ const Apply = () => {
           
           if (existingEnrollment) {
             // Update existing pending enrollment to completed
-            const freeExpiresAt = isFullPrice ? null : new Date();
-            if (freeExpiresAt) freeExpiresAt.setMonth(freeExpiresAt.getMonth() + numberOfMonths);
+            let freeExpiresAt: Date | null = null;
+            if (isFullPrice) {
+              freeExpiresAt = calculateFullPriceExpiry(selectedCourse.duration);
+            } else {
+              freeExpiresAt = new Date();
+              freeExpiresAt.setMonth(freeExpiresAt.getMonth() + numberOfMonths);
+            }
             const { error: updateError } = await supabase
               .from("enrollments")
               .update({
