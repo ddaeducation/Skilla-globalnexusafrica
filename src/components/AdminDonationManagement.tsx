@@ -109,21 +109,21 @@ const AdminDonationManagement = () => {
   };
 
   const handleExport = (type: "excel" | "pdf") => {
-    const exportData = donations.map(d => ({
-      Date: format(new Date(d.created_at), "MMM dd, yyyy HH:mm"),
-      Name: d.name || "Anonymous",
-      Email: d.email || "",
-      Phone: d.phone || "",
-      Amount: d.amount,
-      Currency: d.currency,
-      Message: d.message || "",
-      Status: d.status,
-    }));
+    const columns = [
+      { header: "Date", accessor: (d: any) => format(new Date(d.created_at), "MMM dd, yyyy HH:mm") },
+      { header: "Name", accessor: (d: any) => d.name || "Anonymous" },
+      { header: "Email", accessor: (d: any) => d.email || "" },
+      { header: "Phone", accessor: (d: any) => d.phone || "" },
+      { header: "Amount", accessor: (d: any) => d.amount },
+      { header: "Currency", accessor: (d: any) => d.currency },
+      { header: "Message", accessor: (d: any) => d.message || "" },
+      { header: "Status", accessor: (d: any) => d.status },
+    ];
 
     if (type === "excel") {
-      exportToExcel(exportData, "donations");
+      exportToExcel(donations, columns, "donations");
     } else {
-      exportToPDF(exportData, "donations", "Donations Report");
+      exportToPDF(donations, columns, "donations", "Donations Report");
     }
   };
 

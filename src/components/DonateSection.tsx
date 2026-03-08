@@ -110,7 +110,7 @@ const DonateSection = () => {
     setIsSubmitting(true);
 
     handleFlutterPayment({
-      callback: (response) => {
+      callback: async (response) => {
         console.log("Donation payment response:", response);
         closePaymentModal();
         if (response.status === "successful" || response.status === "completed") {
