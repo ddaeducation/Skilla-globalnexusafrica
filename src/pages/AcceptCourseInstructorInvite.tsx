@@ -189,8 +189,8 @@ const AcceptCourseInstructorInvite = () => {
                 <p className="font-semibold text-lg">Invitation Accepted!</p>
                 <p className="text-muted-foreground text-sm">{message}</p>
               </div>
-              <Button onClick={() => navigate("/instructor")} className="w-full">
-                Go to Instructor Dashboard
+              <Button onClick={() => navigate(acceptedRole === "admin" ? "/admin" : "/instructor")} className="w-full">
+                {acceptedRole === "admin" ? "Go to Admin Dashboard" : "Go to Instructor Dashboard"}
               </Button>
             </div>
           )}
