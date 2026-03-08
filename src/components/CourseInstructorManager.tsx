@@ -75,6 +75,7 @@ export const CourseInstructorManager = ({
 }: CourseInstructorManagerProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [courseInstructors, setCourseInstructors] = useState<CourseInstructor[]>([]);
   const [pendingInvitations, setPendingInvitations] = useState<PendingInvitation[]>([]);
   const [primaryProfile, setPrimaryProfile] = useState<{ full_name: string | null; email: string | null } | null>(null);
