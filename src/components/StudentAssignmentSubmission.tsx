@@ -43,6 +43,7 @@ interface StudentAssignmentSubmissionProps {
   rubrics?: string | null;
   maxScore: number;
   dueDate?: string | null;
+  aiGradingEnabled?: boolean;
   open: boolean;
   onClose: () => void;
   onSubmit?: () => void;
