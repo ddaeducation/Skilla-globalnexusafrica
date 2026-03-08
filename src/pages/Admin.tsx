@@ -3703,6 +3703,21 @@ const Admin = () => {
               </div>
               <AdminPromotionalManagement />
             </TabsContent>
+
+            {/* Donations Tab */}
+            <TabsContent value="donations" className="space-y-4">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-semibold flex items-center gap-2">
+                    Donations
+                  </h2>
+                  <p className="text-muted-foreground">
+                    View and manage all donations received
+                  </p>
+                </div>
+              </div>
+              <AdminDonationManagement />
+            </TabsContent>
           </Tabs>
         </div>
       </main>
