@@ -48,7 +48,7 @@ interface CourseInstructor {
 interface PendingInvitation {
   id: string;
   email: string;
-  role: "co_instructor" | "primary";
+  role: "co_instructor" | "primary" | "admin";
   status: string;
   created_at: string;
   expires_at: string;
