@@ -150,8 +150,14 @@ const AcceptCourseInstructorInvite = () => {
               </div>
 
               {inviteInfo.role === "primary" && (
-              <div className="bg-warning/10 border border-warning/30 rounded-md p-3 text-sm text-warning-foreground">
+                <div className="bg-warning/10 border border-warning/30 rounded-md p-3 text-sm text-warning-foreground">
                   ⚠️ Accepting this invitation will make you the <strong>primary owner</strong> of the course.
+                </div>
+              )}
+
+              {inviteInfo.role === "admin" && (
+                <div className="bg-warning/10 border border-warning/30 rounded-md p-3 text-sm text-warning-foreground">
+                  ⚠️ Accepting this invitation will grant you <strong>platform-wide Admin</strong> access.
                 </div>
               )}
 
