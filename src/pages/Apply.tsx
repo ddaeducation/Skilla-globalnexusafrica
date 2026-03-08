@@ -963,9 +963,11 @@ const Apply = () => {
               <CardContent>
                 <div className="mb-6 p-4 bg-muted rounded-lg">
                   <p className="text-sm text-muted-foreground">
-                    {courseMonthlyPrice === 0 
+                    {courseDisplayPrice === 0 
                       ? "No payment required - enjoy free access to this course" 
-                      : `Pay for ${numberOfMonths} month${numberOfMonths > 1 ? 's' : ''} of access to this course`
+                      : isFullPrice
+                        ? "Pay once and get lifetime access to this course"
+                        : `Pay for ${numberOfMonths} month${numberOfMonths > 1 ? 's' : ''} of access to this course`
                     }
                   </p>
                   <div className="mt-3 pt-3 border-t border-border">
