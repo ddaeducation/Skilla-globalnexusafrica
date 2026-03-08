@@ -77,18 +77,42 @@ serve(async (req) => {
 
     console.log(`Generating full course structure for: ${courseTitle}`);
 
-    const systemPrompt = `You are an expert curriculum designer. Generate a complete course structure with modules, units, lessons, quizzes, and assignments. 
+    const systemPrompt = `You are a world-class curriculum designer and subject matter expert. Your task is to generate a comprehensive, university-quality course structure with modules, units, lessons, quizzes, and assignments.
 The course is for ${difficulty} level learners.
+
+CONTENT QUALITY REQUIREMENTS:
+- Each lesson MUST contain at least 800-1200 words of substantive, educational content.
+- Write like a professional textbook author: clear explanations, real-world examples, practical applications.
+- Include concrete examples, case studies, analogies, and step-by-step explanations where relevant.
+- Use a progressive learning approach: each lesson should build on previous concepts.
+- Avoid generic filler text. Every paragraph must teach something specific and valuable.
+- Include practical tips, common mistakes to avoid, and industry best practices.
+- For technical topics, include code snippets or formulas wrapped in <code> or <pre> tags.
+- Each lesson should have clearly defined learning objectives stated at the beginning.
+
+QUIZ QUALITY REQUIREMENTS:
+- Questions must test understanding, not just memorization.
+- Include a mix of difficulty levels within each quiz.
+- Each question MUST have a detailed explanation of why the correct answer is right and why others are wrong.
+- Options should be plausible and well-crafted (avoid obviously wrong answers).
+- Generate 4-5 questions per quiz, covering different aspects of the unit.
+
+ASSIGNMENT QUALITY REQUIREMENTS:
+- Assignments must be practical, hands-on exercises that apply lesson concepts.
+- Instructions should be detailed with clear deliverables, evaluation criteria, and expected outcomes.
+- Include context about why the assignment matters and what skills it develops.
 
 CRITICAL: Return ONLY valid JSON, no markdown code fences. The response must be a JSON object.
 
 CRITICAL FORMATTING RULES for all content_text and instructions fields:
-- Write as proper HTML with <p>, <h2>, <h3>, <ul>, <ol>, <strong>, <em>, <a> tags.
+- Write as proper HTML with <p>, <h2>, <h3>, <ul>, <ol>, <strong>, <em>, <a>, <blockquote>, <code>, <pre> tags.
 - Each paragraph must be a separate <p> block.
 - Never output raw text without HTML tags.
-- IMPORTANT: At the end of each lesson's content_text, include a <h3>Further Reading & Resources</h3> section with 2-4 real, relevant links to books, articles, documentation, or videos. Use <ul> with <li> items containing <a href="URL" target="_blank" rel="noopener noreferrer">Resource Title</a> tags. Include a mix of free resources (YouTube videos, official docs, Wikipedia, MDN, Khan Academy, etc.) and well-known books. Make sure URLs are real and commonly known (e.g., official documentation sites, popular YouTube channels, well-known publisher pages).`;
+- Use <strong> for key terms and <em> for emphasis.
+- Use <blockquote> for important notes or quotes.
+- IMPORTANT: At the end of each lesson's content_text, include a <h3>Further Reading & Resources</h3> section with 2-4 real, relevant links to books, articles, documentation, or videos. Use <ul> with <li> items containing <a href="URL" target="_blank" rel="noopener noreferrer">Resource Title</a> tags. Include a mix of free resources (YouTube videos, official docs, Wikipedia, MDN, Khan Academy, etc.) and well-known books. Make sure URLs are real and commonly known.`;
 
-    const userPrompt = `Create a complete course structure for:
+    const userPrompt = `Create a complete, high-quality course structure for:
 Title: "${courseTitle}"
 Description: "${courseDescription}"
 Modules: ${modulesCount}
@@ -102,55 +126,65 @@ Return a JSON object with this exact structure:
   "modules": [
     {
       "title": "Module 1: Title",
-      "description": "Plain text module description without any HTML tags",
+      "description": "Plain text module description (2-3 sentences explaining what this module covers and why it matters)",
       "units": [
         {
           "title": "Unit 1.1: Title",
-          "description": "Plain text unit description without any HTML tags",
+          "description": "Plain text unit description (2-3 sentences) without any HTML tags",
           "lessons": [
             {
               "title": "Lesson Title",
               "description": "2-3 sentence plain text description without any HTML tags",
-              "content_text": "<h2>Title</h2><p>Detailed lesson content with multiple paragraphs...</p><h3>Section</h3><p>More content...</p><h3>Key Takeaways</h3><ul><li>Point 1</li><li>Point 2</li></ul><h3>Further Reading & Resources</h3><ul><li><a href=\"https://example.com/article\" target=\"_blank\" rel=\"noopener noreferrer\">Relevant Article Title</a> - Brief description</li><li><a href=\"https://youtube.com/watch?v=...\" target=\"_blank\" rel=\"noopener noreferrer\">Video Tutorial Title</a> - Brief description</li></ul>",
-              "duration_minutes": 20
+              "content_text": "<h2>Lesson Title</h2><p><strong>Learning Objectives:</strong></p><ul><li>Objective 1</li><li>Objective 2</li></ul><h3>Introduction</h3><p>Engaging introduction paragraph that hooks the reader and explains why this topic matters...</p><h3>Core Concepts</h3><p>Detailed explanation with examples, at least 3-4 paragraphs...</p><h3>Practical Application</h3><p>Real-world examples, case studies, or step-by-step walkthroughs...</p><h3>Common Pitfalls</h3><p>Mistakes learners often make and how to avoid them...</p><h3>Key Takeaways</h3><ul><li>Takeaway 1</li><li>Takeaway 2</li><li>Takeaway 3</li></ul><h3>Further Reading & Resources</h3><ul><li><a href=\"https://example.com\" target=\"_blank\" rel=\"noopener noreferrer\">Resource Title</a> - Brief description</li></ul>",
+              "duration_minutes": 25
             }
           ],
           "quiz": ${includeQuizzes ? `{
             "title": "Quiz: Unit Title",
-            "description": "Plain text description without HTML tags",
+            "description": "Plain text description testing comprehension of key concepts covered in this unit",
             "passing_score": 70,
             "questions": [
               {
-                "question_text": "Question?",
+                "question_text": "Clear, specific question that tests understanding?",
                 "question_type": "single_choice",
                 "points": 1,
-                "explanation": "Why this is correct",
+                "explanation": "Detailed explanation: The correct answer is B because... Options A, C, and D are incorrect because...",
                 "options": [
-                  { "text": "Option A", "is_correct": false },
-                  { "text": "Option B", "is_correct": true },
-                  { "text": "Option C", "is_correct": false },
-                  { "text": "Option D", "is_correct": false }
+                  { "text": "Plausible but incorrect option", "is_correct": false },
+                  { "text": "Correct answer", "is_correct": true },
+                  { "text": "Another plausible distractor", "is_correct": false },
+                  { "text": "Yet another distractor", "is_correct": false }
                 ]
               }
             ]
           }` : "null"},
           "assignment": ${includeAssignments ? `{
-            "title": "Assignment: Practical Exercise",
-            "description": "Plain text brief description without HTML tags",
-            "instructions": "<h3>Overview</h3><p>Instructions...</p><ol><li>Step 1</li><li>Step 2</li></ol>",
+            "title": "Assignment: Descriptive Exercise Title",
+            "description": "Plain text brief description of what students will create or accomplish",
+            "instructions": "<h3>Overview</h3><p>Context and purpose of this assignment...</p><h3>Requirements</h3><ol><li>Specific requirement 1 with details</li><li>Specific requirement 2 with details</li><li>Specific requirement 3 with details</li></ol><h3>Evaluation Criteria</h3><ul><li>Criterion 1 (weight)</li><li>Criterion 2 (weight)</li></ul><h3>Submission Guidelines</h3><p>What to submit and in what format...</p>",
             "max_score": 100,
-              "ai_grading_enabled": true
-            }` : "null"}
+            "ai_grading_enabled": true
+          }` : "null"}
         }
       ]
     }
   ],
-  "learning_outcomes": ["Outcome 1", "Outcome 2", "Outcome 3"]
+  "learning_outcomes": ["Specific, measurable outcome 1", "Outcome 2", "Outcome 3", "Outcome 4", "Outcome 5"]
 }
 
-Generate ${lessonsPerModule} lessons per unit, with 3-5 quiz questions per quiz. Make content substantive and educational.
+Generate exactly ${lessonsPerModule} lessons per unit, with 4-5 quiz questions per quiz. 
 
-IMPORTANT: All "description" fields MUST be plain text only - NO HTML tags whatsoever. Only "content_text" and "instructions" fields should contain HTML.`;
+QUALITY CHECKLIST - Every lesson MUST have:
+1. Learning objectives at the start
+2. An engaging introduction 
+3. Multiple detailed sections with real examples
+4. Practical applications or case studies
+5. Common pitfalls or mistakes section
+6. Key takeaways summary
+7. Further reading resources with real URLs
+
+IMPORTANT: All "description" fields MUST be plain text only - NO HTML tags whatsoever. Only "content_text" and "instructions" fields should contain HTML.
+Make the content genuinely educational and detailed - imagine writing for a real student who needs to learn this material thoroughly.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
