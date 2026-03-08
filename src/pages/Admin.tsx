@@ -1731,10 +1731,22 @@ const Admin = () => {
                           <Input
                             type="number"
                             value={courseForm.monthly_price}
-                            onChange={(e) => setCourseForm({ ...courseForm, monthly_price: Number(e.target.value) })}
+                             onChange={(e) => setCourseForm({ ...courseForm, monthly_price: Number(e.target.value) })}
                             placeholder="e.g., 20"
                           />
                         </div>
+                        <div className="space-y-2">
+                          <Label>Display Currency on Card</Label>
+                          <select
+                            className="flex h-10 w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            value={courseForm.price_display_currency}
+                            onChange={(e) => setCourseForm({ ...courseForm, price_display_currency: e.target.value })}
+                          >
+                            <option value="USD">USD ($)</option>
+                            <option value="RWF">RWF</option>
+                          </select>
+                        </div>
+                      </div>
                       </div>
                       <div className="space-y-2">
                         <Label>Learning Outcomes (comma-separated)</Label>
