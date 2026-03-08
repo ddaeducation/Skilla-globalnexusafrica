@@ -57,7 +57,7 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
       setIsSearching(true);
       const { data } = await supabase
         .from("courses")
-        .select("id, title, school")
+        .select("id, title, school, slug")
         .ilike("title", `%${searchQuery}%`)
         .in("publish_status", ["live", "upcoming"])
         .limit(8);
@@ -200,7 +200,7 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
                   <button
                     key={course.id}
                     onClick={() => {
-                      navigate(`/course/${course.id}`);
+                      navigate(`/course/${(course as any).slug || course.id}`);
                       setSearchOpen(false);
                       setSearchQuery("");
                       setSearchResults([]);
@@ -336,7 +336,7 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
                   <button
                     key={course.id}
                     onClick={() => {
-                      navigate(`/course/${course.id}`);
+                      navigate(`/course/${(course as any).slug || course.id}`);
                       setIsMenuOpen(false);
                       setSearchQuery("");
                       setSearchResults([]);

@@ -38,7 +38,7 @@ const SchoolPrograms = () => {
       const {
         data,
         error
-      } = await supabase.from("courses").select("id, title, description, duration, school, price, monthly_price, learning_outcomes, category").eq("school", dbSchoolName).eq("approval_status", "approved").in("publish_status", ["live", "upcoming"]);
+      } = await supabase.from("courses").select("id, title, description, duration, school, price, monthly_price, learning_outcomes, category, slug").eq("school", dbSchoolName).eq("approval_status", "approved").in("publish_status", ["live", "upcoming"]);
       if (error) throw error;
       return data || [];
     },
@@ -483,7 +483,7 @@ const SchoolPrograms = () => {
                 {dbCourses.map((course, index) => {
               const displayPrice = (course as any).monthly_price ?? course.price;
               const priceText = `$${displayPrice > 0 ? displayPrice : 5}/mo`;
-              return <ProgramCard key={course.id} title={course.title} description={course.description || ""} duration={course.duration || "Self-paced"} format="Live classes + recorded lectures" category={(course as any).category || undefined} skills={course.learning_outcomes as string[] || []} gradientColor={currentSchool.color} animationDelay={index * 0.1} enrollLink={`/course/${course.id}`} enrollButtonText={`Enroll Now - ${priceText}`} />;
+              return <ProgramCard key={course.id} title={course.title} description={course.description || ""} duration={course.duration || "Self-paced"} format="Live classes + recorded lectures" category={(course as any).category || undefined} skills={course.learning_outcomes as string[] || []} gradientColor={currentSchool.color} animationDelay={index * 0.1} enrollLink={`/course/${(course as any).slug || course.id}`} enrollButtonText={`Enroll Now - ${priceText}`} />;
             })}
               </div> : <div className="text-center py-12">
                 <p className="text-muted-foreground">No programs available yet. Check back soon!</p>

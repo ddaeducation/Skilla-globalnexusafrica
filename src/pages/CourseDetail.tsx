@@ -123,11 +123,12 @@ type ContentItem =
   | { type: "assignment"; data: Assignment; order_index: number };
 
 const CourseDetail = () => {
-  const { courseId } = useParams();
+  const { courseId: courseParam } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [course, setCourse] = useState<any>(null);
+  const [courseId, setCourseId] = useState<string | undefined>(courseParam);
   const [instructorProfile, setInstructorProfile] = useState<{ full_name: string | null; avatar_url: string | null; bio?: string | null } | null>(null);
   const [coInstructors, setCoInstructors] = useState<{ full_name: string | null; avatar_url: string | null; bio?: string | null }[]>([]);
   const [lessons, setLessons] = useState<LessonContent[]>([]);
@@ -194,7 +195,7 @@ const CourseDetail = () => {
 
   useEffect(() => {
     checkUserAndCourse();
-  }, [courseId]);
+  }, [courseParam]);
 
   const checkUserAndCourse = async () => {
     const {
@@ -242,7 +243,19 @@ const CourseDetail = () => {
   };
 
   const fetchCourse = async () => {
-    const { data, error } = await supabase.from("courses").select("*").eq("id", courseId).maybeSingle();
+    // Try fetching by slug first, then fall back to UUID
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(courseParam || "");
+    
+    let data: any = null;
+    let error: any = null;
+
+    if (isUUID) {
+      ({ data, error } = await supabase.from("courses").select("*").eq("id", courseParam).maybeSingle());
+    }
+    
+    if (!data) {
+      ({ data, error } = await supabase.from("courses").select("*").eq("slug", courseParam).maybeSingle());
+    }
 
     if (error || !data) {
       toast({
@@ -253,8 +266,16 @@ const CourseDetail = () => {
       navigate("/lms");
       return;
     }
+    
+    // Set the resolved UUID as courseId for internal use
+    setCourseId(data.id);
     setCourse(data);
     setLoading(false);
+
+    // Redirect UUID URLs to slug URLs for SEO
+    if (isUUID && data.slug && courseParam !== data.slug) {
+      navigate(`/course/${data.slug}`, { replace: true });
+    }
 
     // Fetch instructor profile
     if (data.instructor_id) {
@@ -565,9 +586,11 @@ const CourseDetail = () => {
     }
   }, [lessons, quizzes, assignments, progress, quizAttempts, assignmentSubmissions]);
 
+  const courseSlug = course?.slug || courseId;
+
   const handleEnrollClick = () => {
     if (!user) {
-      navigate(`/signin?redirect=/course/${courseId}`);
+      navigate(`/signin?redirect=/course/${courseSlug}`);
       return;
     }
     navigate(`/apply?courseId=${courseId}`);
@@ -575,7 +598,7 @@ const CourseDetail = () => {
 
   const handleFreePreviewClick = async (lesson: LessonContent) => {
     if (!user) {
-      navigate(`/signin?redirect=/course/${courseId}`);
+      navigate(`/signin?redirect=/course/${courseSlug}`);
       return;
     }
     setLoadingPreview(true);

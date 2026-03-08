@@ -233,8 +233,8 @@ const LMS = () => {
     return enrollment?.subscription_expires_at || null;
   };
 
-  const handleEnroll = (courseId: string) => {
-    navigate(`/course/${courseId}`);
+  const handleEnroll = (courseId: string, courseSlug?: string) => {
+    navigate(`/course/${courseSlug || courseId}`);
   };
 
   const handleResendVerification = async () => {
@@ -430,7 +430,7 @@ const LMS = () => {
                         <CardContent>
                           <Button
                             className="w-full"
-                            onClick={() => navigate(`/course/${course.id}`)}
+                            onClick={() => navigate(`/course/${(course as any).slug || course.id}`)}
                           >
                             <Play className="w-4 h-4 mr-2" />
                             Continue
@@ -583,7 +583,7 @@ const LMS = () => {
                            {isEnrolled(course.id) ? (
                              <Button
                                className="w-full"
-                               onClick={() => navigate(`/course/${course.id}`)}
+                               onClick={() => navigate(`/course/${(course as any).slug || course.id}`)}
                              >
                                <BookOpen className="w-4 h-4 mr-2" />
                                Continue Learning
@@ -662,7 +662,7 @@ const LMS = () => {
                                 {isEnrolled(course.id) ? (
                                   <Button
                                     className="w-full"
-                                    onClick={() => navigate(`/course/${course.id}`)}
+                                    onClick={() => navigate(`/course/${(course as any).slug || course.id}`)}
                                   >
                                     <BookOpen className="w-4 h-4 mr-2" />
                                     Continue
@@ -720,7 +720,7 @@ const LMS = () => {
                       <p className="text-sm line-clamp-2">{course.description}</p>
                       <Button
                         className="w-full"
-                        onClick={() => navigate(`/course/${course.id}`)}
+                        onClick={() => navigate(`/course/${(course as any).slug || course.id}`)}
                       >
                         <BookOpen className="w-4 h-4 mr-2" />
                         Continue Learning
@@ -765,7 +765,7 @@ const LMS = () => {
                       <CardDescription>{course.school}</CardDescription>
                     </CardHeader>
                     <CardContent className="pt-0">
-                      <Button className="w-full" onClick={() => navigate(`/course/${course.id}`)}>
+                      <Button className="w-full" onClick={() => navigate(`/course/${(course as any).slug || course.id}`)}>
                         <Play className="w-4 h-4 mr-2" />
                         View Lessons
                       </Button>

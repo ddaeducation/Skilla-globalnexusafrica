@@ -93,7 +93,7 @@ const AdminPromotionalManagement = () => {
   const fetchCourses = async () => {
     const { data } = await supabase
       .from("courses")
-      .select("id, title, school, category")
+      .select("id, title, school, category, slug")
       .in("publish_status", ["live", "upcoming"])
       .order("title");
     setAllCourses((data as Course[]) || []);
@@ -341,7 +341,7 @@ const AdminPromotionalManagement = () => {
                           {filteredCourses.length === 0 ? (
                             <p className="text-sm text-muted-foreground py-2">No courses found for this school & category.</p>
                           ) : (
-                            <Select value={selectedCourseId} onValueChange={(v) => { setSelectedCourseId(v); setCtaLink(`/course/${v}`); }}>
+                            <Select value={selectedCourseId} onValueChange={(v) => { setSelectedCourseId(v); const selectedCourse = filteredCourses.find(c => c.id === v); setCtaLink(`/course/${(selectedCourse as any)?.slug || v}`); }}>
                               <SelectTrigger><SelectValue placeholder="Select a course..." /></SelectTrigger>
                               <SelectContent>
                                 {filteredCourses.map((c) => (

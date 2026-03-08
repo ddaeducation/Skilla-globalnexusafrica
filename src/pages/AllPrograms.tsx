@@ -73,9 +73,9 @@ const CourseCard = ({ course, instructor, ratingData }: {
   const handleEnroll = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) {
-      navigate(`/signin?redirect=${encodeURIComponent(`/course/${course.id}`)}`);
+      navigate(`/signin?redirect=${encodeURIComponent(`/course/${(course as any).slug || course.id}`)}`);
     } else {
-      navigate(`/course/${course.id}`);
+      navigate(`/course/${(course as any).slug || course.id}`);
     }
   };
 
@@ -144,7 +144,7 @@ const CourseCard = ({ course, instructor, ratingData }: {
               </PopoverContent>
             </Popover>
             <Button size="sm" variant="outline" asChild>
-              <Link to={`/course/${course.id}`}>View Details</Link>
+              <Link to={`/course/${(course as any).slug || course.id}`}>View Details</Link>
             </Button>
             {isUpcoming ? (
               <Button size="sm" disabled variant="outline">
@@ -174,7 +174,7 @@ const AllPrograms = () => {
     const fetchCourses = async () => {
       const { data, error } = await supabase
         .from("courses")
-        .select("id, title, description, school, category, price, monthly_price, duration, image_url, instructor_id, instructor_name, learning_outcomes, publish_status, price_display_currency")
+        .select("id, title, description, school, category, price, monthly_price, duration, image_url, instructor_id, instructor_name, learning_outcomes, publish_status, price_display_currency, slug")
         .eq("approval_status", "approved")
         .in("publish_status", ["live", "upcoming"]);
 

@@ -1237,6 +1237,7 @@ export type Database = {
           pricing_type: string
           publish_status: string
           school: string
+          slug: string
           title: string
         }
         Insert: {
@@ -1258,6 +1259,7 @@ export type Database = {
           pricing_type?: string
           publish_status?: string
           school: string
+          slug: string
           title: string
         }
         Update: {
@@ -1279,6 +1281,7 @@ export type Database = {
           pricing_type?: string
           publish_status?: string
           school?: string
+          slug?: string
           title?: string
         }
         Relationships: []
