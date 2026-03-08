@@ -200,55 +200,38 @@ export const CourseInstructorManager = ({
     onSuccess();
   };
 
-  const handleInviteCoInstructor = async () => {
-    if (!coEmail.trim()) {
-      toast({ title: "Email required", description: "Please enter an email address.", variant: "destructive" });
-      return;
-    }
-    setSendingCo(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await supabase.functions.invoke("send-course-instructor-invitation", {
-        body: { email: coEmail.trim(), courseId, role: "co_instructor" },
-        headers: { Authorization: `Bearer ${session?.access_token}` },
-      });
-
-      handleInvitationResponse(res, coEmail.trim(), "Co-Instructor", () => {
-        setCoEmail("");
-        setCoDialogOpen(false);
-        fetchData();
-        onUpdate?.();
-      });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } finally {
-      setSendingCo(false);
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case "primary": return "Course Owner";
+      case "admin": return "Admin";
+      default: return "Co-Instructor";
     }
   };
 
-  const handleInviteOwner = async () => {
-    if (!transferEmail.trim()) {
+  const handleSendInvitation = async () => {
+    if (!inviteEmail.trim()) {
       toast({ title: "Email required", description: "Please enter an email address.", variant: "destructive" });
       return;
     }
-    setSendingTransfer(true);
+    setSendingInvite(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const res = await supabase.functions.invoke("send-course-instructor-invitation", {
-        body: { email: transferEmail.trim(), courseId, role: "primary" },
+        body: { email: inviteEmail.trim(), courseId, role: inviteRole },
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
 
-      handleInvitationResponse(res, transferEmail.trim(), "Ownership Transfer", () => {
-        setTransferEmail("");
-        setTransferDialogOpen(false);
+      handleInvitationResponse(res, inviteEmail.trim(), getRoleLabel(inviteRole), () => {
+        setInviteEmail("");
+        setInviteRole("co_instructor");
+        setInviteDialogOpen(false);
         fetchData();
         onUpdate?.();
       });
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
-      setSendingTransfer(false);
+      setSendingInvite(false);
     }
   };
 
