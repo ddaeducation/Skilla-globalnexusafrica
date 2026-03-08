@@ -273,13 +273,6 @@ export const StudentAssignmentSubmission = ({
         });
       }
 
-      if (!aiGradingEnabled) {
-        toast({
-          title: "Success!",
-          description: "Your assignment has been submitted.",
-        });
-      }
-
       onSubmit?.();
       onClose();
     } catch (error: any) {
