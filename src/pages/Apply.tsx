@@ -1042,8 +1042,8 @@ const Apply = () => {
                   </div>
                 )}
 
-                {/* Number of Months Selector - only show for paid courses */}
-                {courseMonthlyPrice > 0 && (
+                {/* Number of Months Selector - only show for monthly paid courses */}
+                {courseMonthlyPrice > 0 && !isFullPrice && (
                   <div className="mb-6 p-4 border rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
