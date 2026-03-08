@@ -28,6 +28,7 @@ interface Course {
   instructor_name: string | null;
   learning_outcomes: string[] | null;
   publish_status: string;
+  price_display_currency?: string;
 }
 
 interface InstructorInfo {
