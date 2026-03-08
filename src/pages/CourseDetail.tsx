@@ -1440,22 +1440,43 @@ const CourseDetail = () => {
                 {/* Instructor Bio */}
                 {instructorProfile && (
                   <>
-                    <div className="flex items-start gap-4">
-                      <Avatar className="h-14 w-14">
-                        <AvatarImage src={instructorProfile.avatar_url || undefined} />
-                        <AvatarFallback className="text-lg">
-                          {(instructorProfile.full_name || "I").charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <p className="text-sm text-muted-foreground mb-0.5">Instructor</p>
-                        <p className="font-semibold">{instructorProfile.full_name || course.instructor_name}</p>
-                        {instructorProfile.bio && (
-                          <p className="text-sm text-muted-foreground mt-1 line-clamp-3">
-                            {instructorProfile.bio}
-                          </p>
-                        )}
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-4">
+                        <Avatar className="h-14 w-14">
+                          <AvatarImage src={instructorProfile.avatar_url || undefined} />
+                          <AvatarFallback className="text-lg">
+                            {(instructorProfile.full_name || "I").charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <p className="text-sm text-muted-foreground mb-0.5">Instructor</p>
+                          <p className="font-semibold">{instructorProfile.full_name || course.instructor_name}</p>
+                          {instructorProfile.bio && (
+                            <p className="text-sm text-muted-foreground mt-1 line-clamp-3">
+                              {instructorProfile.bio}
+                            </p>
+                          )}
+                        </div>
                       </div>
+                      {coInstructors.map((co, idx) => (
+                        <div key={idx} className="flex items-start gap-4">
+                          <Avatar className="h-12 w-12">
+                            <AvatarImage src={co.avatar_url || undefined} />
+                            <AvatarFallback>
+                              {(co.full_name || "C").charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <p className="text-sm text-muted-foreground mb-0.5">Co-Instructor</p>
+                            <p className="font-semibold">{co.full_name}</p>
+                            {co.bio && (
+                              <p className="text-sm text-muted-foreground mt-1 line-clamp-3">
+                                {co.bio}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                     <Separator />
                   </>
