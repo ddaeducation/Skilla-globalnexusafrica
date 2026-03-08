@@ -68,9 +68,10 @@ The course is for ${difficulty} level learners.
 CRITICAL: Return ONLY valid JSON, no markdown code fences. The response must be a JSON object.
 
 CRITICAL FORMATTING RULES for all content_text and instructions fields:
-- Write as proper HTML with <p>, <h2>, <h3>, <ul>, <ol>, <strong>, <em> tags.
+- Write as proper HTML with <p>, <h2>, <h3>, <ul>, <ol>, <strong>, <em>, <a> tags.
 - Each paragraph must be a separate <p> block.
-- Never output raw text without HTML tags.`;
+- Never output raw text without HTML tags.
+- IMPORTANT: At the end of each lesson's content_text, include a <h3>Further Reading & Resources</h3> section with 2-4 real, relevant links to books, articles, documentation, or videos. Use <ul> with <li> items containing <a href="URL" target="_blank" rel="noopener noreferrer">Resource Title</a> tags. Include a mix of free resources (YouTube videos, official docs, Wikipedia, MDN, Khan Academy, etc.) and well-known books. Make sure URLs are real and commonly known (e.g., official documentation sites, popular YouTube channels, well-known publisher pages).`;
 
     const userPrompt = `Create a complete course structure for:
 Title: "${courseTitle}"
