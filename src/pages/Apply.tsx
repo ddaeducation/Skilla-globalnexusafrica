@@ -104,10 +104,11 @@ const Apply = () => {
     }
   };
 
-  const discountedMonthlyPriceUSD = calculateDiscountedPrice(courseMonthlyPrice);
-  const discountAmountPerMonth = courseMonthlyPrice - discountedMonthlyPriceUSD;
-  const totalPriceUSD = discountedMonthlyPriceUSD * numberOfMonths;
-  const totalDiscountUSD = discountAmountPerMonth * numberOfMonths;
+  const discountedMonthlyPriceUSD = isFullPrice ? 0 : calculateDiscountedPrice(courseMonthlyPrice);
+  const discountedFullPriceUSD = isFullPrice ? calculateDiscountedPrice(courseFullPrice) : 0;
+  const discountAmountPerMonth = isFullPrice ? 0 : (courseMonthlyPrice - discountedMonthlyPriceUSD);
+  const totalPriceUSD = isFullPrice ? discountedFullPriceUSD : (discountedMonthlyPriceUSD * numberOfMonths);
+  const totalDiscountUSD = isFullPrice ? (courseFullPrice - discountedFullPriceUSD) : (discountAmountPerMonth * numberOfMonths);
   
   // Convert price to selected currency
   const convertPrice = (priceUSD: number) => {
