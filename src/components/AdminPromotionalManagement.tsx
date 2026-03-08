@@ -14,6 +14,24 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Megaphone, Gift, Video, Sparkles, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 
+interface Course {
+  id: string;
+  title: string;
+  school: string;
+  category: string | null;
+}
+
+const schoolOptions = [
+  "Data Engineering",
+  "Product & Innovation",
+  "Data & Analytics",
+  "Business Studies",
+  "Digital & Creative Media",
+  "Languages & Comms",
+];
+
+const categoryOptions = ["Professional", "Short-Course", "Masterclass"];
+
 interface Popup {
   id: string;
   title: string;
@@ -53,9 +71,32 @@ const AdminPromotionalManagement = () => {
   const [isActive, setIsActive] = useState(true);
   const [endDate, setEndDate] = useState("");
 
+  // CTA course picker state
+  const [ctaMode, setCtaMode] = useState<"manual" | "course">("manual");
+  const [allCourses, setAllCourses] = useState<Course[]>([]);
+  const [selectedSchool, setSelectedSchool] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCourseId, setSelectedCourseId] = useState("");
+
+  const filteredCourses = allCourses.filter((c) => {
+    if (selectedSchool && c.school !== selectedSchool) return false;
+    if (selectedCategory && c.category !== selectedCategory) return false;
+    return true;
+  });
+
   useEffect(() => {
     fetchPopups();
+    fetchCourses();
   }, []);
+
+  const fetchCourses = async () => {
+    const { data } = await supabase
+      .from("courses")
+      .select("id, title, school, category")
+      .in("publish_status", ["live", "upcoming"])
+      .order("title");
+    setAllCourses((data as Course[]) || []);
+  };
 
   const fetchPopups = async () => {
     const { data } = await supabase
@@ -76,6 +117,10 @@ const AdminPromotionalManagement = () => {
     setIsActive(true);
     setEndDate("");
     setEditingId(null);
+    setCtaMode("manual");
+    setSelectedSchool("");
+    setSelectedCategory("");
+    setSelectedCourseId("");
   };
 
   const openEdit = (p: Popup) => {
@@ -88,6 +133,27 @@ const AdminPromotionalManagement = () => {
     setCtaLink(p.cta_link || "");
     setIsActive(p.is_active);
     setEndDate(p.end_date ? p.end_date.slice(0, 16) : "");
+    // Detect if CTA link points to a course
+    const courseMatch = p.cta_link?.match(/\/course\/(.+)/);
+    if (courseMatch) {
+      const course = allCourses.find((c) => c.id === courseMatch[1]);
+      if (course) {
+        setCtaMode("course");
+        setSelectedSchool(course.school);
+        setSelectedCategory(course.category || "");
+        setSelectedCourseId(course.id);
+      } else {
+        setCtaMode("manual");
+        setSelectedSchool("");
+        setSelectedCategory("");
+        setSelectedCourseId("");
+      }
+    } else {
+      setCtaMode("manual");
+      setSelectedSchool("");
+      setSelectedCategory("");
+      setSelectedCourseId("");
+    }
     setDialogOpen(true);
   };
 
@@ -196,16 +262,70 @@ const AdminPromotionalManagement = () => {
                 <Label>Image URL (optional)</Label>
                 <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://..." />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>CTA Button Text</Label>
-                  <Input value={ctaText} onChange={(e) => setCtaText(e.target.value)} placeholder="Learn More" />
-                </div>
+              <div>
+                <Label>CTA Button Text</Label>
+                <Input value={ctaText} onChange={(e) => setCtaText(e.target.value)} placeholder="Learn More" />
+              </div>
+              <div>
+                <Label>CTA Link Type</Label>
+                <Select value={ctaMode} onValueChange={(v) => { setCtaMode(v as "manual" | "course"); if (v === "manual") { setSelectedSchool(""); setSelectedCategory(""); setSelectedCourseId(""); } else { setCtaLink(""); } }}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="manual">Custom URL</SelectItem>
+                    <SelectItem value="course">Link to Course</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {ctaMode === "manual" ? (
                 <div>
                   <Label>CTA Link</Label>
                   <Input value={ctaLink} onChange={(e) => setCtaLink(e.target.value)} placeholder="/programs or https://..." />
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-3 rounded-md border border-border p-3 bg-muted/30">
+                  <div>
+                    <Label>School</Label>
+                    <Select value={selectedSchool} onValueChange={(v) => { setSelectedSchool(v); setSelectedCategory(""); setSelectedCourseId(""); setCtaLink(""); }}>
+                      <SelectTrigger><SelectValue placeholder="Select a school..." /></SelectTrigger>
+                      <SelectContent>
+                        {schoolOptions.map((s) => (
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {selectedSchool && (
+                    <div>
+                      <Label>Program Type</Label>
+                      <Select value={selectedCategory} onValueChange={(v) => { setSelectedCategory(v); setSelectedCourseId(""); setCtaLink(""); }}>
+                        <SelectTrigger><SelectValue placeholder="Select category..." /></SelectTrigger>
+                        <SelectContent>
+                          {categoryOptions.map((c) => (
+                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  {selectedSchool && selectedCategory && (
+                    <div>
+                      <Label>Course</Label>
+                      {filteredCourses.length === 0 ? (
+                        <p className="text-sm text-muted-foreground py-2">No courses found for this school & category.</p>
+                      ) : (
+                        <Select value={selectedCourseId} onValueChange={(v) => { setSelectedCourseId(v); setCtaLink(`/course/${v}`); }}>
+                          <SelectTrigger><SelectValue placeholder="Select a course..." /></SelectTrigger>
+                          <SelectContent>
+                            {filteredCourses.map((c) => (
+                              <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
               <div>
                 <Label>End Date (optional)</Label>
                 <Input type="datetime-local" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
