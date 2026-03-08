@@ -1063,11 +1063,12 @@ const Admin = () => {
             category: courseForm.category || null,
             duration: courseForm.duration || null,
             price: courseForm.price,
-            monthly_price: courseForm.monthly_price,
+             monthly_price: courseForm.monthly_price,
             learning_outcomes: learningOutcomesArray,
             image_url: courseForm.image_url || null,
             certificate_template_url: courseForm.certificate_template_url || null,
             instructor_name: courseForm.instructor_name || null,
+            price_display_currency: courseForm.price_display_currency || "USD",
           })
           .eq("id", editingCourse.id);
 
