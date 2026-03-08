@@ -100,7 +100,7 @@ const InstructorLMSView = ({ instructorId }: InstructorLMSViewProps) => {
                 <div className="flex gap-2">
                   <Button
                     className="flex-1"
-                    onClick={() => navigate(`/course/${course.id}`)}
+                    onClick={() => navigate(`/course/${(course as any).slug || course.id}`)}
                   >
                     <Play className="w-4 h-4 mr-2" />
                     Open Course
