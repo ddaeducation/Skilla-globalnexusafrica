@@ -54,6 +54,7 @@ const navigationItems = [
   { id: "admins", title: "Admins", icon: Shield },
   { id: "certificates", title: "Templates", icon: Award },
   { id: "promotions", title: "Promotions", icon: Megaphone },
+  { id: "donations", title: "Donations", icon: Heart },
 ];
 
 const accountItems = [
