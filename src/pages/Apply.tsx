@@ -1070,7 +1070,7 @@ const Apply = () => {
                 )}
 
                 {/* Currency Selector - only show for paid courses */}
-                {courseMonthlyPrice > 0 && (
+                {courseDisplayPrice > 0 && (
                   <div className="mb-6 p-4 border rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
