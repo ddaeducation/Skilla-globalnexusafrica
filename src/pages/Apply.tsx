@@ -84,8 +84,13 @@ const Apply = () => {
 
   const [txRef] = useState(generateTxRef());
 
-  // Get the monthly price for the selected course (defaults to 0 if not set)
-  const courseMonthlyPrice = selectedCourse?.monthly_price ?? 0;
+  // Determine if this is a full-price course
+  const isFullPrice = selectedCourse?.pricing_type === "full";
+  
+  // Get the price for the selected course
+  const courseMonthlyPrice = isFullPrice ? 0 : (selectedCourse?.monthly_price ?? 0);
+  const courseFullPrice = isFullPrice ? (selectedCourse?.full_price ?? 0) : 0;
+  const courseDisplayPrice = isFullPrice ? courseFullPrice : courseMonthlyPrice;
   
 
   // Calculate discounted price per month
