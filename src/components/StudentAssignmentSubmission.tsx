@@ -433,8 +433,13 @@ export const StudentAssignmentSubmission = ({
                   <Button variant="outline" onClick={onClose}>
                     Cancel
                   </Button>
-                  <Button onClick={handleSubmit} disabled={submitting}>
-                    {submitting ? (
+                  <Button onClick={handleSubmit} disabled={submitting || aiGrading}>
+                    {aiGrading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        AI Grading...
+                      </>
+                    ) : submitting ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                         Submitting...
