@@ -1187,9 +1187,11 @@ const Apply = () => {
                   </div>
                   
                   <p className="text-xs text-center text-muted-foreground">
-                    {courseMonthlyPrice === 0 
+                    {courseDisplayPrice === 0 
                       ? "By clicking, you agree to our Terms of Service."
-                      : "By clicking \"Pay\", you agree to our Terms of Service and authorize the monthly charge."
+                      : isFullPrice
+                        ? "By clicking \"Pay\", you agree to our Terms of Service. This is a one-time payment for lifetime access."
+                        : "By clicking \"Pay\", you agree to our Terms of Service and authorize the monthly charge."
                     }
                   </p>
                 </div>
