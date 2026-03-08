@@ -173,6 +173,8 @@ const Instructor = () => {
     duration: "",
     price: 0,
     monthly_price: 0,
+    full_price: 0,
+    pricing_type: "monthly",
     learning_outcomes: "",
     image_url: "",
     price_display_currency: "USD",
@@ -517,11 +519,13 @@ const Instructor = () => {
             category: courseForm.category || null,
             duration: courseForm.duration || null,
             price: courseForm.price,
-            monthly_price: courseForm.monthly_price,
+            monthly_price: courseForm.pricing_type === "monthly" ? courseForm.monthly_price : 0,
+            full_price: courseForm.pricing_type === "full" ? courseForm.full_price : null,
+            pricing_type: courseForm.pricing_type,
             learning_outcomes: learningOutcomesArray,
             image_url: courseForm.image_url || null,
             price_display_currency: courseForm.price_display_currency || "USD",
-          })
+          } as any)
           .eq("id", editingCourse.id);
 
         if (error) throw error;
@@ -536,14 +540,16 @@ const Instructor = () => {
             category: courseForm.category || null,
             duration: courseForm.duration || null,
             price: courseForm.price,
-            monthly_price: courseForm.monthly_price,
+            monthly_price: courseForm.pricing_type === "monthly" ? courseForm.monthly_price : 0,
+            full_price: courseForm.pricing_type === "full" ? courseForm.full_price : null,
+            pricing_type: courseForm.pricing_type,
             learning_outcomes: learningOutcomesArray,
             image_url: courseForm.image_url || null,
             price_display_currency: courseForm.price_display_currency || "USD",
             instructor_id: currentUserId,
             approval_status: "approved",
             publish_status: "draft",
-          });
+          } as any);
 
         if (error) throw error;
         toast({ 
@@ -554,7 +560,7 @@ const Instructor = () => {
 
       setCourseDialogOpen(false);
       setEditingCourse(null);
-      setCourseForm({ title: "", description: "", school: "", category: "", duration: "", price: 0, monthly_price: 0, learning_outcomes: "", image_url: "", price_display_currency: "USD" });
+      setCourseForm({ title: "", description: "", school: "", category: "", duration: "", price: 0, monthly_price: 0, full_price: 0, pricing_type: "monthly", learning_outcomes: "", image_url: "", price_display_currency: "USD" });
       fetchData(currentUserId!);
     } catch (error) {
       console.error("Error saving course:", error);
@@ -956,7 +962,7 @@ const Instructor = () => {
                     <Button onClick={() => {
                       setEditingCourse(null);
                       setCourseFormStep(1);
-                      setCourseForm({ title: "", description: "", school: "", category: "", duration: "", price: 0, monthly_price: 0, learning_outcomes: "", image_url: "", price_display_currency: "USD" });
+                      setCourseForm({ title: "", description: "", school: "", category: "", duration: "", price: 0, monthly_price: 0, full_price: 0, pricing_type: "monthly", learning_outcomes: "", image_url: "", price_display_currency: "USD" });
                     }}>
                       <Plus className="mr-2 h-4 w-4" />
                       Create Course
@@ -1055,13 +1061,39 @@ const Instructor = () => {
                               />
                             </div>
                             <div className="space-y-2">
-                              <Label>Monthly Price ($)</Label>
+                              <Label>Pricing Type</Label>
+                              <Select
+                                value={courseForm.pricing_type}
+                                onValueChange={(value) => setCourseForm({ ...courseForm, pricing_type: value })}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="monthly">Monthly Price</SelectItem>
+                                  <SelectItem value="full">Full Price</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label>{courseForm.pricing_type === "monthly" ? "Monthly Price ($)" : "Full Price ($)"}</Label>
                               <Input
                                 type="number"
-                                value={courseForm.monthly_price}
-                                onChange={(e) => setCourseForm({ ...courseForm, monthly_price: Number(e.target.value) })}
-                                placeholder="e.g., 20"
+                                value={courseForm.pricing_type === "monthly" ? courseForm.monthly_price : courseForm.full_price}
+                                onChange={(e) => {
+                                  if (courseForm.pricing_type === "monthly") {
+                                    setCourseForm({ ...courseForm, monthly_price: Number(e.target.value) });
+                                  } else {
+                                    setCourseForm({ ...courseForm, full_price: Number(e.target.value) });
+                                  }
+                                }}
+                                placeholder={courseForm.pricing_type === "monthly" ? "e.g., 20" : "e.g., 200"}
                               />
+                              <p className="text-xs text-muted-foreground">
+                                {courseForm.pricing_type === "monthly" 
+                                  ? "Students pay this amount each month to maintain access" 
+                                  : "Students pay once and get lifetime access"}
+                              </p>
                             </div>
                             <div className="space-y-2">
                               <Label>Display Currency on Card</Label>
@@ -1129,7 +1161,7 @@ const Instructor = () => {
                             <CardDescription>{course.school}</CardDescription>
                           </div>
                           <div className="flex flex-col items-end gap-1">
-                            <Badge variant="secondary">${(course as any).monthly_price ?? course.price}/mo</Badge>
+                            <Badge variant="secondary">{(course as any).pricing_type === "full" ? `$${(course as any).full_price || course.price}` : `$${(course as any).monthly_price ?? course.price}/mo`}</Badge>
                             {(course as any).publish_status === "draft" && (
                               <Badge variant="outline" className="text-muted-foreground border-muted-foreground">
                                 Draft
@@ -1228,6 +1260,8 @@ const Instructor = () => {
                                 duration: course.duration || "",
                                 price: course.price,
                                 monthly_price: (course as any).monthly_price || 0,
+                                full_price: (course as any).full_price || 0,
+                                pricing_type: (course as any).pricing_type || "monthly",
                                 learning_outcomes: ((course as any).learning_outcomes || []).join(", "),
                                 image_url: course.image_url || "",
                                 price_display_currency: (course as any).price_display_currency || "USD",

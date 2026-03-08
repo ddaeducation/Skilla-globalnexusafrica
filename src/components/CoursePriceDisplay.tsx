@@ -12,24 +12,30 @@ interface CoursePriceDisplayProps {
   monthlyPrice: number | null;
   price: number;
   defaultCurrency?: string;
+  pricingType?: string;
+  fullPrice?: number | null;
 }
 
-const CoursePriceDisplay = ({ monthlyPrice, price, defaultCurrency = "USD" }: CoursePriceDisplayProps) => {
+const CoursePriceDisplay = ({ monthlyPrice, price, defaultCurrency = "USD", pricingType = "monthly", fullPrice }: CoursePriceDisplayProps) => {
   const [currency, setCurrency] = useState<"USD" | "RWF">(defaultCurrency === "RWF" ? "RWF" : "USD");
 
   useEffect(() => {
     fetchBNRRate();
   }, []);
 
-  const displayPrice = monthlyPrice ?? price;
-  const effectivePrice = displayPrice > 0 ? displayPrice : 5;
+  const isFullPrice = pricingType === "full";
+  
+  const displayPrice = isFullPrice 
+    ? (fullPrice && fullPrice > 0 ? fullPrice : 5)
+    : (monthlyPrice ?? price) > 0 ? (monthlyPrice ?? price) : 5;
 
   const formatPrice = (cur: "USD" | "RWF") => {
     if (cur === "RWF") {
-      const rwfAmount = effectivePrice * USD_TO_RWF_RATE;
-      return `RWF ${rwfAmount.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}/mo`;
+      const rwfAmount = displayPrice * USD_TO_RWF_RATE;
+      const formattedRwf = rwfAmount.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      return isFullPrice ? `RWF ${formattedRwf}` : `RWF ${formattedRwf}/mo`;
     }
-    return `$${effectivePrice}/mo`;
+    return isFullPrice ? `$${displayPrice}` : `$${displayPrice}/mo`;
   };
 
   return (
@@ -43,13 +49,13 @@ const CoursePriceDisplay = ({ monthlyPrice, price, defaultCurrency = "USD" }: Co
           onClick={() => setCurrency("USD")}
           className={currency === "USD" ? "bg-accent" : ""}
         >
-          {`$${effectivePrice}/mo`}
+          {`$${displayPrice}${isFullPrice ? '' : '/mo'}`}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setCurrency("RWF")}
           className={currency === "RWF" ? "bg-accent" : ""}
         >
-          {`RWF ${(effectivePrice * USD_TO_RWF_RATE).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}/mo`}
+          {`RWF ${(displayPrice * USD_TO_RWF_RATE).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}${isFullPrice ? '' : '/mo'}`}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

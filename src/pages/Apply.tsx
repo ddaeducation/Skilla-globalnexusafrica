@@ -25,6 +25,8 @@ interface Course {
   school: string;
   price: number;
   monthly_price: number | null;
+  full_price: number | null;
+  pricing_type: string;
   description: string | null;
   duration: string | null;
 }
@@ -82,8 +84,13 @@ const Apply = () => {
 
   const [txRef] = useState(generateTxRef());
 
-  // Get the monthly price for the selected course (defaults to 0 if not set)
-  const courseMonthlyPrice = selectedCourse?.monthly_price ?? 0;
+  // Determine if this is a full-price course
+  const isFullPrice = selectedCourse?.pricing_type === "full";
+  
+  // Get the price for the selected course
+  const courseMonthlyPrice = isFullPrice ? 0 : (selectedCourse?.monthly_price ?? 0);
+  const courseFullPrice = isFullPrice ? (selectedCourse?.full_price ?? 0) : 0;
+  const courseDisplayPrice = isFullPrice ? courseFullPrice : courseMonthlyPrice;
   
 
   // Calculate discounted price per month
@@ -97,10 +104,11 @@ const Apply = () => {
     }
   };
 
-  const discountedMonthlyPriceUSD = calculateDiscountedPrice(courseMonthlyPrice);
-  const discountAmountPerMonth = courseMonthlyPrice - discountedMonthlyPriceUSD;
-  const totalPriceUSD = discountedMonthlyPriceUSD * numberOfMonths;
-  const totalDiscountUSD = discountAmountPerMonth * numberOfMonths;
+  const discountedMonthlyPriceUSD = isFullPrice ? 0 : calculateDiscountedPrice(courseMonthlyPrice);
+  const discountedFullPriceUSD = isFullPrice ? calculateDiscountedPrice(courseFullPrice) : 0;
+  const discountAmountPerMonth = isFullPrice ? 0 : (courseMonthlyPrice - discountedMonthlyPriceUSD);
+  const totalPriceUSD = isFullPrice ? discountedFullPriceUSD : (discountedMonthlyPriceUSD * numberOfMonths);
+  const totalDiscountUSD = isFullPrice ? (courseFullPrice - discountedFullPriceUSD) : (discountAmountPerMonth * numberOfMonths);
   
   // Convert price to selected currency
   const convertPrice = (priceUSD: number) => {
@@ -124,7 +132,9 @@ const Apply = () => {
     },
     customizations: {
       title: "Global Nexus Institute",
-      description: `${numberOfMonths} month${numberOfMonths > 1 ? 's' : ''} subscription for ${programFromUrl || selectedCourse?.title || "Course Access"}`,
+      description: isFullPrice 
+        ? `Lifetime access for ${programFromUrl || selectedCourse?.title || "Course Access"}`
+        : `${numberOfMonths} month${numberOfMonths > 1 ? 's' : ''} subscription for ${programFromUrl || selectedCourse?.title || "Course Access"}`,
       logo: "https://hapixvzfcnawjlttkjtr.supabase.co/storage/v1/object/public/avatars/gni-logo.png",
     },
   };
@@ -251,7 +261,7 @@ const Apply = () => {
   const fetchCourses = async () => {
     const { data, error } = await supabase
       .from("courses")
-      .select("id, title, school, price, monthly_price, description, duration")
+      .select("id, title, school, price, monthly_price, full_price, pricing_type, description, duration")
       .eq("approval_status", "approved")
       .order("title");
 
@@ -449,7 +459,8 @@ const Apply = () => {
           enrollment_id: enrollId,
           coupon_id: appliedCoupon?.id || null,
           discount_applied: appliedCoupon ? totalDiscountUSD : 0,
-          months_paid: numberOfMonths,
+          months_paid: isFullPrice ? null : numberOfMonths,
+          is_full_price: isFullPrice,
         },
       });
 
@@ -516,15 +527,15 @@ const Apply = () => {
           
           if (existingEnrollment) {
             // Update existing pending enrollment to completed
-            const freeExpiresAt = new Date();
-            freeExpiresAt.setMonth(freeExpiresAt.getMonth() + numberOfMonths);
+            const freeExpiresAt = isFullPrice ? null : new Date();
+            if (freeExpiresAt) freeExpiresAt.setMonth(freeExpiresAt.getMonth() + numberOfMonths);
             const { error: updateError } = await supabase
               .from("enrollments")
               .update({
                 payment_status: "completed",
                 amount_paid: 0,
-                months_paid: numberOfMonths,
-                subscription_expires_at: freeExpiresAt.toISOString(),
+                months_paid: isFullPrice ? null : numberOfMonths,
+                subscription_expires_at: freeExpiresAt ? freeExpiresAt.toISOString() : null,
               })
               .eq("id", existingEnrollment.id);
 
@@ -541,8 +552,8 @@ const Apply = () => {
             enrollmentIdForCoupon = existingEnrollment.id;
           } else {
             // Create new completed enrollment for free course
-            const freeExpiresAt2 = new Date();
-            freeExpiresAt2.setMonth(freeExpiresAt2.getMonth() + numberOfMonths);
+            const freeExpiresAt2 = isFullPrice ? null : new Date();
+            if (freeExpiresAt2) freeExpiresAt2.setMonth(freeExpiresAt2.getMonth() + numberOfMonths);
             const { data: newEnrollment, error: enrollError } = await supabase
               .from("enrollments")
               .insert({
@@ -550,8 +561,8 @@ const Apply = () => {
                 course_id: selectedCourse.id,
                 payment_status: "completed",
                 amount_paid: 0,
-                months_paid: numberOfMonths,
-                subscription_expires_at: freeExpiresAt2.toISOString(),
+                months_paid: isFullPrice ? null : numberOfMonths,
+                subscription_expires_at: freeExpiresAt2 ? freeExpiresAt2.toISOString() : null,
               })
               .select("id")
               .single();
@@ -797,7 +808,10 @@ const Apply = () => {
                           <p className="font-semibold text-lg">{programFromUrl}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-2xl font-bold text-primary">${courseMonthlyPrice}/month</p>
+                          <p className="text-2xl font-bold text-primary">
+                            {isFullPrice ? `$${courseFullPrice}` : `$${courseMonthlyPrice}/month`}
+                          </p>
+                          {isFullPrice && <p className="text-xs text-muted-foreground">One-time payment • Lifetime access</p>}
                         </div>
                       </div>
                     </div>
@@ -878,7 +892,7 @@ const Apply = () => {
                               </div>
                               {schoolCourses.map((course) => (
                                 <SelectItem key={course.id} value={course.id}>
-                                  {course.title} - ${course.monthly_price ?? 0}/month
+                                  {course.title} - {course.pricing_type === "full" ? `$${course.full_price ?? 0}` : `$${course.monthly_price ?? 0}/month`}
                                 </SelectItem>
                               ))}
                             </div>
@@ -897,7 +911,9 @@ const Apply = () => {
                             </p>
                           )}
                           <p className="text-sm font-medium text-primary mt-1">
-                            Monthly Price: ${courseMonthlyPrice}/month
+                            {isFullPrice 
+                              ? `Full Price: $${courseFullPrice} (Lifetime access)` 
+                              : `Monthly Price: $${courseMonthlyPrice}/month`}
                           </p>
                         </div>
                       )}
@@ -914,7 +930,7 @@ const Apply = () => {
                     className="w-full" 
                     disabled={!programFromUrl && courses.length === 0}
                   >
-                    {courseMonthlyPrice === 0 ? "Complete Free Enrollment" : "Click here to Pay"}
+                    {courseDisplayPrice === 0 ? "Complete Free Enrollment" : "Click here to Pay"}
                   </Button>
                 </form>
               </CardContent>
@@ -926,7 +942,7 @@ const Apply = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  {courseMonthlyPrice === 0 ? (
+                  {courseDisplayPrice === 0 ? (
                     <>
                       <CheckCircle className="w-6 h-6 text-green-500" />
                       Confirm Free Enrollment
@@ -939,18 +955,22 @@ const Apply = () => {
                   )}
                 </CardTitle>
                 <CardDescription>
-                  {courseMonthlyPrice === 0 
+                  {courseDisplayPrice === 0 
                     ? "Complete your free enrollment" 
-                    : `Complete your payment for ${numberOfMonths} month${numberOfMonths > 1 ? 's' : ''} via Flutterwave`
+                    : isFullPrice
+                      ? "Complete your one-time payment via Flutterwave for lifetime access"
+                      : `Complete your payment for ${numberOfMonths} month${numberOfMonths > 1 ? 's' : ''} via Flutterwave`
                   }
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="mb-6 p-4 bg-muted rounded-lg">
                   <p className="text-sm text-muted-foreground">
-                    {courseMonthlyPrice === 0 
+                    {courseDisplayPrice === 0 
                       ? "No payment required - enjoy free access to this course" 
-                      : `Pay for ${numberOfMonths} month${numberOfMonths > 1 ? 's' : ''} of access to this course`
+                      : isFullPrice
+                        ? "Pay once and get lifetime access to this course"
+                        : `Pay for ${numberOfMonths} month${numberOfMonths > 1 ? 's' : ''} of access to this course`
                     }
                   </p>
                   <div className="mt-3 pt-3 border-t border-border">
@@ -971,7 +991,7 @@ const Apply = () => {
                 </div>
 
                 {/* Coupon Section - only show for paid courses */}
-                {courseMonthlyPrice > 0 && (
+                {courseDisplayPrice > 0 && (
                   <div className="mb-6 p-4 border rounded-lg">
                     <div className="flex items-center gap-2 mb-3">
                       <Tag className="w-5 h-5 text-primary" />
@@ -1025,8 +1045,8 @@ const Apply = () => {
                   </div>
                 )}
 
-                {/* Number of Months Selector - only show for paid courses */}
-                {courseMonthlyPrice > 0 && (
+                {/* Number of Months Selector - only show for monthly paid courses */}
+                {courseMonthlyPrice > 0 && !isFullPrice && (
                   <div className="mb-6 p-4 border rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
@@ -1053,7 +1073,7 @@ const Apply = () => {
                 )}
 
                 {/* Currency Selector - only show for paid courses */}
-                {courseMonthlyPrice > 0 && (
+                {courseDisplayPrice > 0 && (
                   <div className="mb-6 p-4 border rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
@@ -1082,23 +1102,32 @@ const Apply = () => {
                 )}
 
                 {/* Price Summary */}
-                {courseMonthlyPrice > 0 && (
+                {courseDisplayPrice > 0 && (
                   <div className="mb-6 p-4 bg-muted rounded-lg">
                     <h4 className="font-medium mb-3">Order Summary</h4>
                     <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>Monthly Price</span>
-                        <span>{currencySymbol}{convertPrice(courseMonthlyPrice).toLocaleString()}/mo</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Duration</span>
-                        <span>{numberOfMonths} month{numberOfMonths > 1 ? "s" : ""}</span>
-                      </div>
-                      {numberOfMonths > 1 && (
+                      {isFullPrice ? (
                         <div className="flex justify-between">
-                          <span>Subtotal ({numberOfMonths} × {currencySymbol}{convertPrice(courseMonthlyPrice).toLocaleString()})</span>
-                          <span>{currencySymbol}{convertPrice(courseMonthlyPrice * numberOfMonths).toLocaleString()}</span>
+                          <span>Full Price (Lifetime Access)</span>
+                          <span>{currencySymbol}{convertPrice(courseFullPrice).toLocaleString()}</span>
                         </div>
+                      ) : (
+                        <>
+                          <div className="flex justify-between">
+                            <span>Monthly Price</span>
+                            <span>{currencySymbol}{convertPrice(courseMonthlyPrice).toLocaleString()}/mo</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Duration</span>
+                            <span>{numberOfMonths} month{numberOfMonths > 1 ? "s" : ""}</span>
+                          </div>
+                          {numberOfMonths > 1 && (
+                            <div className="flex justify-between">
+                              <span>Subtotal ({numberOfMonths} × {currencySymbol}{convertPrice(courseMonthlyPrice).toLocaleString()})</span>
+                              <span>{currencySymbol}{convertPrice(courseMonthlyPrice * numberOfMonths).toLocaleString()}</span>
+                            </div>
+                          )}
+                        </>
                       )}
                       {appliedCoupon && (
                         <div className="flex justify-between text-green-600">
@@ -1119,11 +1148,11 @@ const Apply = () => {
                   <div className="flex items-center gap-2 mb-2">
                     <Shield className="w-5 h-5 text-primary" />
                     <span className="font-medium text-primary">
-                      {courseMonthlyPrice === 0 ? "Instant Access" : "Secure Payment"}
+                      {courseDisplayPrice === 0 ? "Instant Access" : "Secure Payment"}
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {courseMonthlyPrice === 0 
+                    {courseDisplayPrice === 0 
                       ? "Click below to get instant access to your course. No credit card required."
                       : "Your payment is processed securely through Flutterwave. We never store your card details."
                     }
@@ -1161,9 +1190,11 @@ const Apply = () => {
                   </div>
                   
                   <p className="text-xs text-center text-muted-foreground">
-                    {courseMonthlyPrice === 0 
+                    {courseDisplayPrice === 0 
                       ? "By clicking, you agree to our Terms of Service."
-                      : "By clicking \"Pay\", you agree to our Terms of Service and authorize the monthly charge."
+                      : isFullPrice
+                        ? "By clicking \"Pay\", you agree to our Terms of Service. This is a one-time payment for lifetime access."
+                        : "By clicking \"Pay\", you agree to our Terms of Service and authorize the monthly charge."
                     }
                   </p>
                 </div>

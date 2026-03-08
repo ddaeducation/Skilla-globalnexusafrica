@@ -14,7 +14,11 @@ export const getFallbackRating = (courseId: string): number => {
 /**
  * Format a course price for display. Always shows a price, never "Free".
  */
-export const formatCoursePrice = (monthlyPrice: number | null, price: number): string => {
+export const formatCoursePrice = (monthlyPrice: number | null, price: number, pricingType?: string, fullPrice?: number | null): string => {
+  if (pricingType === "full") {
+    const fp = fullPrice && fullPrice > 0 ? fullPrice : 5;
+    return `$${fp}`;
+  }
   const displayPrice = monthlyPrice ?? price;
   return `$${displayPrice > 0 ? displayPrice : 5}/mo`;
 };
