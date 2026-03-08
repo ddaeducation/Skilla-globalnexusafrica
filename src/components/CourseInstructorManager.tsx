@@ -459,7 +459,7 @@ export const CourseInstructorManager = ({
                     <div>
                       <p className="font-medium text-sm">{inv.email}</p>
                       <p className="text-xs text-muted-foreground">
-                        {inv.role === "primary" ? "Ownership transfer" : "Co-instructor"} · Expires {new Date(inv.expires_at).toLocaleDateString()}
+                        {getRoleLabel(inv.role)} · Expires {new Date(inv.expires_at).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
