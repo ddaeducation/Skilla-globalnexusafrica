@@ -127,6 +127,7 @@ const CourseDetail = () => {
   const [user, setUser] = useState<any>(null);
   const [course, setCourse] = useState<any>(null);
   const [instructorProfile, setInstructorProfile] = useState<{ full_name: string | null; avatar_url: string | null; bio?: string | null } | null>(null);
+  const [coInstructors, setCoInstructors] = useState<{ full_name: string | null; avatar_url: string | null; bio?: string | null }[]>([]);
   const [lessons, setLessons] = useState<LessonContent[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -273,6 +274,30 @@ const CourseDetail = () => {
           bio: application?.bio || null,
         });
       }
+    }
+
+    // Fetch co-instructors
+    const { data: coInstructorLinks } = await supabase
+      .from("course_instructors")
+      .select("instructor_id")
+      .eq("course_id", courseId!)
+      .eq("role", "co_instructor");
+
+    if (coInstructorLinks && coInstructorLinks.length > 0) {
+      const coProfiles = await Promise.all(
+        coInstructorLinks.map(async (link) => {
+          const [profileRes, appRes] = await Promise.all([
+            supabase.from("profiles").select("full_name, avatar_url").eq("id", link.instructor_id).maybeSingle(),
+            supabase.from("instructor_applications").select("bio").eq("user_id", link.instructor_id).maybeSingle(),
+          ]);
+          return {
+            full_name: profileRes.data?.full_name || null,
+            avatar_url: profileRes.data?.avatar_url || null,
+            bio: appRes.data?.bio || null,
+          };
+        })
+      );
+      setCoInstructors(coProfiles);
     }
 
     // Calculate average rating
@@ -1335,6 +1360,9 @@ const CourseDetail = () => {
                       <User className="w-3.5 h-3.5 text-muted-foreground" />
                       <span className="text-sm text-muted-foreground">
                         by {instructorProfile?.full_name || course.instructor_name}
+                        {coInstructors.length > 0 && (
+                          <> &amp; {coInstructors.map(c => c.full_name).join(", ")}</>
+                        )}
                       </span>
                     </div>
                   </>
@@ -1415,22 +1443,43 @@ const CourseDetail = () => {
                 {/* Instructor Bio */}
                 {instructorProfile && (
                   <>
-                    <div className="flex items-start gap-4">
-                      <Avatar className="h-14 w-14">
-                        <AvatarImage src={instructorProfile.avatar_url || undefined} />
-                        <AvatarFallback className="text-lg">
-                          {(instructorProfile.full_name || "I").charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <p className="text-sm text-muted-foreground mb-0.5">Instructor</p>
-                        <p className="font-semibold">{instructorProfile.full_name || course.instructor_name}</p>
-                        {instructorProfile.bio && (
-                          <p className="text-sm text-muted-foreground mt-1 line-clamp-3">
-                            {instructorProfile.bio}
-                          </p>
-                        )}
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-4">
+                        <Avatar className="h-14 w-14">
+                          <AvatarImage src={instructorProfile.avatar_url || undefined} />
+                          <AvatarFallback className="text-lg">
+                            {(instructorProfile.full_name || "I").charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <p className="text-sm text-muted-foreground mb-0.5">Instructor</p>
+                          <p className="font-semibold">{instructorProfile.full_name || course.instructor_name}</p>
+                          {instructorProfile.bio && (
+                            <p className="text-sm text-muted-foreground mt-1 line-clamp-3">
+                              {instructorProfile.bio}
+                            </p>
+                          )}
+                        </div>
                       </div>
+                      {coInstructors.map((co, idx) => (
+                        <div key={idx} className="flex items-start gap-4">
+                          <Avatar className="h-12 w-12">
+                            <AvatarImage src={co.avatar_url || undefined} />
+                            <AvatarFallback>
+                              {(co.full_name || "C").charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <p className="text-sm text-muted-foreground mb-0.5">Co-Instructor</p>
+                            <p className="font-semibold">{co.full_name}</p>
+                            {co.bio && (
+                              <p className="text-sm text-muted-foreground mt-1 line-clamp-3">
+                                {co.bio}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                     <Separator />
                   </>
