@@ -32,99 +32,17 @@ const CertificateVerify = () => {
       }
 
       try {
-        // Fetch certificate
-        const { data: cert, error: certError } = await supabase
-          .from("certificates")
-          .select("certificate_number, issued_at, user_id, course_id")
-          .eq("certificate_number", certNumber)
-          .single();
+        const { data, error: fnError } = await supabase.functions.invoke("verify-certificate", {
+          body: { certNumber },
+        });
 
-        if (certError || !cert) {
-          setError("Certificate not found. It may be invalid or revoked.");
+        if (fnError || data?.error) {
+          setError(data?.error || "Certificate not found. It may be invalid or revoked.");
           setLoading(false);
           return;
         }
 
-        // Fetch profile, course in parallel
-        const [profileRes, courseRes] = await Promise.all([
-          supabase.from("profiles").select("full_name").eq("id", cert.user_id).single(),
-          supabase.from("courses").select("title, school, duration").eq("id", cert.course_id).single(),
-        ]);
-
-        const studentName = profileRes.data?.full_name || "Student";
-        const courseTitle = courseRes.data?.title || "Course";
-        const school = courseRes.data?.school || "";
-        const duration = courseRes.data?.duration || null;
-
-        // Fetch quiz attempts for average
-        const { data: attempts } = await supabase
-          .from("quiz_attempts")
-          .select("score, max_score, quiz_id")
-          .eq("user_id", cert.user_id)
-          .not("completed_at", "is", null);
-
-        // Filter attempts for this course's quizzes
-        let avgQuiz: number | null = null;
-        if (attempts && attempts.length > 0) {
-          // Get quizzes for this course
-          const { data: quizzes } = await supabase
-            .from("quizzes")
-            .select("id")
-            .eq("course_id", cert.course_id);
-
-          const quizIds = new Set((quizzes || []).map((q) => q.id));
-          const courseAttempts = attempts.filter((a) => quizIds.has(a.quiz_id));
-
-          if (courseAttempts.length > 0) {
-            const totalPct = courseAttempts.reduce((sum, a) => {
-              const pct = a.max_score && a.max_score > 0 ? (a.score || 0) / a.max_score * 100 : 0;
-              return sum + pct;
-            }, 0);
-            avgQuiz = Math.round(totalPct / courseAttempts.length);
-          }
-        }
-
-        // Fetch assignment submissions for average
-        let avgAssignment: number | null = null;
-        const { data: assignments } = await supabase
-          .from("assignments")
-          .select("id, max_score")
-          .eq("course_id", cert.course_id);
-
-        if (assignments && assignments.length > 0) {
-          const assignmentIds = assignments.map((a) => a.id);
-          const { data: submissions } = await supabase
-            .from("assignment_submissions")
-            .select("score, assignment_id")
-            .eq("user_id", cert.user_id)
-            .in("assignment_id", assignmentIds)
-            .not("score", "is", null);
-
-          if (submissions && submissions.length > 0) {
-            const totalPct = submissions.reduce((sum, s) => {
-              const assignment = assignments.find((a) => a.id === s.assignment_id);
-              const maxScore = assignment?.max_score || 100;
-              return sum + ((s.score || 0) / maxScore) * 100;
-            }, 0);
-            avgAssignment = Math.round(totalPct / submissions.length);
-          }
-        }
-
-        setInfo({
-          certificate_number: cert.certificate_number,
-          issued_at: cert.issued_at,
-          student_name: studentName,
-          course_title: courseTitle,
-          school,
-          duration,
-          avg_quiz_score: avgQuiz,
-          avg_assignment_score: avgAssignment,
-          completed_date: new Date(cert.issued_at).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
-        });
+        setInfo(data as CertificateInfo);
       } catch (err) {
         setError("An error occurred while verifying the certificate.");
       } finally {
