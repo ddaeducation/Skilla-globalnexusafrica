@@ -1747,7 +1747,6 @@ const Admin = () => {
                           </select>
                         </div>
                       </div>
-                      </div>
                       <div className="space-y-2">
                         <Label>Learning Outcomes (comma-separated)</Label>
                         <Input
