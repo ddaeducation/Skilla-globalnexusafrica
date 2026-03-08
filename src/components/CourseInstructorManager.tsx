@@ -75,6 +75,7 @@ export const CourseInstructorManager = ({
 }: CourseInstructorManagerProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [courseInstructors, setCourseInstructors] = useState<CourseInstructor[]>([]);
   const [pendingInvitations, setPendingInvitations] = useState<PendingInvitation[]>([]);
   const [primaryProfile, setPrimaryProfile] = useState<{ full_name: string | null; email: string | null } | null>(null);
@@ -98,6 +99,18 @@ export const CourseInstructorManager = ({
   const fetchData = async () => {
     try {
       setLoading(true);
+
+      // Check if current user is admin
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: adminRole } = await supabase
+          .from("user_roles")
+          .select("id")
+          .eq("user_id", session.user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+        setIsAdmin(!!adminRole);
+      }
 
       // Fetch co-instructors from course_instructors
       const { data: instructorsData } = await supabase
@@ -347,7 +360,7 @@ export const CourseInstructorManager = ({
                       <SelectContent>
                         <SelectItem value="co_instructor">Co-Instructor</SelectItem>
                         <SelectItem value="primary">Owner (Primary Instructor)</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
+                        {isAdmin && <SelectItem value="admin">Admin</SelectItem>}
                       </SelectContent>
                     </Select>
                   </div>
@@ -517,7 +530,7 @@ export const CourseInstructorManager = ({
                     <SelectContent>
                       <SelectItem value="co_instructor">Co-Instructor</SelectItem>
                       <SelectItem value="primary">Owner (Primary Instructor)</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      {isAdmin && <SelectItem value="admin">Admin</SelectItem>}
                     </SelectContent>
                   </Select>
                 </div>
