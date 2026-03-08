@@ -11,6 +11,7 @@ const AcceptCourseInstructorInvite = () => {
   const token = searchParams.get("token");
 
   const [status, setStatus] = useState<"loading" | "idle" | "accepting" | "success" | "error">("loading");
+  const [acceptedRole, setAcceptedRole] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [inviteInfo, setInviteInfo] = useState<{ email: string; role: string; courseTitle: string } | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
