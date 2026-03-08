@@ -539,6 +539,7 @@ const Instructor = () => {
             monthly_price: courseForm.monthly_price,
             learning_outcomes: learningOutcomesArray,
             image_url: courseForm.image_url || null,
+            price_display_currency: courseForm.price_display_currency || "USD",
             instructor_id: currentUserId,
             approval_status: "approved",
             publish_status: "draft",
