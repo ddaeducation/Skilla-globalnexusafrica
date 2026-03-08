@@ -526,15 +526,15 @@ const Apply = () => {
           
           if (existingEnrollment) {
             // Update existing pending enrollment to completed
-            const freeExpiresAt = new Date();
-            freeExpiresAt.setMonth(freeExpiresAt.getMonth() + numberOfMonths);
+            const freeExpiresAt = isFullPrice ? null : new Date();
+            if (freeExpiresAt) freeExpiresAt.setMonth(freeExpiresAt.getMonth() + numberOfMonths);
             const { error: updateError } = await supabase
               .from("enrollments")
               .update({
                 payment_status: "completed",
                 amount_paid: 0,
-                months_paid: numberOfMonths,
-                subscription_expires_at: freeExpiresAt.toISOString(),
+                months_paid: isFullPrice ? null : numberOfMonths,
+                subscription_expires_at: freeExpiresAt ? freeExpiresAt.toISOString() : null,
               })
               .eq("id", existingEnrollment.id);
 
