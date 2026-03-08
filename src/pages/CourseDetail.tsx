@@ -123,11 +123,12 @@ type ContentItem =
   | { type: "assignment"; data: Assignment; order_index: number };
 
 const CourseDetail = () => {
-  const { courseId } = useParams();
+  const { courseId: courseParam } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [course, setCourse] = useState<any>(null);
+  const [courseId, setCourseId] = useState<string | undefined>(courseParam);
   const [instructorProfile, setInstructorProfile] = useState<{ full_name: string | null; avatar_url: string | null; bio?: string | null } | null>(null);
   const [coInstructors, setCoInstructors] = useState<{ full_name: string | null; avatar_url: string | null; bio?: string | null }[]>([]);
   const [lessons, setLessons] = useState<LessonContent[]>([]);
