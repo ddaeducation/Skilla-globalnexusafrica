@@ -38,7 +38,7 @@ const SchoolPrograms = () => {
       const {
         data,
         error
-      } = await supabase.from("courses").select("id, title, description, duration, school, price, monthly_price, learning_outcomes, category").eq("school", dbSchoolName).eq("approval_status", "approved").in("publish_status", ["live", "upcoming"]);
+      } = await supabase.from("courses").select("id, title, description, duration, school, price, monthly_price, learning_outcomes, category, slug").eq("school", dbSchoolName).eq("approval_status", "approved").in("publish_status", ["live", "upcoming"]);
       if (error) throw error;
       return data || [];
     },
