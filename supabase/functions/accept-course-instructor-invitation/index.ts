@@ -89,80 +89,103 @@ serve(async (req) => {
       );
     }
 
-    // Make sure the user has instructor (moderator) role
-    const { data: existingRole } = await supabaseAdmin
-      .from("user_roles")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("role", "moderator")
-      .maybeSingle();
-
-    if (!existingRole) {
-      const { error: roleError } = await supabaseAdmin
+    if (invitation.role === "admin") {
+      // Grant platform-wide admin role
+      const { data: existingAdminRole } = await supabaseAdmin
         .from("user_roles")
-        .insert({ user_id: user.id, role: "moderator" });
-      if (roleError) {
-        console.error("Failed to assign instructor role:", roleError);
-        return new Response(
-          JSON.stringify({ error: "Failed to assign instructor role" }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-    }
-
-    if (invitation.role === "primary") {
-      // Transfer course ownership
-      const { error: transferError } = await supabaseAdmin
-        .from("courses")
-        .update({ instructor_id: user.id })
-        .eq("id", invitation.course_id);
-
-      if (transferError) {
-        console.error("Failed to transfer course ownership:", transferError);
-        return new Response(
-          JSON.stringify({ error: "Failed to transfer course ownership" }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      // Update course_instructors: remove old primary, add new
-      await supabaseAdmin
-        .from("course_instructors")
-        .delete()
-        .eq("course_id", invitation.course_id)
-        .eq("role", "primary");
-
-      await supabaseAdmin.from("course_instructors").upsert({
-        course_id: invitation.course_id,
-        instructor_id: user.id,
-        role: "primary",
-        added_by: invitation.invited_by,
-      });
-    } else {
-      // Add as co-instructor
-      const { data: alreadyAssigned } = await supabaseAdmin
-        .from("course_instructors")
         .select("id")
-        .eq("course_id", invitation.course_id)
-        .eq("instructor_id", user.id)
+        .eq("user_id", user.id)
+        .eq("role", "admin")
         .maybeSingle();
 
-      if (!alreadyAssigned) {
-        const { error: coError } = await supabaseAdmin
-          .from("course_instructors")
-          .insert({
-            course_id: invitation.course_id,
-            instructor_id: user.id,
-            role: "co_instructor",
-            added_by: invitation.invited_by,
-          });
-
-        if (coError) {
-          console.error("Failed to add co-instructor:", coError);
+      if (!existingAdminRole) {
+        const { error: adminRoleError } = await supabaseAdmin
+          .from("user_roles")
+          .insert({ user_id: user.id, role: "admin" });
+        if (adminRoleError) {
+          console.error("Failed to assign admin role:", adminRoleError);
           return new Response(
-            JSON.stringify({ error: "Failed to add as co-instructor" }),
+            JSON.stringify({ error: "Failed to assign admin role" }),
             { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
+        }
+      }
+    } else {
+      // Make sure the user has instructor (moderator) role
+      const { data: existingRole } = await supabaseAdmin
+        .from("user_roles")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("role", "moderator")
+        .maybeSingle();
+
+      if (!existingRole) {
+        const { error: roleError } = await supabaseAdmin
+          .from("user_roles")
+          .insert({ user_id: user.id, role: "moderator" });
+        if (roleError) {
+          console.error("Failed to assign instructor role:", roleError);
+          return new Response(
+            JSON.stringify({ error: "Failed to assign instructor role" }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
+
+      if (invitation.role === "primary") {
+        // Transfer course ownership
+        const { error: transferError } = await supabaseAdmin
+          .from("courses")
+          .update({ instructor_id: user.id })
+          .eq("id", invitation.course_id);
+
+        if (transferError) {
+          console.error("Failed to transfer course ownership:", transferError);
+          return new Response(
+            JSON.stringify({ error: "Failed to transfer course ownership" }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Update course_instructors: remove old primary, add new
+        await supabaseAdmin
+          .from("course_instructors")
+          .delete()
+          .eq("course_id", invitation.course_id)
+          .eq("role", "primary");
+
+        await supabaseAdmin.from("course_instructors").upsert({
+          course_id: invitation.course_id,
+          instructor_id: user.id,
+          role: "primary",
+          added_by: invitation.invited_by,
+        });
+      } else {
+        // Add as co-instructor
+        const { data: alreadyAssigned } = await supabaseAdmin
+          .from("course_instructors")
+          .select("id")
+          .eq("course_id", invitation.course_id)
+          .eq("instructor_id", user.id)
+          .maybeSingle();
+
+        if (!alreadyAssigned) {
+          const { error: coError } = await supabaseAdmin
+            .from("course_instructors")
+            .insert({
+              course_id: invitation.course_id,
+              instructor_id: user.id,
+              role: "co_instructor",
+              added_by: invitation.invited_by,
+            });
+
+          if (coError) {
+            console.error("Failed to add co-instructor:", coError);
+            return new Response(
+              JSON.stringify({ error: "Failed to add as co-instructor" }),
+              { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
         }
       }
     }
