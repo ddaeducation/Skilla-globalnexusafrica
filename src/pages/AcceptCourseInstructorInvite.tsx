@@ -110,6 +110,7 @@ const AcceptCourseInstructorInvite = () => {
         throw new Error(res.data.error);
       }
 
+      setAcceptedRole(res.data?.role || inviteInfo?.role || null);
       setStatus("success");
       setMessage(res.data.message || "You have successfully accepted the invitation!");
     } catch (error: any) {
