@@ -28,6 +28,7 @@ import {
   DollarSign,
   Building2,
   Handshake,
+  Megaphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
