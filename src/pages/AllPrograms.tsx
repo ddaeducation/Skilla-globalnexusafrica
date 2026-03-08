@@ -73,9 +73,9 @@ const CourseCard = ({ course, instructor, ratingData }: {
   const handleEnroll = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) {
-      navigate(`/signin?redirect=${encodeURIComponent(`/course/${course.id}`)}`);
+      navigate(`/signin?redirect=${encodeURIComponent(`/course/${(course as any).slug || course.id}`)}`);
     } else {
-      navigate(`/course/${course.id}`);
+      navigate(`/course/${(course as any).slug || course.id}`);
     }
   };
 
