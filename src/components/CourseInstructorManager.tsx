@@ -48,7 +48,7 @@ interface CourseInstructor {
 interface PendingInvitation {
   id: string;
   email: string;
-  role: "co_instructor" | "primary";
+  role: "co_instructor" | "primary" | "admin";
   status: string;
   created_at: string;
   expires_at: string;
@@ -79,20 +79,16 @@ export const CourseInstructorManager = ({
   const [pendingInvitations, setPendingInvitations] = useState<PendingInvitation[]>([]);
   const [primaryProfile, setPrimaryProfile] = useState<{ full_name: string | null; email: string | null } | null>(null);
 
-  // Co-instructor invite dialog
-  const [coDialogOpen, setCoDialogOpen] = useState(false);
-  const [coEmail, setCoEmail] = useState("");
-  const [sendingCo, setSendingCo] = useState(false);
-
-  // Transfer ownership dialog
-  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
-  const [transferEmail, setTransferEmail] = useState("");
-  const [sendingTransfer, setSendingTransfer] = useState(false);
+  // Unified invite dialog
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<"co_instructor" | "primary" | "admin">("co_instructor");
+  const [sendingInvite, setSendingInvite] = useState(false);
 
   // Enrolled students assignment
   const [enrolledStudents, setEnrolledStudents] = useState<EnrolledStudent[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState("");
-  const [selectedRole, setSelectedRole] = useState<"co_instructor" | "primary">("co_instructor");
+  const [selectedRole, setSelectedRole] = useState<"co_instructor" | "primary" | "admin">("co_instructor");
   const [assigningStudent, setAssigningStudent] = useState(false);
 
   useEffect(() => {
@@ -204,55 +200,38 @@ export const CourseInstructorManager = ({
     onSuccess();
   };
 
-  const handleInviteCoInstructor = async () => {
-    if (!coEmail.trim()) {
-      toast({ title: "Email required", description: "Please enter an email address.", variant: "destructive" });
-      return;
-    }
-    setSendingCo(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await supabase.functions.invoke("send-course-instructor-invitation", {
-        body: { email: coEmail.trim(), courseId, role: "co_instructor" },
-        headers: { Authorization: `Bearer ${session?.access_token}` },
-      });
-
-      handleInvitationResponse(res, coEmail.trim(), "Co-Instructor", () => {
-        setCoEmail("");
-        setCoDialogOpen(false);
-        fetchData();
-        onUpdate?.();
-      });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } finally {
-      setSendingCo(false);
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case "primary": return "Course Owner";
+      case "admin": return "Admin";
+      default: return "Co-Instructor";
     }
   };
 
-  const handleInviteOwner = async () => {
-    if (!transferEmail.trim()) {
+  const handleSendInvitation = async () => {
+    if (!inviteEmail.trim()) {
       toast({ title: "Email required", description: "Please enter an email address.", variant: "destructive" });
       return;
     }
-    setSendingTransfer(true);
+    setSendingInvite(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const res = await supabase.functions.invoke("send-course-instructor-invitation", {
-        body: { email: transferEmail.trim(), courseId, role: "primary" },
+        body: { email: inviteEmail.trim(), courseId, role: inviteRole },
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
 
-      handleInvitationResponse(res, transferEmail.trim(), "Ownership Transfer", () => {
-        setTransferEmail("");
-        setTransferDialogOpen(false);
+      handleInvitationResponse(res, inviteEmail.trim(), getRoleLabel(inviteRole), () => {
+        setInviteEmail("");
+        setInviteRole("co_instructor");
+        setInviteDialogOpen(false);
         fetchData();
         onUpdate?.();
       });
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
-      setSendingTransfer(false);
+      setSendingInvite(false);
     }
   };
 
@@ -276,7 +255,7 @@ export const CourseInstructorManager = ({
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
 
-      const roleLabel = selectedRole === "primary" ? "Ownership Transfer" : "Co-Instructor";
+      const roleLabel = getRoleLabel(selectedRole);
       handleInvitationResponse(res, student.email, roleLabel, () => {
         setSelectedStudentId("");
         setSelectedRole("co_instructor");
@@ -344,87 +323,64 @@ export const CourseInstructorManager = ({
             <CardDescription>Manage instructors for {courseName}</CardDescription>
           </div>
           <div className="flex gap-2 flex-wrap">
-            {/* Transfer Ownership */}
-            <Dialog open={transferDialogOpen} onOpenChange={setTransferDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <ArrowRightLeft className="h-4 w-4 mr-2" />
-                  Transfer Ownership
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Transfer Course Ownership</DialogTitle>
-                  <DialogDescription>
-                    Send an invitation to transfer full ownership of this course to another instructor. They must accept the invite via email.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="transfer-email">Recipient Email</Label>
-                    <Input
-                      id="transfer-email"
-                      type="email"
-                      placeholder="instructor@example.com"
-                      value={transferEmail}
-                      onChange={(e) => setTransferEmail(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleInviteOwner()}
-                    />
-                  </div>
-                  <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-sm text-amber-800">
-                    ⚠️ The recipient will become the primary owner once they accept. The invitation link expires in 7 days.
-                  </div>
-                  <Button
-                    onClick={handleInviteOwner}
-                    disabled={sendingTransfer || !transferEmail.trim()}
-                    className="w-full"
-                  >
-                    {sendingTransfer ? (
-                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sending...</>
-                    ) : (
-                      <><Mail className="mr-2 h-4 w-4" />Send Transfer Invitation</>
-                    )}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-
-            {/* Add Co-Instructor */}
-            <Dialog open={coDialogOpen} onOpenChange={setCoDialogOpen}>
+            <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
               <DialogTrigger asChild>
                 <Button size="sm">
                   <UserPlus className="h-4 w-4 mr-2" />
-                  Invite Co-Instructor
+                  Invite Collaborator
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Invite Co-Instructor</DialogTitle>
+                  <DialogTitle>Invite Collaborator</DialogTitle>
                   <DialogDescription>
-                    Send an email invitation to add someone as a co-instructor on this course. The invitation expires in 7 days.
+                    Send an email invitation to add someone as a collaborator on this course. Choose the role and enter their email. The invitation expires in 7 days.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="co-email">Instructor Email</Label>
+                    <Label htmlFor="invite-role">Role</Label>
+                    <Select value={inviteRole} onValueChange={(v) => setInviteRole(v as "co_instructor" | "primary" | "admin")}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="co_instructor">Co-Instructor</SelectItem>
+                        <SelectItem value="primary">Owner (Primary Instructor)</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="invite-email">Email Address</Label>
                     <Input
-                      id="co-email"
+                      id="invite-email"
                       type="email"
-                      placeholder="instructor@example.com"
-                      value={coEmail}
-                      onChange={(e) => setCoEmail(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleInviteCoInstructor()}
+                      placeholder="person@example.com"
+                      value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSendInvitation()}
                     />
                   </div>
+                  {inviteRole === "primary" && (
+                    <div className="bg-warning/10 border border-warning/30 rounded-md p-3 text-sm text-warning-foreground">
+                      ⚠️ The recipient will become the primary owner once they accept.
+                    </div>
+                  )}
+                  {inviteRole === "admin" && (
+                    <div className="bg-warning/10 border border-warning/30 rounded-md p-3 text-sm text-warning-foreground">
+                      ⚠️ The recipient will be granted platform-wide Admin access once they accept.
+                    </div>
+                  )}
                   <Button
-                    onClick={handleInviteCoInstructor}
-                    disabled={sendingCo || !coEmail.trim()}
+                    onClick={handleSendInvitation}
+                    disabled={sendingInvite || !inviteEmail.trim()}
                     className="w-full"
                   >
-                    {sendingCo ? (
+                    {sendingInvite ? (
                       <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sending...</>
                     ) : (
-                      <><Mail className="mr-2 h-4 w-4" />Send Invitation</>
+                      <><Mail className="mr-2 h-4 w-4" />Send {getRoleLabel(inviteRole)} Invitation</>
                     )}
                   </Button>
                 </div>
@@ -503,7 +459,7 @@ export const CourseInstructorManager = ({
                     <div>
                       <p className="font-medium text-sm">{inv.email}</p>
                       <p className="text-xs text-muted-foreground">
-                        {inv.role === "primary" ? "Ownership transfer" : "Co-instructor"} · Expires {new Date(inv.expires_at).toLocaleDateString()}
+                        {getRoleLabel(inv.role)} · Expires {new Date(inv.expires_at).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
@@ -554,13 +510,14 @@ export const CourseInstructorManager = ({
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs">Assign Role</Label>
-                  <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as "co_instructor" | "primary")}>
+                  <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as "co_instructor" | "primary" | "admin")}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="co_instructor">Co-Instructor</SelectItem>
                       <SelectItem value="primary">Owner (Primary Instructor)</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

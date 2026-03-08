@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, CheckCircle2, XCircle, Users, Crown } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, Users, Crown, ShieldCheck } from "lucide-react";
 
 const AcceptCourseInstructorInvite = () => {
   const [searchParams] = useSearchParams();
@@ -11,6 +11,7 @@ const AcceptCourseInstructorInvite = () => {
   const token = searchParams.get("token");
 
   const [status, setStatus] = useState<"loading" | "idle" | "accepting" | "success" | "error">("loading");
+  const [acceptedRole, setAcceptedRole] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [inviteInfo, setInviteInfo] = useState<{ email: string; role: string; courseTitle: string } | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -109,6 +110,7 @@ const AcceptCourseInstructorInvite = () => {
         throw new Error(res.data.error);
       }
 
+      setAcceptedRole(res.data?.role || inviteInfo?.role || null);
       setStatus("success");
       setMessage(res.data.message || "You have successfully accepted the invitation!");
     } catch (error: any) {
@@ -117,8 +119,8 @@ const AcceptCourseInstructorInvite = () => {
     }
   };
 
-  const roleLabel = inviteInfo?.role === "primary" ? "Course Owner" : "Co-Instructor";
-  const RoleIcon = inviteInfo?.role === "primary" ? Crown : Users;
+  const roleLabel = inviteInfo?.role === "primary" ? "Course Owner" : inviteInfo?.role === "admin" ? "Admin" : "Co-Instructor";
+  const RoleIcon = inviteInfo?.role === "primary" ? Crown : inviteInfo?.role === "admin" ? ShieldCheck : Users;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -150,8 +152,14 @@ const AcceptCourseInstructorInvite = () => {
               </div>
 
               {inviteInfo.role === "primary" && (
-              <div className="bg-warning/10 border border-warning/30 rounded-md p-3 text-sm text-warning-foreground">
+                <div className="bg-warning/10 border border-warning/30 rounded-md p-3 text-sm text-warning-foreground">
                   ⚠️ Accepting this invitation will make you the <strong>primary owner</strong> of the course.
+                </div>
+              )}
+
+              {inviteInfo.role === "admin" && (
+                <div className="bg-warning/10 border border-warning/30 rounded-md p-3 text-sm text-warning-foreground">
+                  ⚠️ Accepting this invitation will grant you <strong>platform-wide Admin</strong> access.
                 </div>
               )}
 
@@ -181,8 +189,8 @@ const AcceptCourseInstructorInvite = () => {
                 <p className="font-semibold text-lg">Invitation Accepted!</p>
                 <p className="text-muted-foreground text-sm">{message}</p>
               </div>
-              <Button onClick={() => navigate("/instructor")} className="w-full">
-                Go to Instructor Dashboard
+              <Button onClick={() => navigate(acceptedRole === "admin" ? "/admin" : "/instructor")} className="w-full">
+                {acceptedRole === "admin" ? "Go to Admin Dashboard" : "Go to Instructor Dashboard"}
               </Button>
             </div>
           )}

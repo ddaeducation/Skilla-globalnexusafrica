@@ -21,9 +21,9 @@ serve(async (req) => {
       );
     }
 
-    if (!["co_instructor", "primary"].includes(role)) {
+    if (!["co_instructor", "primary", "admin"].includes(role)) {
       return new Response(
-        JSON.stringify({ error: "role must be co_instructor or primary" }),
+        JSON.stringify({ error: "role must be co_instructor, primary, or admin" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -133,7 +133,7 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "https://skilllafrica.lovable.app";
     const inviteLink = `${origin}/accept-course-instructor-invite?token=${invitation.token}`;
-    const roleLabel = role === "primary" ? "Course Owner" : "Co-Instructor";
+    const roleLabel = role === "primary" ? "Course Owner" : role === "admin" ? "Platform Admin" : "Co-Instructor";
     const inviterName = inviterProfile?.full_name || inviterProfile?.email || "An instructor";
 
     const emailResponse = await fetch("https://api.resend.com/emails", {
@@ -158,6 +158,11 @@ serve(async (req) => {
               <div style="background: #fff8e1; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 4px; margin: 20px 0;">
                 <p style="color: #92400e; margin: 0; font-size: 14px;">
                   <strong>Note:</strong> Accepting this invitation will make you the primary owner of this course.
+                </p>
+              </div>` : role === "admin" ? `
+              <div style="background: #fff8e1; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 4px; margin: 20px 0;">
+                <p style="color: #92400e; margin: 0; font-size: 14px;">
+                  <strong>Note:</strong> Accepting this invitation will grant you platform-wide Admin access.
                 </p>
               </div>` : ""}
               <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6;">
