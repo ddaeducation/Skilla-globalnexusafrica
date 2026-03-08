@@ -113,6 +113,17 @@ const DonateSection = () => {
         console.log("Donation payment response:", response);
         closePaymentModal();
         if (response.status === "successful" || response.status === "completed") {
+          // Save donation to database
+          await supabase.from("donations").insert({
+            name: formData.name || null,
+            email: formData.email || null,
+            phone: formData.phone || null,
+            amount: donationAmount,
+            currency: currency,
+            message: formData.message || null,
+            transaction_ref: response.tx_ref || response.transaction_id?.toString() || null,
+            status: "completed",
+          });
           toast({
             title: "Thank you for your donation! 🎉",
             description: `Your generous contribution of ${displayAmount} will make a real difference.`,
