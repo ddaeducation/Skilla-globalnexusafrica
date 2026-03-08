@@ -1225,6 +1225,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           duration: string | null
+          full_price: number | null
           id: string
           image_url: string | null
           instructor_id: string | null
@@ -1233,6 +1234,7 @@ export type Database = {
           monthly_price: number | null
           price: number
           price_display_currency: string
+          pricing_type: string
           publish_status: string
           school: string
           title: string
@@ -1244,6 +1246,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           duration?: string | null
+          full_price?: number | null
           id?: string
           image_url?: string | null
           instructor_id?: string | null
@@ -1252,6 +1255,7 @@ export type Database = {
           monthly_price?: number | null
           price?: number
           price_display_currency?: string
+          pricing_type?: string
           publish_status?: string
           school: string
           title: string
@@ -1263,6 +1267,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           duration?: string | null
+          full_price?: number | null
           id?: string
           image_url?: string | null
           instructor_id?: string | null
@@ -1271,6 +1276,7 @@ export type Database = {
           monthly_price?: number | null
           price?: number
           price_display_currency?: string
+          pricing_type?: string
           publish_status?: string
           school?: string
           title?: string
