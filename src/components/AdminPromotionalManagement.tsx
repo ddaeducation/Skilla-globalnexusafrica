@@ -14,6 +14,24 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Megaphone, Gift, Video, Sparkles, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 
+interface Course {
+  id: string;
+  title: string;
+  school: string;
+  category: string | null;
+}
+
+const schoolOptions = [
+  "Data Engineering",
+  "Product & Innovation",
+  "Data & Analytics",
+  "Business Studies",
+  "Digital & Creative Media",
+  "Languages & Comms",
+];
+
+const categoryOptions = ["Professional", "Short-Course", "Masterclass"];
+
 interface Popup {
   id: string;
   title: string;
