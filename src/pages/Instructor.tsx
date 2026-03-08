@@ -173,6 +173,8 @@ const Instructor = () => {
     duration: "",
     price: 0,
     monthly_price: 0,
+    full_price: 0,
+    pricing_type: "monthly",
     learning_outcomes: "",
     image_url: "",
     price_display_currency: "USD",
