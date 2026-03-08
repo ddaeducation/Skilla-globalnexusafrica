@@ -51,14 +51,29 @@ serve(async (req) => {
       difficulty = "intermediate",
     } = await req.json() as GenerateFullCourseRequest;
 
-    // Verify course ownership
-    const { data: course } = await supabaseAnon
+    // Verify course ownership using service role (bypasses RLS)
+    const { data: course } = await supabase
       .from("courses")
       .select("id, instructor_id")
       .eq("id", courseId)
-      .single();
+      .maybeSingle();
 
-    if (!course) throw new Error("Course not found or access denied");
+    if (!course) throw new Error("Course not found");
+
+    // Check if user is the course instructor or a course co-instructor
+    const isOwner = course.instructor_id === user.id;
+    let isCoInstructor = false;
+    if (!isOwner) {
+      const { data: coInstructor } = await supabase
+        .from("course_instructors")
+        .select("id")
+        .eq("course_id", courseId)
+        .eq("instructor_id", user.id)
+        .maybeSingle();
+      isCoInstructor = !!coInstructor;
+    }
+
+    if (!isOwner && !isCoInstructor) throw new Error("Access denied: you are not an instructor for this course");
 
     console.log(`Generating full course structure for: ${courseTitle}`);
 
