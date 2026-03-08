@@ -87,7 +87,7 @@ const Programs = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from("courses")
-        .select("id, title, description, price, monthly_price, duration, image_url, learning_outcomes, category, publish_status, instructor_id, instructor_name")
+        .select("id, title, description, price, monthly_price, duration, image_url, learning_outcomes, category, publish_status, instructor_id, instructor_name, price_display_currency")
         .eq("category", dbCategory)
         .eq("approval_status", "approved")
         .in("publish_status", ["live", "upcoming"]);
