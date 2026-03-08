@@ -519,11 +519,13 @@ const Instructor = () => {
             category: courseForm.category || null,
             duration: courseForm.duration || null,
             price: courseForm.price,
-            monthly_price: courseForm.monthly_price,
+            monthly_price: courseForm.pricing_type === "monthly" ? courseForm.monthly_price : 0,
+            full_price: courseForm.pricing_type === "full" ? courseForm.full_price : null,
+            pricing_type: courseForm.pricing_type,
             learning_outcomes: learningOutcomesArray,
             image_url: courseForm.image_url || null,
             price_display_currency: courseForm.price_display_currency || "USD",
-          })
+          } as any)
           .eq("id", editingCourse.id);
 
         if (error) throw error;
