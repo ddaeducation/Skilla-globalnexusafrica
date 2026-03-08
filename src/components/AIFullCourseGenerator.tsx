@@ -185,7 +185,7 @@ export const AIFullCourseGenerator = ({
                   <Input
                     type="number"
                     min={2}
-                    max={8}
+                    max={12}
                     value={modulesCount}
                     onChange={(e) => setModulesCount(Number(e.target.value))}
                     disabled={generating}
