@@ -889,7 +889,7 @@ const Apply = () => {
                               </div>
                               {schoolCourses.map((course) => (
                                 <SelectItem key={course.id} value={course.id}>
-                                  {course.title} - ${course.monthly_price ?? 0}/month
+                                  {course.title} - {course.pricing_type === "full" ? `$${course.full_price ?? 0}` : `$${course.monthly_price ?? 0}/month`}
                                 </SelectItem>
                               ))}
                             </div>
