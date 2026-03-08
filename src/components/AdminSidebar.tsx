@@ -53,6 +53,7 @@ const navigationItems = [
   { id: "collaborations", title: "Collaborations", icon: Handshake },
   { id: "admins", title: "Admins", icon: Shield },
   { id: "certificates", title: "Templates", icon: Award },
+  { id: "promotions", title: "Promotions", icon: Megaphone },
 ];
 
 const accountItems = [

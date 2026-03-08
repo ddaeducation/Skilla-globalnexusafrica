@@ -49,6 +49,7 @@ const Index = () => {
           {activeTab === "donate" && <DonateSection />}
         </main>
         <Footer />
+        <WelcomePopup />
         <CourseAssistant />
       </div>
     </>
