@@ -262,16 +262,70 @@ const AdminPromotionalManagement = () => {
                 <Label>Image URL (optional)</Label>
                 <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://..." />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>CTA Button Text</Label>
-                  <Input value={ctaText} onChange={(e) => setCtaText(e.target.value)} placeholder="Learn More" />
-                </div>
+              <div>
+                <Label>CTA Button Text</Label>
+                <Input value={ctaText} onChange={(e) => setCtaText(e.target.value)} placeholder="Learn More" />
+              </div>
+              <div>
+                <Label>CTA Link Type</Label>
+                <Select value={ctaMode} onValueChange={(v) => { setCtaMode(v as "manual" | "course"); if (v === "manual") { setSelectedSchool(""); setSelectedCategory(""); setSelectedCourseId(""); } else { setCtaLink(""); } }}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="manual">Custom URL</SelectItem>
+                    <SelectItem value="course">Link to Course</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {ctaMode === "manual" ? (
                 <div>
                   <Label>CTA Link</Label>
                   <Input value={ctaLink} onChange={(e) => setCtaLink(e.target.value)} placeholder="/programs or https://..." />
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-3 rounded-md border border-border p-3 bg-muted/30">
+                  <div>
+                    <Label>School</Label>
+                    <Select value={selectedSchool} onValueChange={(v) => { setSelectedSchool(v); setSelectedCategory(""); setSelectedCourseId(""); setCtaLink(""); }}>
+                      <SelectTrigger><SelectValue placeholder="Select a school..." /></SelectTrigger>
+                      <SelectContent>
+                        {schoolOptions.map((s) => (
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {selectedSchool && (
+                    <div>
+                      <Label>Program Type</Label>
+                      <Select value={selectedCategory} onValueChange={(v) => { setSelectedCategory(v); setSelectedCourseId(""); setCtaLink(""); }}>
+                        <SelectTrigger><SelectValue placeholder="Select category..." /></SelectTrigger>
+                        <SelectContent>
+                          {categoryOptions.map((c) => (
+                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  {selectedSchool && selectedCategory && (
+                    <div>
+                      <Label>Course</Label>
+                      {filteredCourses.length === 0 ? (
+                        <p className="text-sm text-muted-foreground py-2">No courses found for this school & category.</p>
+                      ) : (
+                        <Select value={selectedCourseId} onValueChange={(v) => { setSelectedCourseId(v); setCtaLink(`/course/${v}`); }}>
+                          <SelectTrigger><SelectValue placeholder="Select a course..." /></SelectTrigger>
+                          <SelectContent>
+                            {filteredCourses.map((c) => (
+                              <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
               <div>
                 <Label>End Date (optional)</Label>
                 <Input type="datetime-local" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
