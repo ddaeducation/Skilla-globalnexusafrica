@@ -79,20 +79,16 @@ export const CourseInstructorManager = ({
   const [pendingInvitations, setPendingInvitations] = useState<PendingInvitation[]>([]);
   const [primaryProfile, setPrimaryProfile] = useState<{ full_name: string | null; email: string | null } | null>(null);
 
-  // Co-instructor invite dialog
-  const [coDialogOpen, setCoDialogOpen] = useState(false);
-  const [coEmail, setCoEmail] = useState("");
-  const [sendingCo, setSendingCo] = useState(false);
-
-  // Transfer ownership dialog
-  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
-  const [transferEmail, setTransferEmail] = useState("");
-  const [sendingTransfer, setSendingTransfer] = useState(false);
+  // Unified invite dialog
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<"co_instructor" | "primary" | "admin">("co_instructor");
+  const [sendingInvite, setSendingInvite] = useState(false);
 
   // Enrolled students assignment
   const [enrolledStudents, setEnrolledStudents] = useState<EnrolledStudent[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState("");
-  const [selectedRole, setSelectedRole] = useState<"co_instructor" | "primary">("co_instructor");
+  const [selectedRole, setSelectedRole] = useState<"co_instructor" | "primary" | "admin">("co_instructor");
   const [assigningStudent, setAssigningStudent] = useState(false);
 
   useEffect(() => {
