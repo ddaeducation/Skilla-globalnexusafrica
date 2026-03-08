@@ -219,8 +219,18 @@ export const StudentAssignmentSubmission = ({
         if (error) throw error;
       }
 
-      // If AI grading is enabled and there's text to grade, trigger AI grading
-      if (aiGradingEnabled && submissionText.trim()) {
+      // Determine grading method:
+      // - If submission has a file attachment → peer review
+      // - If AI grading is enabled and text-only → AI grades it
+      // - Otherwise → manual/instructor grading
+      const hasAttachment = !!(fileUrl || (existingSubmission?.file_url && !selectedFile));
+
+      if (hasAttachment) {
+        toast({
+          title: "Submitted for Peer Review!",
+          description: "Your assignment includes an attachment and will be reviewed by your classmates.",
+        });
+      } else if (aiGradingEnabled && submissionText.trim()) {
         setAiGrading(true);
         try {
           const { data: gradeData, error: gradeError } = await supabase.functions.invoke("ai-grade-answer", {
@@ -234,7 +244,6 @@ export const StudentAssignmentSubmission = ({
           });
 
           if (!gradeError && gradeData && !gradeData.error) {
-            // Get the submission ID to update
             const { data: latestSub } = await supabase
               .from("assignment_submissions")
               .select("id")
@@ -262,7 +271,6 @@ export const StudentAssignmentSubmission = ({
           }
         } catch (gradeErr) {
           console.error("AI grading error:", gradeErr);
-          // Don't fail the submission if grading fails
         } finally {
           setAiGrading(false);
         }
