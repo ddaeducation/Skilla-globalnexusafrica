@@ -336,7 +336,7 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
                   <button
                     key={course.id}
                     onClick={() => {
-                      navigate(`/course/${course.id}`);
+                      navigate(`/course/${(course as any).slug || course.id}`);
                       setIsMenuOpen(false);
                       setSearchQuery("");
                       setSearchResults([]);

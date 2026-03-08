@@ -144,7 +144,7 @@ const CourseCard = ({ course, instructor, ratingData }: {
               </PopoverContent>
             </Popover>
             <Button size="sm" variant="outline" asChild>
-              <Link to={`/course/${course.id}`}>View Details</Link>
+              <Link to={`/course/${(course as any).slug || course.id}`}>View Details</Link>
             </Button>
             {isUpcoming ? (
               <Button size="sm" disabled variant="outline">

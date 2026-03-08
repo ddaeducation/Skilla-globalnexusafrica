@@ -108,7 +108,7 @@ const InstructorLMSView = ({ instructorId }: InstructorLMSViewProps) => {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => navigate(`/course/${course.id}`)}
+                    onClick={() => navigate(`/course/${(course as any).slug || course.id}`)}
                     title="Preview course detail"
                   >
                     <Eye className="w-4 h-4" />
