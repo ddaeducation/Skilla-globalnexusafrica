@@ -259,7 +259,7 @@ const Apply = () => {
   const fetchCourses = async () => {
     const { data, error } = await supabase
       .from("courses")
-      .select("id, title, school, price, monthly_price, description, duration")
+      .select("id, title, school, price, monthly_price, full_price, pricing_type, description, duration")
       .eq("approval_status", "approved")
       .order("title");
 
