@@ -512,12 +512,30 @@ const CourseDetail = () => {
     });
   })();
 
-  // Set first content as active when content is loaded
+  // Set active content to where student left off (first uncompleted item)
   useEffect(() => {
     if (unifiedContent.length > 0 && !activeContent) {
-      setActiveContent(unifiedContent[0]);
+      if (isEnrolled || isInstructor) {
+        // Find the first uncompleted content item
+        const firstUncompleted = unifiedContent.find((item) => {
+          if (item.type === "lesson") {
+            return !progress.some((p) => p.lesson_id === item.data.id && p.completed);
+          }
+          if (item.type === "quiz") {
+            const attempts = quizAttempts.filter((a) => a.quiz_id === item.data.id);
+            return !attempts.some((a) => a.passed);
+          }
+          if (item.type === "assignment") {
+            return !assignmentSubmissions.some((s) => s.assignment_id === item.data.id && s.graded_at);
+          }
+          return true;
+        });
+        setActiveContent(firstUncompleted || unifiedContent[unifiedContent.length - 1]);
+      } else {
+        setActiveContent(unifiedContent[0]);
+      }
     }
-  }, [lessons, quizzes, assignments]);
+  }, [lessons, quizzes, assignments, progress, quizAttempts, assignmentSubmissions]);
 
   const handleEnrollClick = () => {
     if (!user) {
