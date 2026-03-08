@@ -196,13 +196,16 @@ serve(async (req) => {
       .update({ status: "accepted", accepted_at: new Date().toISOString() })
       .eq("id", invitation.id);
 
-    const roleLabel = invitation.role === "primary" ? "Course Owner" : "Co-Instructor";
+    const roleLabel = invitation.role === "primary" ? "Course Owner" : invitation.role === "admin" ? "Admin" : "Co-Instructor";
     const courseTitle = (invitation as any).courses?.title || "the course";
+    const dashboardMsg = invitation.role === "admin" 
+      ? "You can access the Admin dashboard." 
+      : `You can access "${courseTitle}" from your instructor dashboard.`;
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: `You are now a ${roleLabel} for "${courseTitle}". You can access it from your instructor dashboard.`,
+        message: `You are now a ${roleLabel}! ${dashboardMsg}`,
         course_id: invitation.course_id,
         role: invitation.role,
       }),

@@ -117,8 +117,8 @@ const AcceptCourseInstructorInvite = () => {
     }
   };
 
-  const roleLabel = inviteInfo?.role === "primary" ? "Course Owner" : "Co-Instructor";
-  const RoleIcon = inviteInfo?.role === "primary" ? Crown : Users;
+  const roleLabel = inviteInfo?.role === "primary" ? "Course Owner" : inviteInfo?.role === "admin" ? "Admin" : "Co-Instructor";
+  const RoleIcon = inviteInfo?.role === "primary" ? Crown : inviteInfo?.role === "admin" ? ShieldCheck : Users;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
