@@ -1360,6 +1360,9 @@ const CourseDetail = () => {
                       <User className="w-3.5 h-3.5 text-muted-foreground" />
                       <span className="text-sm text-muted-foreground">
                         by {instructorProfile?.full_name || course.instructor_name}
+                        {coInstructors.length > 0 && (
+                          <> &amp; {coInstructors.map(c => c.full_name).join(", ")}</>
+                        )}
                       </span>
                     </div>
                   </>
