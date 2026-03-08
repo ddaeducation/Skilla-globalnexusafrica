@@ -908,7 +908,9 @@ const Apply = () => {
                             </p>
                           )}
                           <p className="text-sm font-medium text-primary mt-1">
-                            Monthly Price: ${courseMonthlyPrice}/month
+                            {isFullPrice 
+                              ? `Full Price: $${courseFullPrice} (Lifetime access)` 
+                              : `Monthly Price: $${courseMonthlyPrice}/month`}
                           </p>
                         </div>
                       )}
