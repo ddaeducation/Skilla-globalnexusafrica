@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Sparkles, Loader2, BookOpen, FileQuestion, ClipboardList, Wand2, Check, RefreshCw } from "lucide-react";
+import { Sparkles, Loader2, BookOpen, FileQuestion, ClipboardList, Wand2, Check, RefreshCw, ShieldAlert } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RichTextEditor } from "@/components/RichTextEditor";
@@ -65,6 +65,28 @@ const questionTypeOptions = [
 export const AIContentGenerator = ({ courseId, courseName, sectionId, onContentGenerated }: AIContentGeneratorProps) => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [hasAiAccess, setHasAiAccess] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkAiAccess = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setHasAiAccess(false); return; }
+      const { data: adminRole } = await supabase
+        .from("user_roles")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("role", "admin" as any)
+        .maybeSingle();
+      if (adminRole) { setHasAiAccess(true); return; }
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("ai_course_generation_enabled")
+        .eq("id", user.id)
+        .maybeSingle();
+      setHasAiAccess((profile as any)?.ai_course_generation_enabled ?? false);
+    };
+    checkAiAccess();
+  }, []);
   const [activeTab, setActiveTab] = useState<"lesson" | "quiz" | "assignment">("lesson");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -522,6 +544,24 @@ export const AIContentGenerator = ({ courseId, courseName, sectionId, onContentG
       questions: generatedQuiz.questions.map((q, i) => i === index ? { ...q, selected: !q.selected } : q),
     });
   };
+
+  if (hasAiAccess === false) {
+    return (
+      <Button variant="outline" className="gap-2 opacity-60 cursor-not-allowed" disabled title="AI content generation is not enabled for your account. Contact an administrator.">
+        <ShieldAlert className="h-4 w-4" />
+        AI Generate (No Access)
+      </Button>
+    );
+  }
+
+  if (hasAiAccess === null) {
+    return (
+      <Button variant="outline" className="gap-2" disabled>
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Checking access...
+      </Button>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { setOpen(isOpen); if (!isOpen) resetForm(); }}>
