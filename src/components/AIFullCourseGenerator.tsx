@@ -163,6 +163,30 @@ export const AIFullCourseGenerator = ({
     }
   };
 
+  if (hasAiAccess === false) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        className="gap-2 opacity-60 cursor-not-allowed"
+        disabled
+        title="AI course generation is not enabled for your account. Contact an administrator."
+      >
+        <ShieldAlert className="h-4 w-4" />
+        AI Generate (No Access)
+      </Button>
+    );
+  }
+
+  if (hasAiAccess === null) {
+    return (
+      <Button variant="default" size="sm" className="gap-2" disabled>
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Checking access...
+      </Button>
+    );
+  }
+
   return (
     <>
       <Button
