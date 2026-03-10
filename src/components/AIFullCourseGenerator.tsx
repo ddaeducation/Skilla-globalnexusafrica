@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Sparkles, Loader2, BookOpen, FileQuestion, ClipboardList, Layers } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Sparkles, Loader2, BookOpen, FileQuestion, ClipboardList, Layers, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -35,6 +35,32 @@ export const AIFullCourseGenerator = ({
   const [difficulty, setDifficulty] = useState<"beginner" | "intermediate" | "advanced">("intermediate");
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<{ modules: number; lessons: number; quizzes: number; assignments: number } | null>(null);
+  const [hasAiAccess, setHasAiAccess] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkAiAccess = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setHasAiAccess(false); return; }
+
+      // Check if admin (always has access)
+      const { data: adminRole } = await supabase
+        .from("user_roles")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("role", "admin" as any)
+        .maybeSingle();
+      if (adminRole) { setHasAiAccess(true); return; }
+
+      // Check profile flag
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("ai_course_generation_enabled")
+        .eq("id", user.id)
+        .maybeSingle();
+      setHasAiAccess((profile as any)?.ai_course_generation_enabled ?? false);
+    };
+    checkAiAccess();
+  }, []);
 
   const handleGenerate = async () => {
     if (!description.trim()) {
@@ -136,6 +162,30 @@ export const AIFullCourseGenerator = ({
       setProgress(0);
     }
   };
+
+  if (hasAiAccess === false) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        className="gap-2 opacity-60 cursor-not-allowed"
+        disabled
+        title="AI course generation is not enabled for your account. Contact an administrator."
+      >
+        <ShieldAlert className="h-4 w-4" />
+        AI Generate (No Access)
+      </Button>
+    );
+  }
+
+  if (hasAiAccess === null) {
+    return (
+      <Button variant="default" size="sm" className="gap-2" disabled>
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Checking access...
+      </Button>
+    );
+  }
 
   return (
     <>
