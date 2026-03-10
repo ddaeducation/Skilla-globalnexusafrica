@@ -35,6 +35,32 @@ export const AIFullCourseGenerator = ({
   const [difficulty, setDifficulty] = useState<"beginner" | "intermediate" | "advanced">("intermediate");
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<{ modules: number; lessons: number; quizzes: number; assignments: number } | null>(null);
+  const [hasAiAccess, setHasAiAccess] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkAiAccess = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setHasAiAccess(false); return; }
+
+      // Check if admin (always has access)
+      const { data: adminRole } = await supabase
+        .from("user_roles")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("role", "admin" as any)
+        .maybeSingle();
+      if (adminRole) { setHasAiAccess(true); return; }
+
+      // Check profile flag
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("ai_course_generation_enabled")
+        .eq("id", user.id)
+        .maybeSingle();
+      setHasAiAccess((profile as any)?.ai_course_generation_enabled ?? false);
+    };
+    checkAiAccess();
+  }, []);
 
   const handleGenerate = async () => {
     if (!description.trim()) {
