@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN ai_course_generation_enabled boolean NOT NULL DEFAULT false;

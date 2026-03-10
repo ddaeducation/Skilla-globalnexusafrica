@@ -2017,6 +2017,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ai_course_generation_enabled: boolean
           avatar_url: string | null
           country: string | null
           created_at: string | null
@@ -2033,6 +2034,7 @@ export type Database = {
           year_of_birth: number | null
         }
         Insert: {
+          ai_course_generation_enabled?: boolean
           avatar_url?: string | null
           country?: string | null
           created_at?: string | null
@@ -2049,6 +2051,7 @@ export type Database = {
           year_of_birth?: number | null
         }
         Update: {
+          ai_course_generation_enabled?: boolean
           avatar_url?: string | null
           country?: string | null
           created_at?: string | null
