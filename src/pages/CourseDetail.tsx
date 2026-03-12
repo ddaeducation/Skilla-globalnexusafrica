@@ -347,7 +347,8 @@ const CourseDetail = () => {
     return data.id;
   };
 
-  const checkEnrollment = async (userId: string) => {
+  const checkEnrollment = async (userId: string, resolvedCourseId?: string) => {
+    const cid = resolvedCourseId || courseId;
     // Check if user is the course instructor
     const { data: courseData } = await supabase
       .from("courses")
