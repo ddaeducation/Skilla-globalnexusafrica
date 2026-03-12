@@ -204,12 +204,13 @@ const CourseDetail = () => {
     if (session?.user) {
       setUser(session.user);
     }
-    await fetchCourse();
+    const resolvedId = await fetchCourse();
+    if (!resolvedId) return;
     if (session?.user) {
-      await checkEnrollment(session.user.id);
+      await checkEnrollment(session.user.id, resolvedId);
     } else {
       // Fetch sections and free preview lessons for unauthenticated visitors
-      await fetchPublicCourseContent();
+      await fetchPublicCourseContent(resolvedId);
     }
   };
 
