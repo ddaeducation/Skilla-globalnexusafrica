@@ -204,23 +204,26 @@ const CourseDetail = () => {
     if (session?.user) {
       setUser(session.user);
     }
-    await fetchCourse();
+    const resolvedId = await fetchCourse();
+    if (!resolvedId) return;
     if (session?.user) {
-      await checkEnrollment(session.user.id);
+      await checkEnrollment(session.user.id, resolvedId);
     } else {
       // Fetch sections and free preview lessons for unauthenticated visitors
-      await fetchPublicCourseContent();
+      await fetchPublicCourseContent(resolvedId);
     }
   };
 
-  const fetchPublicCourseContent = async () => {
+  const fetchPublicCourseContent = async (resolvedCourseId?: string) => {
+    const cid = resolvedCourseId || courseId;
+    if (!cid) return;
     const [sectionsRes, curriculumRes] = await Promise.all([
       supabase
         .from("course_sections")
         .select("*")
-        .eq("course_id", courseId)
+        .eq("course_id", cid)
         .order("order_index"),
-      supabase.rpc("get_course_curriculum", { p_course_id: courseId }),
+      supabase.rpc("get_course_curriculum", { p_course_id: cid }),
     ]);
     if (sectionsRes.data) setSections(sectionsRes.data);
     if (curriculumRes.data) {
@@ -242,7 +245,7 @@ const CourseDetail = () => {
     }
   };
 
-  const fetchCourse = async () => {
+  const fetchCourse = async (): Promise<string | null> => {
     // Try fetching by slug first, then fall back to UUID
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(courseParam || "");
     
@@ -264,7 +267,7 @@ const CourseDetail = () => {
         variant: "destructive",
       });
       navigate("/lms");
-      return;
+      return null;
     }
     
     // Set the resolved UUID as courseId for internal use
@@ -304,7 +307,7 @@ const CourseDetail = () => {
     const { data: coInstructorLinks } = await supabase
       .from("course_instructors")
       .select("instructor_id")
-      .eq("course_id", courseId!)
+      .eq("course_id", data.id)
       .eq("role", "co_instructor");
 
     if (coInstructorLinks && coInstructorLinks.length > 0) {
@@ -328,26 +331,29 @@ const CourseDetail = () => {
     const { data: enrollmentCount } = await supabase
       .from("enrollments")
       .select("id", { count: "exact" })
-      .eq("course_id", courseId!)
+      .eq("course_id", data.id)
       .eq("payment_status", "completed");
     
     const enrolledCount = enrollmentCount?.length || 0;
     // Use consistent fallback rating between 4.5 and 5.0
-    const fallback = getFallbackRating(courseId!);
+    const fallback = getFallbackRating(data.id);
     setAverageRating(fallback);
     setTotalRatings(enrolledCount);
 
     // Fetch content counts (accessible to all users via database function)
-    const { data: countsData } = await supabase.rpc("get_course_content_counts", { p_course_id: courseId });
+    const { data: countsData } = await supabase.rpc("get_course_content_counts", { p_course_id: data.id });
     if (countsData) setContentCounts(countsData as any);
+
+    return data.id;
   };
 
-  const checkEnrollment = async (userId: string) => {
+  const checkEnrollment = async (userId: string, resolvedCourseId?: string) => {
+    const cid = resolvedCourseId || courseId;
     // Check if user is the course instructor
     const { data: courseData } = await supabase
       .from("courses")
       .select("instructor_id")
-      .eq("id", courseId)
+      .eq("id", cid)
       .maybeSingle();
 
     let instructorAccess = courseData?.instructor_id === userId;
@@ -357,7 +363,7 @@ const CourseDetail = () => {
       const { data: coInstructor } = await supabase
         .from("course_instructors")
         .select("id")
-        .eq("course_id", courseId)
+        .eq("course_id", cid)
         .eq("instructor_id", userId)
         .maybeSingle();
       if (coInstructor) instructorAccess = true;
@@ -374,7 +380,7 @@ const CourseDetail = () => {
       .from("enrollments")
       .select("*")
       .eq("user_id", userId)
-      .eq("course_id", courseId)
+      .eq("course_id", cid)
       .eq("payment_status", "completed")
       .maybeSingle();
 
@@ -385,7 +391,7 @@ const CourseDetail = () => {
         setSubscriptionExpiresAt(data.subscription_expires_at);
         setIsEnrolled(false);
         // Still fetch content structure but don't allow access
-        await fetchPublicCourseContent();
+        await fetchPublicCourseContent(cid);
       } else {
         setIsEnrolled(true);
         setSubscriptionExpiresAt(data.subscription_expires_at);
@@ -397,7 +403,7 @@ const CourseDetail = () => {
         .from("enrollments")
         .select("subscription_expires_at")
         .eq("user_id", userId)
-        .eq("course_id", courseId)
+        .eq("course_id", cid)
         .in("payment_status", ["suspended", "expired"])
         .maybeSingle();
       
@@ -406,7 +412,7 @@ const CourseDetail = () => {
         setSubscriptionExpiresAt(expiredEnrollment.subscription_expires_at);
       }
       // User is authenticated but not enrolled — show sections and free preview lessons
-      await fetchPublicCourseContent();
+      await fetchPublicCourseContent(cid);
     }
   };
 
