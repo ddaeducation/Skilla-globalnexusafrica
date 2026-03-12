@@ -353,7 +353,7 @@ const CourseDetail = () => {
     const { data: courseData } = await supabase
       .from("courses")
       .select("instructor_id")
-      .eq("id", courseId)
+      .eq("id", cid)
       .maybeSingle();
 
     let instructorAccess = courseData?.instructor_id === userId;
@@ -363,7 +363,7 @@ const CourseDetail = () => {
       const { data: coInstructor } = await supabase
         .from("course_instructors")
         .select("id")
-        .eq("course_id", courseId)
+        .eq("course_id", cid)
         .eq("instructor_id", userId)
         .maybeSingle();
       if (coInstructor) instructorAccess = true;
@@ -380,7 +380,7 @@ const CourseDetail = () => {
       .from("enrollments")
       .select("*")
       .eq("user_id", userId)
-      .eq("course_id", courseId)
+      .eq("course_id", cid)
       .eq("payment_status", "completed")
       .maybeSingle();
 
@@ -391,7 +391,7 @@ const CourseDetail = () => {
         setSubscriptionExpiresAt(data.subscription_expires_at);
         setIsEnrolled(false);
         // Still fetch content structure but don't allow access
-        await fetchPublicCourseContent();
+        await fetchPublicCourseContent(cid);
       } else {
         setIsEnrolled(true);
         setSubscriptionExpiresAt(data.subscription_expires_at);
@@ -403,7 +403,7 @@ const CourseDetail = () => {
         .from("enrollments")
         .select("subscription_expires_at")
         .eq("user_id", userId)
-        .eq("course_id", courseId)
+        .eq("course_id", cid)
         .in("payment_status", ["suspended", "expired"])
         .maybeSingle();
       
@@ -412,7 +412,7 @@ const CourseDetail = () => {
         setSubscriptionExpiresAt(expiredEnrollment.subscription_expires_at);
       }
       // User is authenticated but not enrolled — show sections and free preview lessons
-      await fetchPublicCourseContent();
+      await fetchPublicCourseContent(cid);
     }
   };
 
