@@ -1445,7 +1445,11 @@ const CourseDetail = () => {
                 <CardDescription>{stripHtml(course.description)}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                  <div className="p-4 bg-muted rounded-lg">
+                    <p className="text-2xl font-bold text-primary">{sections.filter(s => !s.parent_id).length || "—"}</p>
+                    <p className="text-sm text-muted-foreground">Modules</p>
+                  </div>
                   <div className="p-4 bg-muted rounded-lg">
                     <p className="text-2xl font-bold text-primary">{(contentCounts?.lesson_count ?? lessons.length) || "—"}</p>
                     <p className="text-sm text-muted-foreground">Lessons</p>
