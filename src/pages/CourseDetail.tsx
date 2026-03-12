@@ -331,18 +331,20 @@ const CourseDetail = () => {
     const { data: enrollmentCount } = await supabase
       .from("enrollments")
       .select("id", { count: "exact" })
-      .eq("course_id", courseId!)
+      .eq("course_id", data.id)
       .eq("payment_status", "completed");
     
     const enrolledCount = enrollmentCount?.length || 0;
     // Use consistent fallback rating between 4.5 and 5.0
-    const fallback = getFallbackRating(courseId!);
+    const fallback = getFallbackRating(data.id);
     setAverageRating(fallback);
     setTotalRatings(enrolledCount);
 
     // Fetch content counts (accessible to all users via database function)
-    const { data: countsData } = await supabase.rpc("get_course_content_counts", { p_course_id: courseId });
+    const { data: countsData } = await supabase.rpc("get_course_content_counts", { p_course_id: data.id });
     if (countsData) setContentCounts(countsData as any);
+
+    return data.id;
   };
 
   const checkEnrollment = async (userId: string) => {
