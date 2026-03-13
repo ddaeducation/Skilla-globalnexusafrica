@@ -1711,7 +1711,7 @@ const CourseDetail = () => {
                                       Coming Soon
                                     </Button>
                                   ) : isEnrolled ? (
-                                    <Button onClick={() => setShowCourseOverview(false)} size="lg" className="w-full">
+                                    <Button onClick={() => { setActiveContent(null); setShowCourseOverview(false); }} size="lg" className="w-full">
                                       <Play className="w-4 h-4 mr-2" />
                                       Continue Where You Left
                                     </Button>
