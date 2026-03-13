@@ -372,7 +372,7 @@ const CourseDetail = () => {
     if (instructorAccess) {
       setIsInstructor(true);
       setIsEnrolled(true);
-      await fetchCourseContent(userId);
+      await fetchCourseContent(userId, cid);
       return;
     }
 
@@ -395,7 +395,7 @@ const CourseDetail = () => {
       } else {
         setIsEnrolled(true);
         setSubscriptionExpiresAt(data.subscription_expires_at);
-        await fetchCourseContent(userId);
+        await fetchCourseContent(userId, cid);
       }
     } else {
       // Check for expired enrollment (payment_status might have been changed to suspended)
