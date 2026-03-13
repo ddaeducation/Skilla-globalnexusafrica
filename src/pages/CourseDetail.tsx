@@ -372,7 +372,7 @@ const CourseDetail = () => {
     if (instructorAccess) {
       setIsInstructor(true);
       setIsEnrolled(true);
-      await fetchCourseContent(userId);
+      await fetchCourseContent(userId, cid);
       return;
     }
 
@@ -395,7 +395,7 @@ const CourseDetail = () => {
       } else {
         setIsEnrolled(true);
         setSubscriptionExpiresAt(data.subscription_expires_at);
-        await fetchCourseContent(userId);
+        await fetchCourseContent(userId, cid);
       }
     } else {
       // Check for expired enrollment (payment_status might have been changed to suspended)
@@ -416,12 +416,15 @@ const CourseDetail = () => {
     }
   };
 
-  const fetchCourseContent = async (userId: string) => {
+  const fetchCourseContent = async (userId: string, resolvedCourseId?: string) => {
+    const cid = resolvedCourseId || courseId;
+    if (!cid) return;
+
     // Fetch sections
     const { data: sectionsData } = await supabase
       .from("course_sections")
       .select("*")
-      .eq("course_id", courseId)
+      .eq("course_id", cid)
       .order("order_index");
 
     if (sectionsData) {
@@ -432,7 +435,7 @@ const CourseDetail = () => {
     const { data: lessonsData } = await supabase
       .from("lesson_content")
       .select("*")
-      .eq("course_id", courseId)
+      .eq("course_id", cid)
       .order("order_index");
 
     if (lessonsData) setLessons(lessonsData);
@@ -441,7 +444,7 @@ const CourseDetail = () => {
     const { data: quizzesData } = await supabase
       .from("quizzes")
       .select("*")
-      .eq("course_id", courseId)
+      .eq("course_id", cid)
       .order("order_index");
 
     if (quizzesData) setQuizzes(quizzesData);
@@ -450,7 +453,7 @@ const CourseDetail = () => {
     const { data: assignmentsData } = await supabase
       .from("assignments")
       .select("*")
-      .eq("course_id", courseId)
+      .eq("course_id", cid)
       .order("order_index");
 
     if (assignmentsData) setAssignments(assignmentsData);
@@ -460,7 +463,7 @@ const CourseDetail = () => {
       .from("student_progress")
       .select("lesson_id, completed")
       .eq("user_id", userId)
-      .eq("course_id", courseId);
+      .eq("course_id", cid);
 
     if (progressData) setProgress(progressData);
 
@@ -481,16 +484,17 @@ const CourseDetail = () => {
     if (submissionsData) setAssignmentSubmissions(submissionsData);
 
     // Fetch peer review completion status for each assignment
-    await fetchPeerReviewStatus(userId);
+    await fetchPeerReviewStatus(userId, cid);
   };
 
-  const fetchPeerReviewStatus = async (userId: string) => {
-    if (!courseId) return;
+  const fetchPeerReviewStatus = async (userId: string, resolvedCourseId?: string) => {
+    const cid = resolvedCourseId || courseId;
+    if (!cid) return;
     const { data: reviews } = await supabase
       .from("peer_reviews")
       .select("assignment_id, reviewed_at")
       .eq("reviewer_id", userId)
-      .eq("course_id", courseId);
+      .eq("course_id", cid);
 
     if (reviews) {
       const status: Record<string, { assigned: number; completed: number }> = {};
@@ -569,7 +573,7 @@ const CourseDetail = () => {
 
   // Set active content to where student left off (first uncompleted item)
   useEffect(() => {
-    if (unifiedContent.length > 0 && !activeContent) {
+    if (unifiedContent.length > 0 && !activeContent && !showCourseOverview) {
       if (isEnrolled || isInstructor) {
         // Find the first uncompleted content item
         const firstUncompleted = unifiedContent.find((item) => {
@@ -590,7 +594,7 @@ const CourseDetail = () => {
         setActiveContent(unifiedContent[0]);
       }
     }
-  }, [lessons, quizzes, assignments, progress, quizAttempts, assignmentSubmissions]);
+  }, [lessons, quizzes, assignments, progress, quizAttempts, assignmentSubmissions, showCourseOverview]);
 
   const courseSlug = course?.slug || courseId;
 
@@ -1281,15 +1285,24 @@ const CourseDetail = () => {
 
   const renderActiveContent = () => {
     if (!activeContent) {
-      return (
-        <div className="text-center py-12">
-          <BookOpen className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-xl font-medium mb-2">No content yet</h3>
-          <p className="text-muted-foreground">
-            The instructor is still preparing the course content. Check back soon!
-          </p>
-        </div>
-      );
+      if (unifiedContent.length === 0) {
+        return (
+          <div className="text-center py-12">
+            <BookOpen className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-xl font-medium mb-2">No content yet</h3>
+            <p className="text-muted-foreground mb-4">
+              Course content is being prepared. Check back soon!
+            </p>
+            <Button variant="outline" onClick={() => setShowCourseOverview(true)}>
+              Back to Course Overview
+            </Button>
+          </div>
+        );
+      }
+      // Content exists but nothing selected yet — auto-select first item
+      const first = unifiedContent[0];
+      setActiveContent(first);
+      return null;
     }
 
     switch (activeContent.type) {
@@ -1707,7 +1720,7 @@ const CourseDetail = () => {
                                       Coming Soon
                                     </Button>
                                   ) : isEnrolled ? (
-                                    <Button onClick={() => setShowCourseOverview(false)} size="lg" className="w-full">
+                                    <Button onClick={() => { setActiveContent(null); setShowCourseOverview(false); }} size="lg" className="w-full">
                                       <Play className="w-4 h-4 mr-2" />
                                       Continue Where You Left
                                     </Button>
