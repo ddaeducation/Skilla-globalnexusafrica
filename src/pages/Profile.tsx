@@ -48,10 +48,13 @@ interface ActivityLog {
 interface Profile {
   id: string;
   full_name: string | null;
+  first_name: string | null;
+  last_name: string | null;
   email: string | null;
   phone: string | null;
   created_at: string | null;
   avatar_url: string | null;
+  student_id: string | null;
 }
 
 const Profile = () => {
