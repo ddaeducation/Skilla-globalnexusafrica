@@ -2130,7 +2130,9 @@ const Admin = () => {
                         
                         return (
                           <TableRow key={profile.id}>
-                            <TableCell className="font-medium">{profile.full_name || "-"}</TableCell>
+                            <TableCell className="font-mono text-xs">{profile.student_id || "-"}</TableCell>
+                            <TableCell className="font-medium">{profile.first_name || "-"}</TableCell>
+                            <TableCell className="font-medium">{profile.last_name || "-"}</TableCell>
                             <TableCell>{profile.email || "-"}</TableCell>
                             <TableCell>{profile.phone || "-"}</TableCell>
                             <TableCell>{profile.country || "-"}</TableCell>
@@ -2138,6 +2140,8 @@ const Admin = () => {
                             <TableCell>{profile.education_level || "-"}</TableCell>
                             <TableCell>{profile.employment_status || "-"}</TableCell>
                             <TableCell>{profile.year_of_birth || "-"}</TableCell>
+                            <TableCell>{profile.has_disability ? "Yes" : "No"}</TableCell>
+                            <TableCell>{profile.student_residence || "-"}</TableCell>
                             <TableCell>
                               {profile.linkedin_profile ? (
                                 <a href={profile.linkedin_profile} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-xs">View</a>
