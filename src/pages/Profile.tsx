@@ -423,6 +423,8 @@ const Profile = () => {
       .from("profiles")
       .update({
         full_name: fullName,
+        first_name: fullName.split(" ")[0] || fullName,
+        last_name: fullName.split(" ").slice(1).join(" ") || null,
         phone: phone,
       })
       .eq("id", user.id);
