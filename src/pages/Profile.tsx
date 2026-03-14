@@ -640,6 +640,16 @@ const Profile = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSaveProfile} className="space-y-4">
+                {profile?.student_id && (
+                  <div className="space-y-2">
+                    <Label>Student ID</Label>
+                    <Input
+                      value={profile.student_id}
+                      disabled
+                      className="bg-muted font-mono"
+                    />
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name</Label>
                   <Input
