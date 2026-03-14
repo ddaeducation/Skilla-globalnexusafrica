@@ -29,10 +29,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface Profile {
   id: string;
   full_name: string | null;
+  first_name: string | null;
+  last_name: string | null;
   email: string | null;
   phone: string | null;
   created_at: string | null;
   avatar_url: string | null;
+  student_id: string | null;
 }
 
 interface ActivityLog {
@@ -45,10 +48,13 @@ interface ActivityLog {
 interface Profile {
   id: string;
   full_name: string | null;
+  first_name: string | null;
+  last_name: string | null;
   email: string | null;
   phone: string | null;
   created_at: string | null;
   avatar_url: string | null;
+  student_id: string | null;
 }
 
 const Profile = () => {
@@ -417,6 +423,8 @@ const Profile = () => {
       .from("profiles")
       .update({
         full_name: fullName,
+        first_name: fullName.split(" ")[0] || fullName,
+        last_name: fullName.split(" ").slice(1).join(" ") || null,
         phone: phone,
       })
       .eq("id", user.id);
@@ -632,6 +640,16 @@ const Profile = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSaveProfile} className="space-y-4">
+                {profile?.student_id && (
+                  <div className="space-y-2">
+                    <Label>Student ID</Label>
+                    <Input
+                      value={profile.student_id}
+                      disabled
+                      className="bg-muted font-mono"
+                    />
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name</Label>
                   <Input
