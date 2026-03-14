@@ -2122,7 +2122,10 @@ const Admin = () => {
                           const query = userSearchQuery.toLowerCase();
                           const nameMatch = profile.full_name?.toLowerCase().includes(query);
                           const emailMatch = profile.email?.toLowerCase().includes(query);
-                          if (!nameMatch && !emailMatch) return false;
+                          const studentIdMatch = profile.student_id?.toLowerCase().includes(query);
+                          const firstNameMatch = profile.first_name?.toLowerCase().includes(query);
+                          const lastNameMatch = profile.last_name?.toLowerCase().includes(query);
+                          if (!nameMatch && !emailMatch && !studentIdMatch && !firstNameMatch && !lastNameMatch) return false;
                         }
                         
                         // Filter by status
