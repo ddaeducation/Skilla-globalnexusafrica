@@ -83,31 +83,19 @@ function buildContentPrompt(difficulty: string, includeQuizzes: boolean, include
 Return valid JSON only.
 
 CONTENT RULES:
-- Each lesson: 700-1000 words of HTML content using <p>, <h2>, <h3>, <ul>, <ol>, <strong>, <em>, <a>, <blockquote>, <iframe> tags.
+- Each lesson: 700-1000 words of HTML content using <p>, <h2>, <h3>, <ul>, <ol>, <strong>, <em>, <a>, <blockquote> tags.
 - Structure each lesson with these sections in order:
 
 1. <h2>Lesson Title</h2> - Main heading
 2. <h3>🎯 Learning Objectives</h3> - 3-4 bullet points of what students will learn
-3. Core content with explanations, examples, and 3-5 inline <a href="URL" target="_blank" rel="noopener noreferrer"> links to Wikipedia, official docs, etc.
-
-4. <h3>🎬 Watch & Learn</h3> - Embed 1-2 relevant YouTube videos using this EXACT format:
-   <p><strong>Video Title - Channel Name</strong></p>
-   <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin:8px 0 16px 0;"><iframe src="https://www.youtube-nocookie.com/embed/VIDEO_ID?rel=0&modestbranding=1&iv_load_policy=3&showinfo=0" style="position:absolute;top:0;left:0;width:100%;height:100%;" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
-   CRITICAL: Use REAL, existing, popular YouTube video IDs. Think of well-known educational videos from Khan Academy, CrashCourse, TED-Ed, Coursera, freeCodeCamp, 3Blue1Brown, Professor Leonard, MIT OpenCourseWare, etc. The video MUST actually exist on YouTube.
-
-5. <h3>📹 More Recommended Videos</h3> - 2-3 additional YouTube links as:
-   <ul><li><a href="https://www.youtube.com/watch?v=REAL_ID" target="_blank" rel="noopener noreferrer">Video Title - Channel Name</a></li></ul>
-
-6. <h3>📚 Articles & Reading Materials</h3> - 3-4 links to relevant articles:
-   <ul><li><a href="URL" target="_blank" rel="noopener noreferrer">Article Title - Source Name</a></li></ul>
-   Use real articles from: Investopedia, Harvard Business Review, Medium, GeeksForGeeks, MDN Web Docs, W3Schools, Real Python, Towards Data Science, official documentation sites, etc.
-
-7. <h3>🔗 Useful Tools & Resources</h3> - 2-3 links to interactive tools:
+3. <h3>Introduction</h3> - Brief introduction to the topic
+4. Core body content with explanations, examples, case studies. Include 3-5 inline hyperlinks using <a href="URL" target="_blank" rel="noopener noreferrer">descriptive text</a> to Wikipedia, official docs, authoritative sources, etc. These links should flow naturally within the text.
+5. <h3>📝 Notes</h3> - Additional important notes, tips, or caveats for students
+6. <h3>🔗 Useful Tools & Resources</h3> - 2-3 hyperlinks to interactive tools, practice platforms, or reference sites:
    <ul><li><a href="URL" target="_blank" rel="noopener noreferrer">Tool Name - Brief description</a></li></ul>
-   Link to real tools: calculators, simulators, practice platforms, sandboxes, cheat sheets, etc.
+7. <h3>📝 Key Takeaways</h3> - 3-5 bullet points summarizing the lesson
 
-8. <h3>📝 Key Takeaways</h3> - 3-5 bullet points summarizing the lesson
-
+DO NOT include any of these sections: "Watch & Learn", "More Recommended Videos", "Articles & Reading Materials". Only include inline hyperlinks within the body content.
 IMPORTANT: All URLs MUST be real, well-known domains. Do NOT fabricate or guess URLs. If unsure about a specific URL, use the homepage of the relevant site instead.
 ${includeQuizzes ? "- Generate a quiz with 4-5 questions (single_choice, 4 options each, with detailed explanations)." : ""}
 ${includeAssignments ? "- Generate an assignment with HTML instructions including links to tools/references." : ""}`;
