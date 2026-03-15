@@ -64,7 +64,7 @@ const questionTypeOptions = [
   { value: "matching", label: "Matching" },
 ];
 
-export const AIContentGenerator = ({ courseId, courseName, sectionId, onContentGenerated }: AIContentGeneratorProps) => {
+export const AIContentGenerator = ({ courseId, courseName, sectionId, sectionTitle, sectionDescription, onContentGenerated }: AIContentGeneratorProps) => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [hasAiAccess, setHasAiAccess] = useState<boolean | null>(null);
