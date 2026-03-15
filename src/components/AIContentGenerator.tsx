@@ -114,8 +114,8 @@ export const AIContentGenerator = ({ courseId, courseName, sectionId, sectionTit
   const [generatedAssignment, setGeneratedAssignment] = useState<GeneratedAssignment | null>(null);
 
   const resetForm = () => {
-    setTopic("");
-    setAdditionalContext("");
+    setTopic(sectionTitle || "");
+    setAdditionalContext(sectionDescription || "");
     setDifficulty("intermediate");
     setLessonCount(5);
     setQuestionCount(5);
