@@ -188,6 +188,9 @@ serve(async (req) => {
     console.log(`Appending new modules starting at order_index ${startModuleIndex}`);
 
     // STEP 1: Generate course outline
+    // Calculate the starting module number for correct naming
+    const startModuleNumber = startModuleIndex + 1; // e.g., if 12 modules exist, new ones start at 13
+
     const outlineData = await callAI(LOVABLE_API_KEY, [
       {
         role: "system",
@@ -200,15 +203,20 @@ Title: "${courseTitle}"
 Description: "${courseDescription}"
 Modules: ${modulesCount}, Lessons per module: ${lessonsPerModule}
 
+IMPORTANT: The course already has ${startModuleIndex} existing modules. Number the NEW modules starting from ${startModuleNumber}.
+- First new module title: "Module ${startModuleNumber}: ..."
+- Second new module title: "Module ${startModuleNumber + 1}: ..."
+- Unit numbering follows the module: "Unit ${startModuleNumber}.1: ...", "Unit ${startModuleNumber + 1}.1: ..."
+
 Return JSON:
 {
   "modules": [
     {
-      "title": "Module 1: Title",
+      "title": "Module ${startModuleNumber}: Title",
       "description": "2-3 sentence description",
       "units": [
         {
-          "title": "Unit 1.1: Title",
+          "title": "Unit ${startModuleNumber}.1: Title",
           "description": "2-3 sentence description",
           "lesson_titles": ["Lesson 1 Title", "Lesson 2 Title"]
         }
