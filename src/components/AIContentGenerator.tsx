@@ -18,6 +18,8 @@ interface AIContentGeneratorProps {
   courseId: string;
   courseName: string;
   sectionId?: string;
+  sectionTitle?: string;
+  sectionDescription?: string | null;
   onContentGenerated: () => void;
 }
 
