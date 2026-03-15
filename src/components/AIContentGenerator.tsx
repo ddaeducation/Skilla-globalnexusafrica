@@ -97,8 +97,8 @@ export const AIContentGenerator = ({ courseId, courseName, sectionId, sectionTit
   const [regeneratingAll, setRegeneratingAll] = useState(false);
 
   // Common form fields
-  const [topic, setTopic] = useState("");
-  const [additionalContext, setAdditionalContext] = useState("");
+  const [topic, setTopic] = useState(sectionTitle || "");
+  const [additionalContext, setAdditionalContext] = useState(sectionDescription || "");
   const [difficulty, setDifficulty] = useState<"beginner" | "intermediate" | "advanced">("intermediate");
 
   // Lesson-specific
