@@ -295,7 +295,7 @@ Each module should have 1 unit with exactly ${lessonsPerModule} lesson titles.`,
 Module: "${job.mod.title}"
 Unit: "${job.unit.title}"
 
-Generate rich content with embedded YouTube videos, articles, tools, and resources for these lessons: ${JSON.stringify(lessonTitles)}
+Generate detailed lesson content with inline hyperlinks, tools, and resources for these lessons: ${JSON.stringify(lessonTitles)}
 
 Return JSON:
 {
@@ -303,7 +303,7 @@ Return JSON:
     {
       "title": "Lesson Title",
       "description": "Plain text 2-sentence description",
-      "content_text": "<h2>Lesson Title</h2><h3>🎯 Learning Objectives</h3><ul><li>...</li></ul><p>Core content with inline links...</p><h3>🎬 Watch & Learn</h3><p><strong>Video Title</strong></p><div style='position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin:8px 0 16px 0;'><iframe src='https://www.youtube-nocookie.com/embed/REAL_VIDEO_ID?rel=0&modestbranding=1&iv_load_policy=3&showinfo=0' style='position:absolute;top:0;left:0;width:100%;height:100%;' frameborder='0' allowfullscreen></iframe></div><h3>📹 More Recommended Videos</h3><ul><li><a href='https://www.youtube.com/watch?v=ID' target='_blank'>Title - Channel</a></li></ul><h3>📚 Articles & Reading Materials</h3><ul><li><a href='url' target='_blank'>Title - Source</a></li></ul><h3>🔗 Useful Tools & Resources</h3><ul><li><a href='url' target='_blank'>Tool - Description</a></li></ul><h3>📝 Key Takeaways</h3><ul><li>Point 1</li></ul>",
+      "content_text": "<h2>Lesson Title</h2><h3>🎯 Learning Objectives</h3><ul><li>...</li></ul><h3>Introduction</h3><p>Brief intro...</p><p>Core body content with <a href='https://real-url.com' target='_blank' rel='noopener noreferrer'>inline hyperlinks</a> throughout...</p><h3>📝 Notes</h3><p>Additional tips...</p><h3>🔗 Useful Tools & Resources</h3><ul><li><a href='url' target='_blank'>Tool - Description</a></li></ul><h3>📝 Key Takeaways</h3><ul><li>Point 1</li></ul>",
       "duration_minutes": 25
     }
   ]${includeQuizzes ? `,
