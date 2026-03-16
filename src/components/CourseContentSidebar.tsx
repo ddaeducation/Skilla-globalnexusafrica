@@ -35,6 +35,8 @@ interface CourseSection {
   order_index: number;
   parent_id: string | null;
   section_level: number | null;
+  is_locked?: boolean;
+  unlock_at?: string | null;
 }
 
 interface LessonContent {
