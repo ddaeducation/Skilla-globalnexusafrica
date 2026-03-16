@@ -83,7 +83,8 @@ function buildContentPrompt(difficulty: string, includeQuizzes: boolean, include
 Return valid JSON only.
 
 CONTENT RULES:
-- Each lesson: 700-1000 words of HTML content using <p>, <h2>, <h3>, <ul>, <ol>, <strong>, <em>, <a>, <blockquote> tags.
+- Each lesson: 700-1000 words of HTML content using <p>, <h2>, <h3>, <ul>, <ol>, <strong>, <em>, <a>, <blockquote>, <pre>, <code> tags.
+- When including code examples (SQL, Python, JavaScript, etc.), ALWAYS wrap them in <pre><code class="language-LANG">...</code></pre> where LANG is the language (e.g. sql, python, javascript). Escape HTML entities inside code: &lt; for <, &gt; for >, &amp; for &.
 - Structure each lesson with these sections in order:
 
 1. <h2>Lesson Title</h2> - Main heading
