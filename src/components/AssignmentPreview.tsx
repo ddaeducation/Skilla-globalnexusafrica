@@ -1,3 +1,4 @@
+import HighlightedHTML from "@/components/HighlightedHTML";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { stripHtml } from "@/lib/utils";
 import { sanitizeYouTubeIframes } from "@/lib/youtubeUtils";
@@ -85,9 +86,9 @@ export const AssignmentPreview = ({ assignment, open, onOpenChange }: Assignment
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div 
+                <HighlightedHTML
+                  html={sanitizeYouTubeIframes(assignment.instructions)}
                   className="prose prose-sm max-w-none [&>h1]:text-xl [&>h1]:font-bold [&>h1]:mb-3 [&>h2]:text-lg [&>h2]:font-semibold [&>h2]:mb-2 [&>h3]:text-base [&>h3]:font-medium [&>h3]:mb-2 [&>p]:mb-4 [&>p]:leading-relaxed [&>ul]:mb-4 [&>ol]:mb-4 [&>a]:text-primary [&>a]:underline"
-                  dangerouslySetInnerHTML={{ __html: sanitizeYouTubeIframes(assignment.instructions) }}
                 />
               </CardContent>
             </Card>
@@ -110,9 +111,9 @@ export const AssignmentPreview = ({ assignment, open, onOpenChange }: Assignment
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <CardContent>
-                    <div 
+                    <HighlightedHTML
+                      html={sanitizeYouTubeIframes(assignment.rubrics)}
                       className="prose prose-sm max-w-none [&>h1]:text-xl [&>h1]:font-bold [&>h1]:mb-3 [&>h2]:text-lg [&>h2]:font-semibold [&>h2]:mb-2 [&>h3]:text-base [&>h3]:font-medium [&>h3]:mb-2 [&>p]:mb-4 [&>p]:leading-relaxed [&>ul]:mb-4 [&>ol]:mb-4 [&>a]:text-primary [&>a]:underline"
-                      dangerouslySetInnerHTML={{ __html: sanitizeYouTubeIframes(assignment.rubrics) }}
                     />
                   </CardContent>
                 </CollapsibleContent>
