@@ -437,6 +437,8 @@ export const CourseSectionManager = ({ courseId, courseName, sections, onSection
           description: description || null,
           section_level: sectionLevel,
           parent_id: parentId,
+          is_locked: isLocked,
+          unlock_at: unlockAt ? new Date(unlockAt).toISOString() : null,
         })
         .eq("id", editingSection.id);
 
