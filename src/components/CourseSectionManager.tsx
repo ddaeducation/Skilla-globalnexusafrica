@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Plus, GripVertical, Pencil, Trash2, ChevronDown, ChevronRight, FolderOpen, Calendar, CalendarDays, ChevronsUpDown } from "lucide-react";
+import { Plus, GripVertical, Pencil, Trash2, ChevronDown, ChevronRight, FolderOpen, Calendar, CalendarDays, ChevronsUpDown, Lock, Unlock, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
