@@ -331,6 +331,8 @@ const SignUp = () => {
           <span className="text-muted-foreground">Country:</span><span className="font-medium">{country}</span>
           <span className="text-muted-foreground">Education:</span><span className="font-medium">{educationLevel}</span>
           <span className="text-muted-foreground">Employment:</span><span className="font-medium">{employmentStatus}</span>
+          <span className="text-muted-foreground">Location:</span><span className="font-medium">{studentResidence}</span>
+          <span className="text-muted-foreground">Disability:</span><span className="font-medium">{hasDisability}</span>
         </div>
       </div>
       <div className="flex items-start space-x-2">
