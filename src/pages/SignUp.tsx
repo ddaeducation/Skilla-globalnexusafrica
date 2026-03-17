@@ -159,6 +159,8 @@ const SignUp = () => {
           linkedin_profile: linkedIn.trim() || null,
           hear_about: hearAbout || null,
           referred_by_code: referralCode || null,
+          has_disability: hasDisability === "Yes",
+          student_residence: studentResidence || null,
         },
         emailRedirectTo: `${window.location.origin}/`,
       },
