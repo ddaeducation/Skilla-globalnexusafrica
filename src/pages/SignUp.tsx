@@ -265,6 +265,28 @@ const SignUp = () => {
         </Select>
         {stepErrors.employmentStatus && <p className="text-xs text-destructive">{stepErrors.employmentStatus}</p>}
       </div>
+      <div className="space-y-2">
+        <Label>Location (Urban/Rural) *</Label>
+        <Select value={studentResidence} onValueChange={setStudentResidence}>
+          <SelectTrigger><SelectValue placeholder="Select location" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Urban">Urban</SelectItem>
+            <SelectItem value="Rural">Rural</SelectItem>
+          </SelectContent>
+        </Select>
+        {stepErrors.studentResidence && <p className="text-xs text-destructive">{stepErrors.studentResidence}</p>}
+      </div>
+      <div className="space-y-2">
+        <Label>Do you live with a Disability? *</Label>
+        <Select value={hasDisability} onValueChange={setHasDisability}>
+          <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Yes">Yes</SelectItem>
+            <SelectItem value="No">No</SelectItem>
+          </SelectContent>
+        </Select>
+        {stepErrors.hasDisability && <p className="text-xs text-destructive">{stepErrors.hasDisability}</p>}
+      </div>
     </div>
   );
 
