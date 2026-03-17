@@ -72,6 +72,8 @@ const SignUp = () => {
   const [gender, setGender] = useState("");
   const [educationLevel, setEducationLevel] = useState("");
   const [employmentStatus, setEmploymentStatus] = useState("");
+  const [studentResidence, setStudentResidence] = useState("");
+  const [hasDisability, setHasDisability] = useState("");
   // Step 4
   const [linkedIn, setLinkedIn] = useState("");
   const [hearAbout, setHearAbout] = useState("");
@@ -112,6 +114,8 @@ const SignUp = () => {
     if (s === 3) {
       if (!educationLevel) errors.educationLevel = "Please select your education level";
       if (!employmentStatus) errors.employmentStatus = "Please select your employment status";
+      if (!studentResidence) errors.studentResidence = "Please select your location";
+      if (!hasDisability) errors.hasDisability = "Please select an option";
     }
     if (s === 4) {
       if (!agreeTerms) errors.agreeTerms = "You must agree to the Terms & Conditions";
@@ -155,6 +159,8 @@ const SignUp = () => {
           linkedin_profile: linkedIn.trim() || null,
           hear_about: hearAbout || null,
           referred_by_code: referralCode || null,
+          has_disability: hasDisability === "Yes",
+          student_residence: studentResidence || null,
         },
         emailRedirectTo: `${window.location.origin}/`,
       },
@@ -263,6 +269,28 @@ const SignUp = () => {
         </Select>
         {stepErrors.employmentStatus && <p className="text-xs text-destructive">{stepErrors.employmentStatus}</p>}
       </div>
+      <div className="space-y-2">
+        <Label>Location (Urban/Rural) *</Label>
+        <Select value={studentResidence} onValueChange={setStudentResidence}>
+          <SelectTrigger><SelectValue placeholder="Select location" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Urban">Urban</SelectItem>
+            <SelectItem value="Rural">Rural</SelectItem>
+          </SelectContent>
+        </Select>
+        {stepErrors.studentResidence && <p className="text-xs text-destructive">{stepErrors.studentResidence}</p>}
+      </div>
+      <div className="space-y-2">
+        <Label>Do you live with a Disability? *</Label>
+        <Select value={hasDisability} onValueChange={setHasDisability}>
+          <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Yes">Yes</SelectItem>
+            <SelectItem value="No">No</SelectItem>
+          </SelectContent>
+        </Select>
+        {stepErrors.hasDisability && <p className="text-xs text-destructive">{stepErrors.hasDisability}</p>}
+      </div>
     </div>
   );
 
@@ -303,6 +331,8 @@ const SignUp = () => {
           <span className="text-muted-foreground">Country:</span><span className="font-medium">{country}</span>
           <span className="text-muted-foreground">Education:</span><span className="font-medium">{educationLevel}</span>
           <span className="text-muted-foreground">Employment:</span><span className="font-medium">{employmentStatus}</span>
+          <span className="text-muted-foreground">Location:</span><span className="font-medium">{studentResidence}</span>
+          <span className="text-muted-foreground">Disability:</span><span className="font-medium">{hasDisability}</span>
         </div>
       </div>
       <div className="flex items-start space-x-2">

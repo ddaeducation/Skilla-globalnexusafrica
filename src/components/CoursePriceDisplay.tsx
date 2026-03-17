@@ -33,9 +33,9 @@ const CoursePriceDisplay = ({ monthlyPrice, price, defaultCurrency = "USD", pric
     if (cur === "RWF") {
       const rwfAmount = displayPrice * USD_TO_RWF_RATE;
       const formattedRwf = rwfAmount.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-      return isFullPrice ? `RWF ${formattedRwf}` : `RWF ${formattedRwf}/mo`;
+      return isFullPrice ? `RWF ${formattedRwf} (FP)` : `RWF ${formattedRwf}/mo`;
     }
-    return isFullPrice ? `$${displayPrice}` : `$${displayPrice}/mo`;
+    return isFullPrice ? `$${displayPrice} (FP)` : `$${displayPrice}/mo`;
   };
 
   return (
@@ -49,13 +49,13 @@ const CoursePriceDisplay = ({ monthlyPrice, price, defaultCurrency = "USD", pric
           onClick={() => setCurrency("USD")}
           className={currency === "USD" ? "bg-accent" : ""}
         >
-          {`$${displayPrice}${isFullPrice ? '' : '/mo'}`}
+          {`$${displayPrice}${isFullPrice ? ' (FP)' : '/mo'}`}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setCurrency("RWF")}
           className={currency === "RWF" ? "bg-accent" : ""}
         >
-          {`RWF ${(displayPrice * USD_TO_RWF_RATE).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}${isFullPrice ? '' : '/mo'}`}
+          {`RWF ${(displayPrice * USD_TO_RWF_RATE).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}${isFullPrice ? ' (FP)' : '/mo'}`}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
