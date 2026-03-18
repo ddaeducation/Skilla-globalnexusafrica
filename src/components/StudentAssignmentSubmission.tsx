@@ -354,6 +354,11 @@ export const StudentAssignmentSubmission = ({
                   Submitted
                 </Badge>
               )}
+              {maxSubmissions && (
+                <Badge variant="outline" className="gap-1">
+                  Submissions: {submissionCount}/{maxSubmissions}
+                </Badge>
+              )}
               {isGraded && (
                 <Badge variant="default" className="gap-1 bg-green-500">
                   Score: {existingSubmission?.score}/{maxScore}
