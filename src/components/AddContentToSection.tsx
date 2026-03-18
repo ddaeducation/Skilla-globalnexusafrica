@@ -138,6 +138,7 @@ export const AddContentToSection = ({ courseId, sectionId, onContentCreated }: A
           rubrics: form.rubrics || null,
           attachment_url: form.content_url || null,
           max_score: form.max_score,
+          max_submissions: form.max_submissions ? parseInt(form.max_submissions as string) : null,
           due_date: form.due_date ? form.due_date.toISOString() : null,
           order_index: orderIndex,
         });
