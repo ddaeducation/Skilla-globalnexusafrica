@@ -434,7 +434,7 @@ export const AddContentToSection = ({ courseId, sectionId, onContentCreated }: A
                   placeholder="Upload a file or enter URL"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Max Score</Label>
                   <Input
@@ -443,6 +443,17 @@ export const AddContentToSection = ({ courseId, sectionId, onContentCreated }: A
                     onChange={(e) => setForm({ ...form, max_score: parseInt(e.target.value) || 100 })}
                     min={0}
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label>Max Submissions</Label>
+                  <Input
+                    type="number"
+                    value={form.max_submissions}
+                    onChange={(e) => setForm({ ...form, max_submissions: e.target.value })}
+                    min={0}
+                    placeholder="Unlimited"
+                  />
+                  <p className="text-xs text-muted-foreground">Leave empty for unlimited</p>
                 </div>
                 <div className="space-y-2">
                   <Label>Due Date (optional)</Label>
