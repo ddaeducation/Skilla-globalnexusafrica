@@ -894,13 +894,27 @@ export const StudentQuizTaker = ({
           </ScrollArea>
         )}
 
-        <div className="flex justify-center gap-3 pt-2">
-          <Button variant="outline" onClick={handleRetake} size="lg">
-            Retake Quiz
-          </Button>
-          <Button onClick={onClose} size="lg">
-            Close
-          </Button>
+        <div className="flex flex-col items-center gap-2 pt-2">
+          {maxAttempts && (
+            <p className="text-sm text-muted-foreground">
+              Attempts: {attemptCount}/{maxAttempts}
+            </p>
+          )}
+          <div className="flex justify-center gap-3">
+            {!(maxAttemptsReached || (maxAttempts && attemptCount >= maxAttempts)) && (
+              <Button variant="outline" onClick={handleRetake} size="lg">
+                Retake Quiz
+              </Button>
+            )}
+            {(maxAttemptsReached || (maxAttempts && attemptCount >= maxAttempts)) && !passed && (
+              <p className="text-sm text-destructive font-medium">
+                You have used all {maxAttempts} attempts.
+              </p>
+            )}
+            <Button onClick={onClose} size="lg">
+              Close
+            </Button>
+          </div>
         </div>
       </div>
     );
