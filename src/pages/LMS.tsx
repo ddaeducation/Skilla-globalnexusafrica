@@ -936,6 +936,7 @@ const LMS = () => {
                 quizDescription={selectedQuiz.description}
                 passingScore={selectedQuiz.passing_score || 70}
                 timeLimitMinutes={selectedQuiz.time_limit_minutes}
+                maxAttempts={selectedQuiz.max_attempts}
                 open={!!selectedQuiz}
                 onClose={() => setSelectedQuiz(null)}
                 onComplete={(passed, score, maxScore) => {

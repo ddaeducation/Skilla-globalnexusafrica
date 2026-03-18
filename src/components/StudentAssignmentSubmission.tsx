@@ -381,6 +381,16 @@ export const StudentAssignmentSubmission = ({
 
             <Separator />
 
+            {maxSubmissionsReached && !isGraded && (
+              <Card className="border-destructive bg-destructive/10">
+                <CardContent className="pt-4">
+                  <p className="text-sm text-destructive font-medium">
+                    You have reached the maximum number of submissions ({maxSubmissions}).
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Submission Form */}
             {!isGraded && !maxSubmissionsReached && (
               <>

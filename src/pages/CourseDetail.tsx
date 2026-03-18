@@ -1894,6 +1894,7 @@ const CourseDetail = () => {
           quizDescription={selectedQuiz.description}
           passingScore={selectedQuiz.passing_score}
           timeLimitMinutes={selectedQuiz.time_limit_minutes}
+          maxAttempts={selectedQuiz.max_attempts}
           open={quizTakerOpen}
           onClose={() => {
             setQuizTakerOpen(false);
