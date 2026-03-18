@@ -165,6 +165,15 @@ export const StudentAssignmentSubmission = ({
   };
 
   const handleSubmit = async () => {
+    if (maxSubmissionsReached) {
+      toast({
+        title: "Submission limit reached",
+        description: `You have used all ${maxSubmissions} submissions.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!submissionText.trim() && !selectedFile) {
       toast({
         title: "Error",
