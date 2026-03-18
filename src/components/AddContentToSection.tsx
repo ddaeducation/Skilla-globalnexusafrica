@@ -112,6 +112,7 @@ export const AddContentToSection = ({ courseId, sectionId, onContentCreated }: A
           description: form.description || null,
           passing_score: form.passing_score,
           time_limit_minutes: form.time_limit_minutes || null,
+          max_attempts: form.max_attempts ? parseInt(form.max_attempts as string) : null,
           order_index: orderIndex,
         });
 
