@@ -165,6 +165,7 @@ export const ContentItemEditDialog = ({
             description: assignmentForm.description,
             instructions: assignmentForm.instructions,
             max_score: assignmentForm.max_score,
+            max_submissions: assignmentForm.max_submissions,
             due_date: assignmentForm.due_date,
           })
           .eq("id", itemId);
