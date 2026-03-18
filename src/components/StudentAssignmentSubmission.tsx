@@ -75,6 +75,7 @@ export const StudentAssignmentSubmission = ({
   rubrics,
   maxScore,
   dueDate,
+  maxSubmissions,
   aiGradingEnabled = false,
   open,
   onClose,
