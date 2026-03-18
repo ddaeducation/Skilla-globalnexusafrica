@@ -116,6 +116,11 @@ export const StudentAssignmentSubmission = ({
       if (data) {
         setExistingSubmission(data);
         setSubmissionText(data.submission_text || "");
+        const count = (data as any).submission_count || 1;
+        setSubmissionCount(count);
+        if (maxSubmissions && count >= maxSubmissions) {
+          setMaxSubmissionsReached(true);
+        }
       }
     } catch (error) {
       console.error("Error fetching submission:", error);
