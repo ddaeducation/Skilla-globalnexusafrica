@@ -77,9 +77,11 @@ export const AddContentToSection = ({ courseId, sectionId, onContentCreated }: A
       required_watch_percentage: "",
       passing_score: 70,
       time_limit_minutes: 0,
+      max_attempts: "",
       instructions: "",
       rubrics: "",
       max_score: 100,
+      max_submissions: "",
       due_date: undefined,
     });
   };
