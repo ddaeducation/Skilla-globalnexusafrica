@@ -79,6 +79,7 @@ export const StudentQuizTaker = ({
   quizDescription,
   passingScore,
   timeLimitMinutes,
+  maxAttempts,
   open,
   onClose,
   onComplete,
