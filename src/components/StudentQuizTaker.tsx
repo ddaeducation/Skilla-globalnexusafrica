@@ -115,6 +115,8 @@ export const StudentQuizTaker = ({
       setCurrentQuestionIndex(0);
       setAttemptId(null);
       setShowFeedbackDetails(false);
+      setAttemptCount(0);
+      setMaxAttemptsReached(false);
       fetchQuestions();
       if (timeLimitMinutes) {
         setTimeLeft(timeLimitMinutes * 60);
