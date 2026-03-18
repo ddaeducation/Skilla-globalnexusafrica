@@ -366,7 +366,7 @@ export const AddContentToSection = ({ courseId, sectionId, onContentCreated }: A
 
           {/* Quiz-specific fields */}
           {isQuiz && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>Passing Score (%)</Label>
                 <Input
@@ -385,6 +385,17 @@ export const AddContentToSection = ({ courseId, sectionId, onContentCreated }: A
                   onChange={(e) => setForm({ ...form, time_limit_minutes: parseInt(e.target.value) || 0 })}
                   min={0}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label>Max Attempts</Label>
+                <Input
+                  type="number"
+                  value={form.max_attempts}
+                  onChange={(e) => setForm({ ...form, max_attempts: e.target.value })}
+                  min={0}
+                  placeholder="Unlimited"
+                />
+                <p className="text-xs text-muted-foreground">Leave empty for unlimited</p>
               </div>
             </div>
           )}
