@@ -87,6 +87,7 @@ interface Quiz {
   description: string | null;
   passing_score: number;
   time_limit_minutes: number | null;
+  max_attempts: number | null;
   order_index: number;
   section_id: string | null;
 }
@@ -98,6 +99,7 @@ interface Assignment {
   instructions: string | null;
   rubrics: string | null;
   max_score: number;
+  max_submissions: number | null;
   due_date: string | null;
   order_index: number;
   section_id: string | null;
