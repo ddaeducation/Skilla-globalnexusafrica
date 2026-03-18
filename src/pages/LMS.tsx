@@ -835,6 +835,7 @@ const LMS = () => {
                 rubrics={selectedAssignment.rubrics}
                 maxScore={selectedAssignment.max_score || 100}
                 dueDate={selectedAssignment.due_date}
+                maxSubmissions={selectedAssignment.max_submissions}
                 aiGradingEnabled={selectedAssignment.ai_grading_enabled}
                 open={!!selectedAssignment}
                 onClose={() => setSelectedAssignment(null)}
