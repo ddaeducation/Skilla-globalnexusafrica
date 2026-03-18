@@ -231,10 +231,6 @@ export const StudentAssignmentSubmission = ({
         if (maxSubmissions && newCount >= maxSubmissions) {
           setMaxSubmissionsReached(true);
         }
-          })
-          .eq("id", existingSubmission.id);
-
-        if (error) throw error;
       } else {
         // Create new submission
         const { error } = await supabase.from("assignment_submissions").insert({
