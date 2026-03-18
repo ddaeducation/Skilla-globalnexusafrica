@@ -215,12 +215,22 @@ export const StudentAssignmentSubmission = ({
 
       if (existingSubmission) {
         // Update existing submission
+        const newCount = submissionCount + 1;
         const { error } = await supabase
           .from("assignment_submissions")
           .update({
             submission_text: submissionText.trim() || null,
             file_url: fileUrl || existingSubmission.file_url,
             submitted_at: new Date().toISOString(),
+            submission_count: newCount,
+          })
+          .eq("id", existingSubmission.id);
+
+        if (error) throw error;
+        setSubmissionCount(newCount);
+        if (maxSubmissions && newCount >= maxSubmissions) {
+          setMaxSubmissionsReached(true);
+        }
           })
           .eq("id", existingSubmission.id);
 
