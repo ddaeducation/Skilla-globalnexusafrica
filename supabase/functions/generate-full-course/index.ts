@@ -98,7 +98,16 @@ CONTENT RULES:
 
 DO NOT include any of these sections: "Watch & Learn", "More Recommended Videos", "Articles & Reading Materials". Only include inline hyperlinks within the body content.
 IMPORTANT: All URLs MUST be real, well-known domains. Do NOT fabricate or guess URLs. If unsure about a specific URL, use the homepage of the relevant site instead.
-${includeQuizzes ? "- Generate a quiz with 4-5 questions (single_choice, 4 options each, with detailed explanations)." : ""}
+${includeQuizzes ? `- Generate a quiz with 4-5 questions using a MIX of these types: single_choice, multiple_choice, true_false, fill_in, short_answer, matching, ordering, drag_drop.
+  - For single_choice: 4 options, one correct.
+  - For multiple_choice: 4 options, 2+ correct.
+  - For true_false: 2 options ("True" and "False"), one correct.
+  - For fill_in: 1 option with the correct answer text, is_correct: true.
+  - For short_answer: 1 option with the expected answer, is_correct: true.
+  - For matching: each option combines left and right using "|||" delimiter (e.g. "France|||Paris"). All options must have is_correct: true. Provide 4-6 pairs.
+  - For ordering: each option is one item in the correct order. All must have is_correct: true. Provide 4-6 items.
+  - For drag_drop: each option combines item and bucket using "|||" delimiter (e.g. "Dog|||Animals"). All options must have is_correct: true. Provide 4-8 items across 2-3 buckets.
+  - Include detailed explanations for each question.` : ""}
 ${includeAssignments ? "- Generate an assignment with HTML instructions including links to tools/references." : ""}`;
 }
 
