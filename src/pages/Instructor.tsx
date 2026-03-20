@@ -720,13 +720,14 @@ const Instructor = () => {
 
   const handleDeleteLesson = async (id: string) => {
     if (!confirm("Delete this lesson?")) return;
+    setLessons(prev => prev.filter(l => l.id !== id));
+    toast({ title: "Lesson deleted" });
     try {
       const { error } = await supabase.from("lesson_content").delete().eq("id", id);
       if (error) throw error;
-      toast({ title: "Lesson deleted" });
-      fetchCourseContent(selectedCourse!.id);
     } catch (error) {
       toast({ title: "Error", description: "Failed to delete lesson", variant: "destructive" });
+      fetchCourseContent(selectedCourse!.id);
     }
   };
 
@@ -763,13 +764,14 @@ const Instructor = () => {
 
   const handleDeleteQuiz = async (id: string) => {
     if (!confirm("Delete this quiz and all its questions?")) return;
+    setQuizzes(prev => prev.filter(q => q.id !== id));
+    toast({ title: "Quiz deleted" });
     try {
       const { error } = await supabase.from("quizzes").delete().eq("id", id);
       if (error) throw error;
-      toast({ title: "Quiz deleted" });
-      fetchCourseContent(selectedCourse!.id);
     } catch (error) {
       toast({ title: "Error", description: "Failed to delete quiz", variant: "destructive" });
+      fetchCourseContent(selectedCourse!.id);
     }
   };
 
@@ -808,13 +810,14 @@ const Instructor = () => {
 
   const handleDeleteAssignment = async (id: string) => {
     if (!confirm("Delete this assignment?")) return;
+    setAssignments(prev => prev.filter(a => a.id !== id));
+    toast({ title: "Assignment deleted" });
     try {
       const { error } = await supabase.from("assignments").delete().eq("id", id);
       if (error) throw error;
-      toast({ title: "Assignment deleted" });
-      fetchCourseContent(selectedCourse!.id);
     } catch (error) {
       toast({ title: "Error", description: "Failed to delete assignment", variant: "destructive" });
+      fetchCourseContent(selectedCourse!.id);
     }
   };
 

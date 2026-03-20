@@ -1393,13 +1393,14 @@ const Admin = () => {
 
   const handleDeleteLesson = async (id: string) => {
     if (!confirm("Delete this lesson?")) return;
+    setLessons(prev => prev.filter(l => l.id !== id));
+    toast({ title: "Lesson deleted" });
     try {
       const { error } = await supabase.from("lesson_content").delete().eq("id", id);
       if (error) throw error;
-      toast({ title: "Lesson deleted" });
-      if (selectedCourse) fetchCourseContent(selectedCourse.id);
     } catch (error) {
       toast({ title: "Error", description: "Failed to delete lesson", variant: "destructive" });
+      if (selectedCourse) fetchCourseContent(selectedCourse.id);
     }
   };
 
@@ -1437,13 +1438,14 @@ const Admin = () => {
 
   const handleDeleteQuiz = async (id: string) => {
     if (!confirm("Delete this quiz and all its questions?")) return;
+    setQuizzes(prev => prev.filter(q => q.id !== id));
+    toast({ title: "Quiz deleted" });
     try {
       const { error } = await supabase.from("quizzes").delete().eq("id", id);
       if (error) throw error;
-      toast({ title: "Quiz deleted" });
-      if (selectedCourse) fetchCourseContent(selectedCourse.id);
     } catch (error) {
       toast({ title: "Error", description: "Failed to delete quiz", variant: "destructive" });
+      if (selectedCourse) fetchCourseContent(selectedCourse.id);
     }
   };
 
@@ -1483,13 +1485,14 @@ const Admin = () => {
 
   const handleDeleteAssignment = async (id: string) => {
     if (!confirm("Delete this assignment?")) return;
+    setAssignments(prev => prev.filter(a => a.id !== id));
+    toast({ title: "Assignment deleted" });
     try {
       const { error } = await supabase.from("assignments").delete().eq("id", id);
       if (error) throw error;
-      toast({ title: "Assignment deleted" });
-      if (selectedCourse) fetchCourseContent(selectedCourse.id);
     } catch (error) {
       toast({ title: "Error", description: "Failed to delete assignment", variant: "destructive" });
+      if (selectedCourse) fetchCourseContent(selectedCourse.id);
     }
   };
 
