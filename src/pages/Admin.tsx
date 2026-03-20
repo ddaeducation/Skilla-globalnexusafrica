@@ -1393,13 +1393,14 @@ const Admin = () => {
 
   const handleDeleteLesson = async (id: string) => {
     if (!confirm("Delete this lesson?")) return;
+    setLessons(prev => prev.filter(l => l.id !== id));
+    toast({ title: "Lesson deleted" });
     try {
       const { error } = await supabase.from("lesson_content").delete().eq("id", id);
       if (error) throw error;
-      toast({ title: "Lesson deleted" });
-      if (selectedCourse) fetchCourseContent(selectedCourse.id);
     } catch (error) {
       toast({ title: "Error", description: "Failed to delete lesson", variant: "destructive" });
+      if (selectedCourse) fetchCourseContent(selectedCourse.id);
     }
   };
 
