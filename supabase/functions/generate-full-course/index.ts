@@ -324,22 +324,43 @@ Return JSON:
       "content_text": "<h2>Lesson Title</h2><h3>🎯 Learning Objectives</h3><ul><li>...</li></ul><h3>Introduction</h3><p>Brief intro...</p><p>Core body content with <a href='https://real-url.com' target='_blank' rel='noopener noreferrer'>inline hyperlinks</a> throughout...</p><h3>📝 Notes</h3><p>Additional tips...</p><h3>🔗 Useful Tools & Resources</h3><ul><li><a href='url' target='_blank'>Tool - Description</a></li></ul><h3>📝 Key Takeaways</h3><ul><li>Point 1</li></ul>",
       "duration_minutes": 25
     }
-  ]${includeQuizzes ? `,
+   ]${includeQuizzes ? `,
   "quiz": {
     "title": "Quiz: Unit Title",
     "description": "Plain text quiz description",
     "passing_score": 70,
     "questions": [
       {
-        "question_text": "Question?",
+        "question_text": "Which of the following is correct?",
         "question_type": "single_choice",
         "points": 1,
-        "explanation": "Detailed explanation of correct answer",
+        "explanation": "Detailed explanation",
         "options": [
           {"text": "Option A", "is_correct": false},
           {"text": "Option B", "is_correct": true},
           {"text": "Option C", "is_correct": false},
           {"text": "Option D", "is_correct": false}
+        ]
+      },
+      {
+        "question_text": "Match the following:",
+        "question_type": "matching",
+        "points": 3,
+        "explanation": "Explanation of matches",
+        "options": [
+          {"text": "Left1|||Right1", "is_correct": true},
+          {"text": "Left2|||Right2", "is_correct": true}
+        ]
+      },
+      {
+        "question_text": "Arrange in correct order:",
+        "question_type": "ordering",
+        "points": 2,
+        "explanation": "Explanation of order",
+        "options": [
+          {"text": "First item", "is_correct": true},
+          {"text": "Second item", "is_correct": true},
+          {"text": "Third item", "is_correct": true}
         ]
       }
     ]
