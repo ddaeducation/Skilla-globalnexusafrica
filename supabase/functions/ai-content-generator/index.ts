@@ -144,7 +144,7 @@ Return as JSON:
       userPrompt = `Create ONE ${questionType} question about "${topic}"${courseName ? ` for the course: ${courseName}` : ""}.
 ${additionalContext ? `Additional context: ${additionalContext}` : ""}
 ${existingContent ? `The previous question was: "${existingContent}". Please generate a different question while staying on topic.` : ""}
-${matchingInstruction}
+${specialInstruction}
 
 Provide:
 1. Question text
