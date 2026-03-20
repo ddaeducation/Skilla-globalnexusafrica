@@ -1438,13 +1438,14 @@ const Admin = () => {
 
   const handleDeleteQuiz = async (id: string) => {
     if (!confirm("Delete this quiz and all its questions?")) return;
+    setQuizzes(prev => prev.filter(q => q.id !== id));
+    toast({ title: "Quiz deleted" });
     try {
       const { error } = await supabase.from("quizzes").delete().eq("id", id);
       if (error) throw error;
-      toast({ title: "Quiz deleted" });
-      if (selectedCourse) fetchCourseContent(selectedCourse.id);
     } catch (error) {
       toast({ title: "Error", description: "Failed to delete quiz", variant: "destructive" });
+      if (selectedCourse) fetchCourseContent(selectedCourse.id);
     }
   };
 
