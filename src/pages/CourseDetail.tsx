@@ -1286,7 +1286,7 @@ const CourseDetail = () => {
         </div>
 
         {/* Description & Notetaker Tabs */}
-        <Tabs defaultValue="description" className="mt-4">
+        <Tabs defaultValue="description" className="mt-1">
           <TabsList className="w-full max-w-md">
             <TabsTrigger value="description" className="gap-2 flex-1">
               <FileText className="h-4 w-4" />
