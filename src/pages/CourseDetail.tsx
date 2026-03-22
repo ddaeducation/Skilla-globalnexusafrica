@@ -1059,7 +1059,7 @@ const CourseDetail = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="description" className="mt-4 space-y-4">
+          <TabsContent value="description" className="mt-2 space-y-2">
             {lesson.description && (
               <p className="text-muted-foreground">{stripHtml(lesson.description)}</p>
             )}
