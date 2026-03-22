@@ -131,6 +131,19 @@ type ContentItem =
   | { type: "quiz"; data: Quiz; order_index: number }
   | { type: "assignment"; data: Assignment; order_index: number };
 
+const normalizeRichTextContent = (html: string | null) => {
+  if (!html) return "";
+
+  let cleaned = html.trim();
+  const leadingEmptyBlocksPattern = /^(?:\s|&nbsp;|<br\s*\/?>|<p>(?:\s|&nbsp;|<br\s*\/?>)*<\/p>|<div>(?:\s|&nbsp;|<br\s*\/?>)*<\/div>)+/i;
+
+  while (leadingEmptyBlocksPattern.test(cleaned)) {
+    cleaned = cleaned.replace(leadingEmptyBlocksPattern, "");
+  }
+
+  return cleaned;
+};
+
 const CourseDetail = () => {
   const { courseId: courseParam } = useParams();
   const navigate = useNavigate();
@@ -1059,14 +1072,14 @@ const CourseDetail = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="description" className="mt-1 space-y-1">
+          <TabsContent value="description" className="mt-0 space-y-0">
             {lesson.description && (
               <p className="text-muted-foreground">{stripHtml(lesson.description)}</p>
             )}
             {lesson.content_text && (
               <PaginatedTextContent
-                htmlContent={sanitizeYouTubeIframes(lesson.content_text)}
-                className="prose prose-sm max-w-none p-3 bg-muted/50 rounded-lg break-words overflow-wrap-anywhere [&>h1]:text-xl [&>h1]:font-bold [&>h1]:mb-3 [&>h2]:text-lg [&>h2]:font-semibold [&>h2]:mb-2 [&>h3]:text-base [&>h3]:font-medium [&>h3]:mb-2 [&>p]:mb-4 [&>p]:leading-relaxed [&>p]:break-words [&>ul]:mb-4 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:mb-4 [&>ol]:list-decimal [&>ol]:pl-5 [&>li]:mb-1 [&>li]:break-words [&>a]:text-primary [&>a]:underline [&>a]:break-all [&>pre]:bg-muted [&>pre]:p-4 [&>pre]:rounded-md [&>pre]:overflow-x-auto [&>pre]:whitespace-pre-wrap [&>pre]:break-words [&>code]:break-words [&>blockquote]:border-l-4 [&>blockquote]:border-primary/30 [&>blockquote]:pl-4 [&>blockquote]:italic [&_*]:max-w-full"
+                htmlContent={sanitizeYouTubeIframes(normalizeRichTextContent(lesson.content_text))}
+                className="prose prose-sm max-w-none p-2 bg-muted/50 rounded-lg break-words overflow-wrap-anywhere [&>*:first-child]:mt-0 [&>*:first-child]:pt-0 [&>h1]:text-xl [&>h1]:font-bold [&>h1]:mb-3 [&>h2]:text-lg [&>h2]:font-semibold [&>h2]:mb-2 [&>h3]:text-base [&>h3]:font-medium [&>h3]:mb-2 [&>p]:mb-4 [&>p]:leading-relaxed [&>p]:break-words [&>ul]:mb-4 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:mb-4 [&>ol]:list-decimal [&>ol]:pl-5 [&>li]:mb-1 [&>li]:break-words [&>a]:text-primary [&>a]:underline [&>a]:break-all [&>pre]:bg-muted [&>pre]:p-4 [&>pre]:rounded-md [&>pre]:overflow-x-auto [&>pre]:whitespace-pre-wrap [&>pre]:break-words [&>code]:break-words [&>blockquote]:border-l-4 [&>blockquote]:border-primary/30 [&>blockquote]:pl-4 [&>blockquote]:italic [&_*]:max-w-full"
                 onPageInfo={(current, total) => setTextPageInfo({ current, total })}
               />
             )}
@@ -1214,14 +1227,14 @@ const CourseDetail = () => {
               Notetaker
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="description" className="mt-1">
+          <TabsContent value="description" className="mt-0">
             {quiz.description ? (
               <p className="text-muted-foreground">{stripHtml(quiz.description)}</p>
             ) : (
               <p className="text-sm text-muted-foreground italic py-4">No description available for this quiz.</p>
             )}
           </TabsContent>
-          <TabsContent value="notetaker" className="mt-1">
+          <TabsContent value="notetaker" className="mt-0">
             {user && courseId ? (
               <StudentNotetaker
                 userId={user.id}
@@ -1297,7 +1310,7 @@ const CourseDetail = () => {
               Notetaker
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="description" className="mt-1 space-y-1">
+          <TabsContent value="description" className="mt-0 space-y-0">
             {assignment.description && (
               <p className="text-muted-foreground">{stripHtml(assignment.description)}</p>
             )}
@@ -1306,10 +1319,10 @@ const CourseDetail = () => {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">Instructions</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-0">
                   <HighlightedHTML
-                    html={sanitizeYouTubeIframes(assignment.instructions)}
-                    className="prose prose-sm max-w-none [&>h1]:text-xl [&>h1]:font-bold [&>h1]:mb-3 [&>h2]:text-lg [&>h2]:font-semibold [&>h2]:mb-2 [&>h3]:text-base [&>h3]:font-medium [&>h3]:mb-2 [&>p]:mb-4 [&>p]:leading-relaxed [&>ul]:mb-4 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:mb-4 [&>ol]:list-decimal [&>ol]:pl-5 [&>li]:mb-1 [&>a]:text-primary [&>a]:underline [&>pre]:bg-muted [&>pre]:p-4 [&>pre]:rounded-md [&>pre]:overflow-x-auto [&>blockquote]:border-l-4 [&>blockquote]:border-primary/30 [&>blockquote]:pl-4 [&>blockquote]:italic"
+                    html={sanitizeYouTubeIframes(normalizeRichTextContent(assignment.instructions))}
+                    className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:first-child]:pt-0 [&>h1]:text-xl [&>h1]:font-bold [&>h1]:mb-3 [&>h2]:text-lg [&>h2]:font-semibold [&>h2]:mb-2 [&>h3]:text-base [&>h3]:font-medium [&>h3]:mb-2 [&>p]:mb-4 [&>p]:leading-relaxed [&>ul]:mb-4 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:mb-4 [&>ol]:list-decimal [&>ol]:pl-5 [&>li]:mb-1 [&>a]:text-primary [&>a]:underline [&>pre]:bg-muted [&>pre]:p-4 [&>pre]:rounded-md [&>pre]:overflow-x-auto [&>blockquote]:border-l-4 [&>blockquote]:border-primary/30 [&>blockquote]:pl-4 [&>blockquote]:italic"
                   />
                 </CardContent>
               </Card>
@@ -1318,7 +1331,7 @@ const CourseDetail = () => {
               <p className="text-sm text-muted-foreground italic py-4">No description available for this assignment.</p>
             )}
           </TabsContent>
-          <TabsContent value="notetaker" className="mt-1">
+          <TabsContent value="notetaker" className="mt-0">
             {user && courseId ? (
               <StudentNotetaker
                 userId={user.id}
