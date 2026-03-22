@@ -879,7 +879,7 @@ const CourseDetail = () => {
         </div>
 
         {/* Spacer between header and media */}
-        <div className="pt-4" />
+        <div className="pt-1" />
 
         {/* YouTube Video */}
         {embedUrl && (() => {
@@ -1047,7 +1047,7 @@ const CourseDetail = () => {
         )}
 
         {/* Description & Notetaker Tabs below media */}
-        <Tabs defaultValue="description" className="mt-4">
+        <Tabs defaultValue="description" className="mt-1">
           <TabsList className="w-full max-w-md">
             <TabsTrigger value="description" className="gap-2 flex-1">
               <FileText className="h-4 w-4" />
@@ -1160,7 +1160,7 @@ const CourseDetail = () => {
     const attempt = getQuizAttempt(quiz.id);
 
     return (
-      <div className="space-y-6 py-4">
+      <div className="space-y-3 py-2">
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-4">
             <HelpCircle className="w-10 h-10 text-primary" />
@@ -1203,7 +1203,7 @@ const CourseDetail = () => {
         )}
 
         {/* Description & Notetaker Tabs */}
-        <Tabs defaultValue="description" className="mt-4">
+        <Tabs defaultValue="description" className="mt-1">
           <TabsList className="w-full max-w-md">
             <TabsTrigger value="description" className="gap-2 flex-1">
               <FileText className="h-4 w-4" />
@@ -1286,7 +1286,7 @@ const CourseDetail = () => {
         </div>
 
         {/* Description & Notetaker Tabs */}
-        <Tabs defaultValue="description" className="mt-4">
+        <Tabs defaultValue="description" className="mt-1">
           <TabsList className="w-full max-w-md">
             <TabsTrigger value="description" className="gap-2 flex-1">
               <FileText className="h-4 w-4" />
