@@ -131,6 +131,19 @@ type ContentItem =
   | { type: "quiz"; data: Quiz; order_index: number }
   | { type: "assignment"; data: Assignment; order_index: number };
 
+const normalizeRichTextContent = (html: string | null) => {
+  if (!html) return "";
+
+  let cleaned = html.trim();
+  const leadingEmptyBlocksPattern = /^(?:\s|&nbsp;|<br\s*\/?>|<p>(?:\s|&nbsp;|<br\s*\/?>)*<\/p>|<div>(?:\s|&nbsp;|<br\s*\/?>)*<\/div>)+/i;
+
+  while (leadingEmptyBlocksPattern.test(cleaned)) {
+    cleaned = cleaned.replace(leadingEmptyBlocksPattern, "");
+  }
+
+  return cleaned;
+};
+
 const CourseDetail = () => {
   const { courseId: courseParam } = useParams();
   const navigate = useNavigate();
