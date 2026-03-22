@@ -1075,7 +1075,7 @@ const CourseDetail = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="notetaker" className="mt-4">
+          <TabsContent value="notetaker" className="mt-2">
             {user ? (
               <StudentNotetaker
                 userId={user.id}
