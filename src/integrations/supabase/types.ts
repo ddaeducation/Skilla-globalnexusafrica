@@ -2618,6 +2618,143 @@ export type Database = {
         }
         Relationships: []
       }
+      video_quiz_point_options: {
+        Row: {
+          id: string
+          is_correct: boolean
+          option_text: string
+          order_index: number
+          video_quiz_point_id: string
+        }
+        Insert: {
+          id?: string
+          is_correct?: boolean
+          option_text: string
+          order_index?: number
+          video_quiz_point_id: string
+        }
+        Update: {
+          id?: string
+          is_correct?: boolean
+          option_text?: string
+          order_index?: number
+          video_quiz_point_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_quiz_point_options_video_quiz_point_id_fkey"
+            columns: ["video_quiz_point_id"]
+            isOneToOne: false
+            referencedRelation: "video_quiz_points"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_quiz_point_responses: {
+        Row: {
+          answer: string | null
+          answered_at: string
+          course_id: string
+          id: string
+          is_correct: boolean | null
+          user_id: string
+          video_quiz_point_id: string
+        }
+        Insert: {
+          answer?: string | null
+          answered_at?: string
+          course_id: string
+          id?: string
+          is_correct?: boolean | null
+          user_id: string
+          video_quiz_point_id: string
+        }
+        Update: {
+          answer?: string | null
+          answered_at?: string
+          course_id?: string
+          id?: string
+          is_correct?: boolean | null
+          user_id?: string
+          video_quiz_point_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_quiz_point_responses_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_quiz_point_responses_video_quiz_point_id_fkey"
+            columns: ["video_quiz_point_id"]
+            isOneToOne: false
+            referencedRelation: "video_quiz_points"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_quiz_points: {
+        Row: {
+          behavior: string
+          counts_toward_grade: boolean
+          course_id: string
+          created_at: string
+          explanation: string | null
+          id: string
+          lesson_id: string
+          order_index: number
+          points: number
+          question_text: string
+          question_type: string
+          timestamp_seconds: number
+        }
+        Insert: {
+          behavior?: string
+          counts_toward_grade?: boolean
+          course_id: string
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          lesson_id: string
+          order_index?: number
+          points?: number
+          question_text: string
+          question_type?: string
+          timestamp_seconds?: number
+        }
+        Update: {
+          behavior?: string
+          counts_toward_grade?: boolean
+          course_id?: string
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          lesson_id?: string
+          order_index?: number
+          points?: number
+          question_text?: string
+          question_type?: string
+          timestamp_seconds?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_quiz_points_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_quiz_points_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
