@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { QuizQuestionManager } from "@/components/QuizQuestionManager";
+import { VideoQuizPointManager } from "@/components/VideoQuizPointManager";
 
 interface LessonData {
   id: string;
@@ -25,6 +26,7 @@ interface LessonData {
   required_watch_percentage: number | null;
   is_locked: boolean;
   unlock_at: string | null;
+  course_id: string;
 }
 
 interface QuizData {
@@ -350,6 +352,17 @@ export const ContentItemEditDialog = ({
                     </p>
                   </div>
                 </div>
+
+                {/* Video Pop-up Quiz Points */}
+                {['video', 'youtube', 'vimeo', 'embed'].includes(lessonForm.content_type) && lessonForm.id && (
+                  <div className="border-t pt-4">
+                    <VideoQuizPointManager
+                      lessonId={lessonForm.id}
+                      courseId={lessonForm.course_id}
+                      durationMinutes={lessonForm.duration_minutes}
+                    />
+                  </div>
+                )}
               </>
             )}
 

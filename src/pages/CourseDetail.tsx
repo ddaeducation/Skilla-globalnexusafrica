@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { stripHtml } from "@/lib/utils";
 import { enforceYouTubeParams, sanitizeYouTubeIframes } from "@/lib/youtubeUtils";
 import { useParams, useNavigate } from "react-router-dom";
@@ -54,6 +54,7 @@ import PaginatedTextContent from "@/components/PaginatedTextContent";
 import { PeerReviewPanel } from "@/components/PeerReviewPanel";
 import HighlightedHTML from "@/components/HighlightedHTML";
 import { useVideoWatchProgress } from "@/hooks/useVideoWatchProgress";
+import { VideoQuizPopup } from "@/components/VideoQuizPopup";
 
 interface CourseSection {
   id: string;
@@ -208,6 +209,49 @@ const CourseDetail = () => {
   useEffect(() => {
     resetWatchProgress();
   }, [activeLessonId, resetWatchProgress]);
+
+  // Video quiz popup: track current video time
+  const [videoCurrentTime, setVideoCurrentTime] = useState(0);
+  const videoElementRef = useRef<HTMLVideoElement | null>(null);
+  const videoQuizPausedRef = useRef(false);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      try {
+        const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+        if (data?.event === "infoDelivery" && data?.info?.currentTime !== undefined) {
+          setVideoCurrentTime(data.info.currentTime);
+        }
+        if (data?.method === "playProgress" && data?.value?.seconds !== undefined) {
+          setVideoCurrentTime(data.value.seconds);
+        }
+      } catch {}
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
+  const handleVideoQuizPause = useCallback(() => {
+    videoQuizPausedRef.current = true;
+    if (videoElementRef.current) videoElementRef.current.pause();
+    document.querySelectorAll("iframe").forEach((iframe) => {
+      try {
+        iframe.contentWindow?.postMessage(JSON.stringify({ event: "command", func: "pauseVideo", args: [] }), "*");
+        iframe.contentWindow?.postMessage(JSON.stringify({ method: "pause" }), "*");
+      } catch {}
+    });
+  }, []);
+
+  const handleVideoQuizResume = useCallback(() => {
+    videoQuizPausedRef.current = false;
+    if (videoElementRef.current) videoElementRef.current.play();
+    document.querySelectorAll("iframe").forEach((iframe) => {
+      try {
+        iframe.contentWindow?.postMessage(JSON.stringify({ event: "command", func: "playVideo", args: [] }), "*");
+        iframe.contentWindow?.postMessage(JSON.stringify({ method: "play" }), "*");
+      } catch {}
+    });
+  }, []);
 
   // Quiz and Assignment dialogs
   const [quizTakerOpen, setQuizTakerOpen] = useState(false);
@@ -900,6 +944,18 @@ const CourseDetail = () => {
         {/* Spacer between header and media */}
         <div className="pt-1" />
 
+        {/* Video Pop-up Quiz Overlay */}
+        {isVideoLesson && user && (
+          <VideoQuizPopup
+            lessonId={lesson.id}
+            courseId={courseId || ""}
+            currentTimeSeconds={videoCurrentTime}
+            onPauseVideo={handleVideoQuizPause}
+            onResumeVideo={handleVideoQuizResume}
+            userId={user.id}
+          />
+        )}
+
         {/* YouTube Video */}
         {embedUrl && (() => {
           const hasWatchReq = lesson.required_watch_percentage != null && lesson.required_watch_percentage > 0 && !hasMetWatchRequirement && !isLessonCompleted(lesson.id);
@@ -1022,7 +1078,11 @@ const CourseDetail = () => {
                 controls
                 controlsList={hasWatchReq ? "nofullscreen nodownload noplaybackrate" : undefined}
                 className="w-full rounded-lg"
-                ref={videoRefCallback}
+                ref={(el) => {
+                  videoRefCallback(el);
+                  videoElementRef.current = el;
+                }}
+                onTimeUpdate={(e) => setVideoCurrentTime(e.currentTarget.currentTime)}
                 onSeeking={hasWatchReq ? (e) => {
                   const video = e.currentTarget;
                   const maxAllowed = (maxWatchedRef.current / 100) * video.duration;
