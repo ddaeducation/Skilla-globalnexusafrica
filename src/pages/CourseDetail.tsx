@@ -135,13 +135,19 @@ const normalizeRichTextContent = (html: string | null) => {
   if (!html) return "";
 
   let cleaned = html.trim();
-  const leadingEmptyBlocksPattern = /^(?:\s|&nbsp;|<br\s*\/?>|<p>(?:\s|&nbsp;|<br\s*\/?>)*<\/p>|<div>(?:\s|&nbsp;|<br\s*\/?>)*<\/div>)+/i;
+  // Remove empty <p> tags (with optional whitespace/&nbsp;/br inside)
+  cleaned = cleaned.replace(/<p>(?:\s|&nbsp;|<br\s*\/?>)*<\/p>/gi, "");
+  // Remove empty <div> tags
+  cleaned = cleaned.replace(/<div>(?:\s|&nbsp;|<br\s*\/?>)*<\/div>/gi, "");
+  // Remove empty <li> tags
+  cleaned = cleaned.replace(/<li>(?:\s|&nbsp;|<br\s*\/?>)*<\/li>/gi, "");
+  // Remove orphan <br> tags between block elements
+  cleaned = cleaned.replace(/(<\/(?:p|div|h[1-6]|ul|ol|li|blockquote|pre)>)\s*(?:<br\s*\/?>)+\s*(<(?:p|div|h[1-6]|ul|ol|li|blockquote|pre)[\s>])/gi, "$1$2");
+  // Strip leading whitespace/empty blocks
+  const leadingEmptyBlocksPattern = /^(?:\s|&nbsp;|<br\s*\/?>)+/i;
+  cleaned = cleaned.replace(leadingEmptyBlocksPattern, "");
 
-  while (leadingEmptyBlocksPattern.test(cleaned)) {
-    cleaned = cleaned.replace(leadingEmptyBlocksPattern, "");
-  }
-
-  return cleaned;
+  return cleaned.trim();
 };
 
 const CourseDetail = () => {

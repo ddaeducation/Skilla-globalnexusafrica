@@ -78,12 +78,25 @@ function stripHtml(text: string | null): string | null {
   return text.replace(/<[^>]*>/g, "").trim();
 }
 
+function sanitizeHtml(html: string): string {
+  let cleaned = html;
+  cleaned = cleaned.replace(/<p>(?:\s|&nbsp;|<br\s*\/?>)*<\/p>/gi, "");
+  cleaned = cleaned.replace(/<div>(?:\s|&nbsp;|<br\s*\/?>)*<\/div>/gi, "");
+  cleaned = cleaned.replace(/<li>(?:\s|&nbsp;|<br\s*\/?>)*<\/li>/gi, "");
+  cleaned = cleaned.replace(/(<\/(?:p|div|h[1-6]|ul|ol|li|blockquote|pre)>)\s*(?:<br\s*\/?>)+\s*(<(?:p|div|h[1-6]|ul|ol|li|blockquote|pre)[\s>])/gi, "$1$2");
+  cleaned = cleaned.replace(/^(?:\s|&nbsp;|<br\s*\/?>)+/i, "");
+  return cleaned.trim();
+}
+
 function buildContentPrompt(difficulty: string, includeQuizzes: boolean, includeAssignments: boolean) {
   return `You are a curriculum designer. Generate detailed, resource-rich lesson content for a ${difficulty}-level course.
 Return valid JSON only.
 
 CONTENT RULES:
 - Each lesson: 700-1000 words of HTML content using <p>, <h2>, <h3>, <ul>, <ol>, <strong>, <em>, <a>, <blockquote>, <pre>, <code> tags.
+- NEVER insert empty <p></p>, <p>&nbsp;</p>, <li></li>, or standalone <br> tags between sections.
+- Content must be compact — no blank lines or spacer elements between headings, paragraphs, or list items.
+- List items must always contain text — never output an empty <li> bullet.
 - When including code examples (SQL, Python, JavaScript, etc.), ALWAYS wrap them in <pre><code class="language-LANG">...</code></pre> where LANG is the language (e.g. sql, python, javascript). Escape HTML entities inside code: &lt; for <, &gt; for >, &amp; for &.
 - Structure each lesson with these sections in order:
 
@@ -412,7 +425,7 @@ Return JSON:
               section_id: job.unitSectionId,
               title: lesson.title,
               description: stripHtml(lesson.description) || null,
-              content_text: lesson.content_text || null,
+              content_text: lesson.content_text ? sanitizeHtml(lesson.content_text) : null,
               content_type: "text",
               order_index: contentIndex++,
               duration_minutes: lesson.duration_minutes || 25,
@@ -478,7 +491,7 @@ Return JSON:
               section_id: job.unitSectionId,
               title: unitContent.assignment.title,
               description: stripHtml(unitContent.assignment.description) || null,
-              instructions: unitContent.assignment.instructions || null,
+              instructions: unitContent.assignment.instructions ? sanitizeHtml(unitContent.assignment.instructions) : null,
               max_score: unitContent.assignment.max_score || 100,
               ai_grading_enabled: true,
               order_index: contentIndex++,

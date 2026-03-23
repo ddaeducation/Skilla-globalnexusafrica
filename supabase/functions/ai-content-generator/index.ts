@@ -19,6 +19,16 @@ interface GenerateRequest {
   contentLength?: "short" | "medium" | "detailed";
 }
 
+function sanitizeHtml(html: string): string {
+  let cleaned = html;
+  cleaned = cleaned.replace(/<p>(?:\s|&nbsp;|<br\s*\/?>)*<\/p>/gi, "");
+  cleaned = cleaned.replace(/<div>(?:\s|&nbsp;|<br\s*\/?>)*<\/div>/gi, "");
+  cleaned = cleaned.replace(/<li>(?:\s|&nbsp;|<br\s*\/?>)*<\/li>/gi, "");
+  cleaned = cleaned.replace(/(<\/(?:p|div|h[1-6]|ul|ol|li|blockquote|pre)>)\s*(?:<br\s*\/?>)+\s*(<(?:p|div|h[1-6]|ul|ol|li|blockquote|pre)[\s>])/gi, "$1$2");
+  cleaned = cleaned.replace(/^(?:\s|&nbsp;|<br\s*\/?>)+/i, "");
+  return cleaned.trim();
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -47,7 +57,10 @@ CRITICAL FORMATTING RULES for content_text:
 - Use <ul>/<ol> with <li> for lists.
 - Use <strong> for key terms and <em> for emphasis.
 - Never output raw text without HTML tags. Every block of text must be wrapped in a tag.
-- Aim for 4-6 well-developed paragraphs with headings separating major sections.`;
+- Aim for 4-6 well-developed paragraphs with headings separating major sections.
+- NEVER insert empty <p></p>, <p>&nbsp;</p>, <li></li>, or standalone <br> tags between sections.
+- Content must be compact — no blank lines or spacer elements between headings, paragraphs, or list items.
+- List items must always contain text — never output an empty <li> bullet.`;
       userPrompt = `Create ${lessonCount} lesson outlines for a course about "${topic}"${courseName ? ` (Course: ${courseName})` : ""}.
 ${additionalContext ? `Additional context: ${additionalContext}` : ""}
 
@@ -75,7 +88,9 @@ CRITICAL FORMATTING RULES for content_text:
 - Leave clear separation between paragraphs — each paragraph must be its own <p> block.
 - Use <ul>/<ol> with <li> for lists.
 - Use <strong> for key terms and <em> for emphasis.
-- Never output raw text without HTML tags. Every block of text must be wrapped in a tag.`;
+- Never output raw text without HTML tags. Every block of text must be wrapped in a tag.
+- NEVER insert empty <p></p>, <p>&nbsp;</p>, <li></li>, or standalone <br> tags between sections.
+- Content must be compact — no blank lines or spacer elements between headings, paragraphs, or list items.`;
       userPrompt = `Create ONE lesson about "${topic}"${courseName ? ` for the course: ${courseName}` : ""}.
 ${additionalContext ? `Additional context: ${additionalContext}` : ""}
 ${existingContent ? `The previous version was about: ${existingContent}. Please generate something different while staying on topic.` : ""}
@@ -173,7 +188,9 @@ CRITICAL FORMATTING RULES for instructions field:
 - Write instructions as proper HTML with <p> tags for each paragraph/step.
 - Use <h3> tags for section headings.
 - Use <ol> for numbered steps and <ul> for bullet lists.
-- Use <strong> for key terms. Each paragraph must be a separate <p> block.`;
+- Use <strong> for key terms. Each paragraph must be a separate <p> block.
+- NEVER insert empty <p></p>, <p>&nbsp;</p>, <li></li>, or standalone <br> tags between sections.
+- Content must be compact — no blank lines or spacer elements between headings, paragraphs, or list items.`;
       userPrompt = `Create an assignment about "${topic}"${courseName ? ` (Course: ${courseName})` : ""}.
 ${additionalContext ? `Additional context: ${additionalContext}` : ""}
 
@@ -274,6 +291,9 @@ CONTENT QUALITY RULES:
 - Maintain logical flow between sections — use transitions.
 - Be educational, clear, and comprehensive.
 - Never output raw text without HTML tags. Every piece of text must be inside a proper tag.
+- NEVER insert empty <p></p>, <p>&nbsp;</p>, <li></li>, or standalone <br> tags between sections.
+- Content must be compact — no blank lines or spacer elements between headings, paragraphs, or list items.
+- List items must always contain text — never output an empty <li> bullet.
 - Do NOT wrap in a JSON object or markdown code block. Return ONLY the raw HTML content.
 - Do NOT include \`\`\`html or any code fences.`;
 
@@ -331,7 +351,7 @@ Return ONLY the HTML content. Start directly with <h2>.`;
     // For editor_content, return raw HTML directly
     if (type === "editor_content") {
       // Strip any markdown code fences the model might wrap around HTML
-      const cleanedContent = content.replace(/^```html?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
+      const cleanedContent = sanitizeHtml(content.replace(/^```html?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim());
       return new Response(JSON.stringify({ success: true, data: { content_text: cleanedContent } }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -365,10 +385,18 @@ Return ONLY the HTML content. Start directly with <h2>.`;
       parsedContent = parsedContent.map((item: any) => ({
         ...item,
         description: stripHtml(item.description),
+        content_text: item.content_text ? sanitizeHtml(item.content_text) : item.content_text,
+        instructions: item.instructions ? sanitizeHtml(item.instructions) : item.instructions,
       }));
     } else if (parsedContent && typeof parsedContent === 'object') {
       if (parsedContent.description) {
         parsedContent.description = stripHtml(parsedContent.description);
+      }
+      if (parsedContent.content_text) {
+        parsedContent.content_text = sanitizeHtml(parsedContent.content_text);
+      }
+      if (parsedContent.instructions) {
+        parsedContent.instructions = sanitizeHtml(parsedContent.instructions);
       }
     }
 
