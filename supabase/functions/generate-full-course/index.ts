@@ -94,6 +94,9 @@ Return valid JSON only.
 
 CONTENT RULES:
 - Each lesson: 700-1000 words of HTML content using <p>, <h2>, <h3>, <ul>, <ol>, <strong>, <em>, <a>, <blockquote>, <pre>, <code> tags.
+- NEVER insert empty <p></p>, <p>&nbsp;</p>, <li></li>, or standalone <br> tags between sections.
+- Content must be compact — no blank lines or spacer elements between headings, paragraphs, or list items.
+- List items must always contain text — never output an empty <li> bullet.
 - When including code examples (SQL, Python, JavaScript, etc.), ALWAYS wrap them in <pre><code class="language-LANG">...</code></pre> where LANG is the language (e.g. sql, python, javascript). Escape HTML entities inside code: &lt; for <, &gt; for >, &amp; for &.
 - Structure each lesson with these sections in order:
 
