@@ -57,7 +57,10 @@ CRITICAL FORMATTING RULES for content_text:
 - Use <ul>/<ol> with <li> for lists.
 - Use <strong> for key terms and <em> for emphasis.
 - Never output raw text without HTML tags. Every block of text must be wrapped in a tag.
-- Aim for 4-6 well-developed paragraphs with headings separating major sections.`;
+- Aim for 4-6 well-developed paragraphs with headings separating major sections.
+- NEVER insert empty <p></p>, <p>&nbsp;</p>, <li></li>, or standalone <br> tags between sections.
+- Content must be compact — no blank lines or spacer elements between headings, paragraphs, or list items.
+- List items must always contain text — never output an empty <li> bullet.`;
       userPrompt = `Create ${lessonCount} lesson outlines for a course about "${topic}"${courseName ? ` (Course: ${courseName})` : ""}.
 ${additionalContext ? `Additional context: ${additionalContext}` : ""}
 
