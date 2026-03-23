@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { stripHtml } from "@/lib/utils";
 import { enforceYouTubeParams, sanitizeYouTubeIframes } from "@/lib/youtubeUtils";
 import { useParams, useNavigate } from "react-router-dom";
