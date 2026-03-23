@@ -943,6 +943,19 @@ const CourseDetail = () => {
 
         {/* Spacer between header and media */}
         <div className="pt-1" />
+
+        {/* Video Pop-up Quiz Overlay */}
+        {isVideoLesson && user && (
+          <VideoQuizPopup
+            lessonId={lesson.id}
+            courseId={courseId || ""}
+            currentTimeSeconds={videoCurrentTime}
+            onPauseVideo={handleVideoQuizPause}
+            onResumeVideo={handleVideoQuizResume}
+            userId={user.id}
+          />
+        )}
+
         {/* YouTube Video */}
         {embedUrl && (() => {
           const hasWatchReq = lesson.required_watch_percentage != null && lesson.required_watch_percentage > 0 && !hasMetWatchRequirement && !isLessonCompleted(lesson.id);
