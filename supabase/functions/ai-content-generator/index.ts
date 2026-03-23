@@ -291,6 +291,9 @@ CONTENT QUALITY RULES:
 - Maintain logical flow between sections — use transitions.
 - Be educational, clear, and comprehensive.
 - Never output raw text without HTML tags. Every piece of text must be inside a proper tag.
+- NEVER insert empty <p></p>, <p>&nbsp;</p>, <li></li>, or standalone <br> tags between sections.
+- Content must be compact — no blank lines or spacer elements between headings, paragraphs, or list items.
+- List items must always contain text — never output an empty <li> bullet.
 - Do NOT wrap in a JSON object or markdown code block. Return ONLY the raw HTML content.
 - Do NOT include \`\`\`html or any code fences.`;
 
