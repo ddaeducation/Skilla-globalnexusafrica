@@ -19,6 +19,16 @@ interface GenerateRequest {
   contentLength?: "short" | "medium" | "detailed";
 }
 
+function sanitizeHtml(html: string): string {
+  let cleaned = html;
+  cleaned = cleaned.replace(/<p>(?:\s|&nbsp;|<br\s*\/?>)*<\/p>/gi, "");
+  cleaned = cleaned.replace(/<div>(?:\s|&nbsp;|<br\s*\/?>)*<\/div>/gi, "");
+  cleaned = cleaned.replace(/<li>(?:\s|&nbsp;|<br\s*\/?>)*<\/li>/gi, "");
+  cleaned = cleaned.replace(/(<\/(?:p|div|h[1-6]|ul|ol|li|blockquote|pre)>)\s*(?:<br\s*\/?>)+\s*(<(?:p|div|h[1-6]|ul|ol|li|blockquote|pre)[\s>])/gi, "$1$2");
+  cleaned = cleaned.replace(/^(?:\s|&nbsp;|<br\s*\/?>)+/i, "");
+  return cleaned.trim();
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
