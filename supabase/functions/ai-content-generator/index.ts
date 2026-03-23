@@ -88,7 +88,9 @@ CRITICAL FORMATTING RULES for content_text:
 - Leave clear separation between paragraphs — each paragraph must be its own <p> block.
 - Use <ul>/<ol> with <li> for lists.
 - Use <strong> for key terms and <em> for emphasis.
-- Never output raw text without HTML tags. Every block of text must be wrapped in a tag.`;
+- Never output raw text without HTML tags. Every block of text must be wrapped in a tag.
+- NEVER insert empty <p></p>, <p>&nbsp;</p>, <li></li>, or standalone <br> tags between sections.
+- Content must be compact — no blank lines or spacer elements between headings, paragraphs, or list items.`;
       userPrompt = `Create ONE lesson about "${topic}"${courseName ? ` for the course: ${courseName}` : ""}.
 ${additionalContext ? `Additional context: ${additionalContext}` : ""}
 ${existingContent ? `The previous version was about: ${existingContent}. Please generate something different while staying on topic.` : ""}
