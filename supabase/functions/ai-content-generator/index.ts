@@ -188,7 +188,9 @@ CRITICAL FORMATTING RULES for instructions field:
 - Write instructions as proper HTML with <p> tags for each paragraph/step.
 - Use <h3> tags for section headings.
 - Use <ol> for numbered steps and <ul> for bullet lists.
-- Use <strong> for key terms. Each paragraph must be a separate <p> block.`;
+- Use <strong> for key terms. Each paragraph must be a separate <p> block.
+- NEVER insert empty <p></p>, <p>&nbsp;</p>, <li></li>, or standalone <br> tags between sections.
+- Content must be compact — no blank lines or spacer elements between headings, paragraphs, or list items.`;
       userPrompt = `Create an assignment about "${topic}"${courseName ? ` (Course: ${courseName})` : ""}.
 ${additionalContext ? `Additional context: ${additionalContext}` : ""}
 
