@@ -221,7 +221,7 @@ export const VideoQuizPopup = ({
           </div>
 
           {/* Question */}
-          <h4 className="text-lg font-semibold">{activePoint.question_text}</h4>
+          <p className="text-base font-normal">{activePoint.question_text}</p>
 
           {/* Answer area */}
           {!submitted && (
