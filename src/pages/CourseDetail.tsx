@@ -215,20 +215,54 @@ const CourseDetail = () => {
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
   const videoQuizPausedRef = useRef(false);
 
+  // YouTube & Vimeo time tracking via postMessage
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       try {
         const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+        // YouTube infoDelivery
         if (data?.event === "infoDelivery" && data?.info?.currentTime !== undefined) {
           setVideoCurrentTime(data.info.currentTime);
         }
+        // Vimeo playProgress
         if (data?.method === "playProgress" && data?.value?.seconds !== undefined) {
           setVideoCurrentTime(data.value.seconds);
+        }
+        // YouTube onReady — start listening for info
+        if (data?.event === "onReady" || data?.event === "initialDelivery") {
+          const iframes = document.querySelectorAll("iframe");
+          iframes.forEach((iframe) => {
+            try {
+              iframe.contentWindow?.postMessage(JSON.stringify({ event: "listening" }), "*");
+            } catch {}
+          });
         }
       } catch {}
     };
     window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+
+    // Periodically tell YouTube iframes we're listening (needed to receive infoDelivery)
+    const ytInterval = setInterval(() => {
+      document.querySelectorAll("iframe").forEach((iframe) => {
+        const src = iframe.src || "";
+        if (src.includes("youtube") || src.includes("youtube-nocookie")) {
+          try {
+            iframe.contentWindow?.postMessage(JSON.stringify({ event: "listening" }), "*");
+          } catch {}
+        }
+        // Vimeo: request playProgress events
+        if (src.includes("vimeo")) {
+          try {
+            iframe.contentWindow?.postMessage(JSON.stringify({ method: "addEventListener", value: "playProgress" }), "*");
+          } catch {}
+        }
+      });
+    }, 1000);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      clearInterval(ytInterval);
+    };
   }, []);
 
   const handleVideoQuizPause = useCallback(() => {
@@ -980,10 +1014,12 @@ const CourseDetail = () => {
         {/* Vimeo Video */}
         {vimeoEmbedUrl && (() => {
           const hasWatchReq = lesson.required_watch_percentage != null && lesson.required_watch_percentage > 0 && !hasMetWatchRequirement && !isLessonCompleted(lesson.id);
+          const vimeoSrc = vimeoEmbedUrl + (vimeoEmbedUrl.includes('?') ? '&' : '?') + 'api=1&player_id=vimeo-player';
           return (
             <div className="aspect-video w-full rounded-lg overflow-hidden bg-black relative">
               <iframe
-                src={vimeoEmbedUrl}
+                id="vimeo-player"
+                src={vimeoSrc}
                 className="w-full h-full"
                 allow="autoplay; fullscreen; picture-in-picture"
                 allowFullScreen={!hasWatchReq}
