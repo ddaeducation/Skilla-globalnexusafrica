@@ -85,17 +85,7 @@ export const VideoQuizPopup = ({
       });
       setAllOptions(grouped);
 
-      // Load already answered
-      if (userId) {
-        const { data: responses } = await supabase
-          .from("video_quiz_point_responses")
-          .select("video_quiz_point_id")
-          .eq("user_id", userId)
-          .in("video_quiz_point_id", pointIds);
-        if (responses) {
-          setTriggeredIds(new Set(responses.map((r: any) => r.video_quiz_point_id)));
-        }
-      }
+      // Don't pre-load answered — quizzes should always appear on rewatch
     };
     load();
   }, [lessonId, userId]);
