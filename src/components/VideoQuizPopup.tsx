@@ -92,6 +92,7 @@ export const VideoQuizPopup = ({
 
   useEffect(() => {
     previousTimeRef.current = null;
+    setTriggeredIds(new Set());
   }, [lessonId]);
 
   // Check if current time crosses a quiz timestamp
