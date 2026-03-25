@@ -274,8 +274,19 @@ export const VideoQuizPopup = ({
       }`}
       style={{ pointerEvents: fadeIn ? "auto" : "none" }}
     >
-      <Card className="w-full max-w-lg shadow-2xl border-border bg-background max-h-[90vh] overflow-y-auto">
-        <CardContent className="pt-6 space-y-4">
+      <Card
+        className="w-full max-w-lg shadow-2xl border-border bg-background max-h-[90vh] overflow-y-auto"
+        style={dragPos ? { transform: `translate(${dragPos.x}px, ${dragPos.y}px)`, position: "relative" } : undefined}
+      >
+        {/* Drag handle */}
+        <div
+          className="flex items-center justify-center py-2 cursor-grab active:cursor-grabbing border-b border-border select-none"
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+        >
+          <GripHorizontal className="w-5 h-5 text-muted-foreground" />
+        </div>
+        <CardContent className="pt-4 space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between">
             <Badge variant="secondary" className="gap-1">
