@@ -1177,6 +1177,7 @@ const CourseDetail = () => {
                     allowFullScreen={!hasWatchReq}
                     title={lesson.title}
                   />
+                  <VideoQuizMarkers lessonId={lesson.id} videoDuration={videoDuration || (lesson.duration_minutes ? lesson.duration_minutes * 60 : 0)} />
                   {hasWatchReq && (
                     <div className="absolute bottom-0 left-0 right-0 h-12 bg-transparent z-10 cursor-not-allowed" title="Watch the video to unlock seeking" />
                   )}
