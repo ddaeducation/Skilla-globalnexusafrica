@@ -55,6 +55,7 @@ import { PeerReviewPanel } from "@/components/PeerReviewPanel";
 import HighlightedHTML from "@/components/HighlightedHTML";
 import { useVideoWatchProgress } from "@/hooks/useVideoWatchProgress";
 import { VideoQuizPopup } from "@/components/VideoQuizPopup";
+import { VideoQuizMarkers } from "@/components/VideoQuizMarkers";
 
 interface CourseSection {
   id: string;
@@ -212,11 +213,13 @@ const CourseDetail = () => {
 
   // Video quiz popup: track current video time
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
+  const [videoDuration, setVideoDuration] = useState(0);
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
   const videoQuizPausedRef = useRef(false);
 
   useEffect(() => {
     setVideoCurrentTime(0);
+    setVideoDuration(0);
     videoQuizPausedRef.current = false;
   }, [activeLessonId]);
 
@@ -228,6 +231,9 @@ const CourseDetail = () => {
         // YouTube infoDelivery
         if (data?.event === "infoDelivery" && typeof data?.info?.currentTime === "number") {
           setVideoCurrentTime(data.info.currentTime);
+          if (typeof data?.info?.duration === "number" && data.info.duration > 0) {
+            setVideoDuration(data.info.duration);
+          }
         }
         // Vimeo playProgress
         if (data?.method === "playProgress" && typeof data?.value?.seconds === "number") {
@@ -1172,6 +1178,7 @@ const CourseDetail = () => {
                     allowFullScreen={!hasWatchReq}
                     title={lesson.title}
                   />
+                  <VideoQuizMarkers lessonId={lesson.id} videoDuration={videoDuration || (lesson.duration_minutes ? lesson.duration_minutes * 60 : 0)} />
                   {hasWatchReq && (
                     <div className="absolute bottom-0 left-0 right-0 h-12 bg-transparent z-10 cursor-not-allowed" title="Watch the video to unlock seeking" />
                   )}
@@ -1180,26 +1187,30 @@ const CourseDetail = () => {
             }
             const hasWatchReq = lesson.required_watch_percentage != null && lesson.required_watch_percentage > 0 && !hasMetWatchRequirement && !isLessonCompleted(lesson.id);
             return (
-              <video
-                controls
-                controlsList={hasWatchReq ? "nofullscreen nodownload noplaybackrate" : undefined}
-                className="w-full rounded-lg"
-                ref={(el) => {
-                  videoRefCallback(el);
-                  videoElementRef.current = el;
-                }}
-                onTimeUpdate={(e) => setVideoCurrentTime(e.currentTarget.currentTime)}
-                onSeeking={hasWatchReq ? (e) => {
-                  const video = e.currentTarget;
-                  const maxAllowed = (maxWatchedRef.current / 100) * video.duration;
-                  if (video.currentTime > maxAllowed + 2) {
-                    video.currentTime = maxAllowed;
-                  }
-                } : undefined}
-              >
-                <source src={videoUrl} type={videoUrl.match(/\.webm$/i) ? 'video/webm' : videoUrl.match(/\.ogg$/i) ? 'video/ogg' : videoUrl.match(/\.mov$/i) ? 'video/quicktime' : 'video/mp4'} />
-                Your browser does not support the video tag.
-              </video>
+              <div className="relative">
+                <video
+                  controls
+                  controlsList={hasWatchReq ? "nofullscreen nodownload noplaybackrate" : undefined}
+                  className="w-full rounded-lg"
+                  ref={(el) => {
+                    videoRefCallback(el);
+                    videoElementRef.current = el;
+                  }}
+                  onTimeUpdate={(e) => setVideoCurrentTime(e.currentTarget.currentTime)}
+                  onLoadedMetadata={(e) => setVideoDuration(e.currentTarget.duration)}
+                  onSeeking={hasWatchReq ? (e) => {
+                    const video = e.currentTarget;
+                    const maxAllowed = (maxWatchedRef.current / 100) * video.duration;
+                    if (video.currentTime > maxAllowed + 2) {
+                      video.currentTime = maxAllowed;
+                    }
+                  } : undefined}
+                >
+                  <source src={videoUrl} type={videoUrl.match(/\.webm$/i) ? 'video/webm' : videoUrl.match(/\.ogg$/i) ? 'video/ogg' : videoUrl.match(/\.mov$/i) ? 'video/quicktime' : 'video/mp4'} />
+                  Your browser does not support the video tag.
+                </video>
+                <VideoQuizMarkers lessonId={lesson.id} videoDuration={videoDuration} />
+              </div>
             );
           })()
         )}
