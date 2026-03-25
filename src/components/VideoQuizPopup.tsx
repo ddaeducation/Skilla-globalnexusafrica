@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, XCircle, SkipForward, HelpCircle, GripHorizontal } from "lucide-react";
+import { CheckCircle, XCircle, SkipForward, HelpCircle } from "lucide-react";
 
 interface VideoQuizPoint {
   id: string;
@@ -55,11 +55,6 @@ export const VideoQuizPopup = ({
   const [fadeIn, setFadeIn] = useState(false);
   const [visible, setVisible] = useState(false);
   const previousTimeRef = useRef<number | null>(null);
-
-  // Drag state
-  const [dragPos, setDragPos] = useState<{ x: number; y: number } | null>(null);
-  const dragStartRef = useRef<{ mouseX: number; mouseY: number; elX: number; elY: number } | null>(null);
-  const isDraggingRef = useRef(false);
 
   // Load quiz points once
   useEffect(() => {
@@ -151,43 +146,8 @@ export const VideoQuizPopup = ({
     setSubmitted(false);
     setIsCorrect(false);
     setVisible(true);
-    setDragPos(null); // Reset position to center
+    // Fade-in animation
     setTimeout(() => setFadeIn(true), 50);
-  };
-
-  // Drag handlers
-  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
-    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
-    dragStartRef.current = {
-      mouseX: clientX,
-      mouseY: clientY,
-      elX: dragPos?.x || 0,
-      elY: dragPos?.y || 0,
-    };
-    isDraggingRef.current = true;
-
-    const handleMove = (ev: MouseEvent | TouchEvent) => {
-      if (!dragStartRef.current) return;
-      const cx = "touches" in ev ? ev.touches[0].clientX : ev.clientX;
-      const cy = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
-      setDragPos({
-        x: dragStartRef.current.elX + (cx - dragStartRef.current.mouseX),
-        y: dragStartRef.current.elY + (cy - dragStartRef.current.mouseY),
-      });
-    };
-    const handleUp = () => {
-      isDraggingRef.current = false;
-      dragStartRef.current = null;
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseup", handleUp);
-      window.removeEventListener("touchmove", handleMove);
-      window.removeEventListener("touchend", handleUp);
-    };
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("mouseup", handleUp);
-    window.addEventListener("touchmove", handleMove);
-    window.addEventListener("touchend", handleUp);
   };
 
   const checkAnswer = useCallback(() => {
@@ -274,19 +234,8 @@ export const VideoQuizPopup = ({
       }`}
       style={{ pointerEvents: fadeIn ? "auto" : "none" }}
     >
-      <Card
-        className="w-full max-w-lg shadow-2xl border-border bg-background max-h-[90vh] overflow-y-auto"
-        style={dragPos ? { transform: `translate(${dragPos.x}px, ${dragPos.y}px)`, position: "relative" } : undefined}
-      >
-        {/* Drag handle */}
-        <div
-          className="flex items-center justify-center py-2 cursor-grab active:cursor-grabbing border-b border-border select-none"
-          onMouseDown={handleDragStart}
-          onTouchStart={handleDragStart}
-        >
-          <GripHorizontal className="w-5 h-5 text-muted-foreground" />
-        </div>
-        <CardContent className="pt-4 space-y-4">
+      <Card className="w-full max-w-lg shadow-2xl border-border bg-background max-h-[90vh] overflow-y-auto">
+        <CardContent className="pt-6 space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between">
             <Badge variant="secondary" className="gap-1">
