@@ -219,6 +219,7 @@ const CourseDetail = () => {
 
   useEffect(() => {
     setVideoCurrentTime(0);
+    setVideoDuration(0);
     videoQuizPausedRef.current = false;
   }, [activeLessonId]);
 
