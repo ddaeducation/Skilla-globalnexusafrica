@@ -213,6 +213,7 @@ const CourseDetail = () => {
 
   // Video quiz popup: track current video time
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
+  const [videoDuration, setVideoDuration] = useState(0);
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
   const videoQuizPausedRef = useRef(false);
 
