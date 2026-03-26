@@ -197,7 +197,6 @@ export const VideoQuizPopup = ({
   };
 
   const handleSkip = () => {
-    if (activePoint?.behavior === "must_correct") return;
     // Save skip as zero score
     if (userId && activePoint) {
       supabase.from("video_quiz_point_responses").upsert({
@@ -322,13 +321,10 @@ export const VideoQuizPopup = ({
 
           {/* Actions */}
           <div className="flex justify-between pt-2">
-            {(activePoint.behavior === "skippable" || activePoint.behavior === "any_answer") && !submitted && (
+            {!submitted && (
               <Button variant="ghost" size="sm" onClick={handleSkip}>
                 <SkipForward className="w-4 h-4 mr-1" /> Skip
               </Button>
-            )}
-            {activePoint.behavior === "must_correct" && !submitted && (
-              <div />
             )}
             {!submitted ? (
               <Button size="sm" onClick={checkAnswer} disabled={!answer || (Array.isArray(answer) && answer.length === 0)}>
