@@ -33,11 +33,12 @@ export const VideoQuizMarkers = ({ lessonId, videoDuration }: VideoQuizMarkersPr
             className="absolute z-20 pointer-events-none"
             style={{
               left: `${pct}%`,
-              bottom: "10px",
-              transform: "translateX(-50%)",
+              bottom: "0px",
+              transform: "translate(-50%, -50%)",
+              pointerEvents: "none",
             }}
           >
-            <div className="w-2.5 h-2.5 rounded-full bg-red-500 border border-white shadow-sm" />
+            <div className="w-3 h-3 rounded-full bg-red-500 border-2 border-white shadow-md" />
           </div>
         );
       })}
