@@ -143,11 +143,28 @@ export const VideoQuizPopup = ({
   const triggerQuizPoint = (point: VideoQuizPoint) => {
     onPauseVideo();
     setActivePoint(point);
-    setAnswer(point.question_type === "multiple_choice" ? [] : "");
+    const opts = allOptions[point.id] || [];
+    if (point.question_type === "multiple_choice") {
+      setAnswer([]);
+    } else if (point.question_type === "matching" || point.question_type === "drag_drop") {
+      // Initialize as JSON object mapping left side to empty string
+      const initial: Record<string, string> = {};
+      opts.forEach((o) => {
+        const [left] = (o.option_text || "").split("|||");
+        if (left) initial[left.trim()] = "";
+      });
+      setAnswer(JSON.stringify(initial));
+    } else if (point.question_type === "ordering") {
+      // Initialize as shuffled array of option texts
+      const items = opts.map((o) => o.option_text);
+      const shuffled = [...items].sort(() => Math.random() - 0.5);
+      setAnswer(JSON.stringify(shuffled));
+    } else {
+      setAnswer("");
+    }
     setSubmitted(false);
     setIsCorrect(false);
     setVisible(true);
-    // Fade-in animation
     setTimeout(() => setFadeIn(true), 50);
   };
 
@@ -168,6 +185,26 @@ export const VideoQuizPopup = ({
       correct = correctOpt
         ? typeof answer === "string" && answer.toLowerCase().trim() === correctOpt.option_text.toLowerCase().trim()
         : false;
+    } else if (activePoint.question_type === "matching" || activePoint.question_type === "drag_drop") {
+      try {
+        const userMap: Record<string, string> = JSON.parse(typeof answer === "string" ? answer : "{}");
+        const correctMap: Record<string, string> = {};
+        options.forEach((o) => {
+          const [left, right] = (o.option_text || "").split("|||");
+          if (left && right) correctMap[left.trim()] = right.trim();
+        });
+        correct = Object.keys(correctMap).length > 0 &&
+          Object.keys(correctMap).every((k) => userMap[k] === correctMap[k]);
+      } catch { correct = false; }
+    } else if (activePoint.question_type === "ordering") {
+      try {
+        const userOrder: string[] = JSON.parse(typeof answer === "string" ? answer : "[]");
+        const correctOrder = options
+          .sort((a, b) => a.order_index - b.order_index)
+          .map((o) => o.option_text);
+        correct = userOrder.length === correctOrder.length &&
+          userOrder.every((item, i) => item === correctOrder[i]);
+      } catch { correct = false; }
     }
 
     setIsCorrect(correct);
