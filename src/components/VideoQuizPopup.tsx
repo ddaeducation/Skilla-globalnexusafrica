@@ -442,7 +442,11 @@ export const VideoQuizPopup = ({
               </Button>
             )}
             {!submitted ? (
-              <Button size="sm" onClick={checkAnswer} disabled={!answer || (Array.isArray(answer) && answer.length === 0)}>
+              <Button size="sm" onClick={checkAnswer} disabled={
+                !answer || 
+                (Array.isArray(answer) && answer.length === 0) ||
+                (typeof answer === "string" && (answer === "{}" || answer === "[]" || answer === ""))
+              }>
                 Submit Answer
               </Button>
             ) : (
