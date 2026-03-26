@@ -336,6 +336,83 @@ export const VideoQuizPopup = ({
                   autoFocus
                 />
               )}
+
+              {(activePoint.question_type === "matching" || activePoint.question_type === "drag_drop") && (() => {
+                const pairs = options.map((o) => {
+                  const [left, right] = (o.option_text || "").split("|||");
+                  return { left: left?.trim() || "", right: right?.trim() || "" };
+                });
+                const rightOptions = [...new Set(pairs.map((p) => p.right))].sort(() => Math.random() - 0.5);
+                let userMap: Record<string, string> = {};
+                try { userMap = JSON.parse(typeof answer === "string" ? answer : "{}"); } catch {}
+                return (
+                  <div className="space-y-3">
+                    <p className="text-xs text-muted-foreground">
+                      {activePoint.question_type === "matching" ? "Match each item on the left with the correct option on the right." : "Drag each item into the correct category."}
+                    </p>
+                    {pairs.map((pair, idx) => (
+                      <div key={idx} className="flex items-center gap-3 p-2 rounded-lg border">
+                        <span className="text-sm flex-1 min-w-0">{pair.left}</span>
+                        <span className="text-muted-foreground">→</span>
+                        <Select
+                          value={userMap[pair.left] || ""}
+                          onValueChange={(v) => {
+                            const updated = { ...userMap, [pair.left]: v };
+                            setAnswer(JSON.stringify(updated));
+                          }}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Select..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {rightOptions.map((r) => (
+                              <SelectItem key={r} value={r}>{r}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+
+              {activePoint.question_type === "ordering" && (() => {
+                let items: string[] = [];
+                try { items = JSON.parse(typeof answer === "string" ? answer : "[]"); } catch {}
+                const moveItem = (from: number, to: number) => {
+                  const updated = [...items];
+                  const [item] = updated.splice(from, 1);
+                  updated.splice(to, 0, item);
+                  setAnswer(JSON.stringify(updated));
+                };
+                return (
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground">Arrange items in the correct order using the arrows.</p>
+                    {items.map((item, idx) => (
+                      <div key={idx} className="flex items-center gap-2 p-3 rounded-lg border">
+                        <span className="text-xs text-muted-foreground w-5">{idx + 1}.</span>
+                        <span className="text-sm flex-1">{item}</span>
+                        <div className="flex flex-col gap-0.5">
+                          <Button
+                            variant="ghost" size="icon" className="h-5 w-5"
+                            disabled={idx === 0}
+                            onClick={(e) => { e.stopPropagation(); moveItem(idx, idx - 1); }}
+                          >
+                            <ArrowUp className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost" size="icon" className="h-5 w-5"
+                            disabled={idx === items.length - 1}
+                            onClick={(e) => { e.stopPropagation(); moveItem(idx, idx + 1); }}
+                          >
+                            <ArrowDown className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
             </>
           )}
 
