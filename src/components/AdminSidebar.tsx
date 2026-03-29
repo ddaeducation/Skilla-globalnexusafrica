@@ -2,34 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarHeader,
-  SidebarFooter,
+  Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarGroupContent,
+  SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter,
 } from "@/components/ui/sidebar";
 import {
-  BookOpen,
-  Users,
-  Shield,
-  GraduationCap,
-  Clock,
-  Award,
-  Settings,
-  LogOut,
-  HelpCircle,
-  User,
-  Ticket,
-  DollarSign,
-  Building2,
-  Handshake,
-  Megaphone,
-  Heart,
+  BookOpen, Users, Shield, GraduationCap, Clock, Award, Settings, LogOut,
+  HelpCircle, User, Ticket, DollarSign, Building2, Handshake, Megaphone, Heart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -84,7 +62,6 @@ const AdminSidebar = ({ activeView, setActiveView }: AdminSidebarProps) => {
         .select("full_name, avatar_url")
         .eq("id", session.user.id)
         .single();
-      
       if (profile) {
         setUserName(profile.full_name || session.user.email?.split("@")[0] || "Admin");
         setAvatarUrl(profile.avatar_url);
@@ -110,16 +87,16 @@ const AdminSidebar = ({ activeView, setActiveView }: AdminSidebarProps) => {
 
   return (
     <Sidebar>
-      <SidebarHeader className="border-b">
-        <div className="p-4">
-          <h2 className="text-xl font-bold text-primary">Admin Portal</h2>
-          <p className="text-sm text-muted-foreground">Global Nexus Institute</p>
-        </div>
+      <SidebarHeader className="border-b border-sidebar-border px-5 py-4">
+        <h2 className="font-display text-lg font-bold text-sidebar-foreground">Admin Portal</h2>
+        <p className="text-xs text-sidebar-foreground/60">Global Nexus Institute</p>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-[11px] font-semibold tracking-wider uppercase text-sidebar-foreground/40 px-3">
+            Navigation
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => (
@@ -128,9 +105,10 @@ const AdminSidebar = ({ activeView, setActiveView }: AdminSidebarProps) => {
                     onClick={() => handleNavigation(item.id)}
                     isActive={activeView === item.id}
                     tooltip={item.title}
+                    className="rounded-lg transition-colors"
                   >
                     <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
+                    <span className="text-sm">{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -139,7 +117,9 @@ const AdminSidebar = ({ activeView, setActiveView }: AdminSidebarProps) => {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Account</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-[11px] font-semibold tracking-wider uppercase text-sidebar-foreground/40 px-3">
+            Account
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {accountItems.map((item) => (
@@ -148,9 +128,10 @@ const AdminSidebar = ({ activeView, setActiveView }: AdminSidebarProps) => {
                     onClick={() => handleNavigation(item.id)}
                     isActive={activeView === item.id}
                     tooltip={item.title}
+                    className="rounded-lg transition-colors"
                   >
                     <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
+                    <span className="text-sm">{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -159,18 +140,20 @@ const AdminSidebar = ({ activeView, setActiveView }: AdminSidebarProps) => {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <Avatar className="h-10 w-10">
+      <SidebarFooter className="border-t border-sidebar-border p-4">
+        <div className="flex items-center gap-3 mb-3 p-2 rounded-xl bg-sidebar-accent/50">
+          <Avatar className="h-9 w-9 ring-2 ring-sidebar-border">
             <AvatarImage src={avatarUrl || undefined} />
-            <AvatarFallback>{userName.charAt(0).toUpperCase()}</AvatarFallback>
+            <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+              {userName.charAt(0).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">{userName}</p>
-            <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
+            <p className="text-[11px] text-sidebar-foreground/50 truncate">{userEmail}</p>
           </div>
         </div>
-        <Button variant="outline" className="w-full" onClick={handleLogout}>
+        <Button variant="outline" size="sm" className="w-full" onClick={handleLogout}>
           <LogOut className="h-4 w-4 mr-2" />
           Sign Out
         </Button>

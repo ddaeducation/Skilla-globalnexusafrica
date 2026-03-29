@@ -113,61 +113,61 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
     return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
+  const navTabs: { id: NavTab; label: string }[] = [
+    { id: "home", label: "Home" },
+    { id: "why", label: "Why Us" },
+    { id: "career", label: "Career" },
+  ];
+
+  const navTabs2: { id: NavTab; label: string }[] = [
+    { id: "faqs", label: "FAQs" },
+    { id: "donate", label: "Donate" },
+  ];
+
+  const handleTabClick = (id: NavTab) => {
+    if (isHomePage && onTabChange) {
+      onTabChange(id);
+    } else {
+      window.location.href = `/#${id}`;
+    }
+  };
+
   return (
-    <nav role="navigation" aria-label="Main navigation" className="sticky top-0 z-50 w-full border-b border-border bg-background shadow-sm">
+    <nav role="navigation" aria-label="Main navigation" className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-sm">
       <div className="container flex h-16 items-center justify-between px-4">
         {/* Logo */}
-        <a href="/" className="flex items-center space-x-2">
-          <img src={gniLogo} alt="Global Nexus Institute" className="h-12 w-auto" />
+        <a href="/" className="flex items-center space-x-2 shrink-0">
+          <img src={gniLogo} alt="Global Nexus Institute" className="h-11 w-auto" />
         </a>
 
-        <div className="hidden md:flex md:items-center md:space-x-6">
-          {[
-            { id: "home" as NavTab, label: "Home" },
-            { id: "why" as NavTab, label: "Why Us" },
-            { id: "career" as NavTab, label: "Career" },
-          ].map((item) => (
+        <div className="hidden md:flex md:items-center md:space-x-1">
+          {navTabs.map((item) => (
             <button
               key={item.id}
-              onClick={() => {
-                if (isHomePage && onTabChange) {
-                  onTabChange(item.id);
-                } else {
-                  window.location.href = `/#${item.id}`;
-                }
-              }}
-              className={`text-sm font-medium transition-colors hover:text-primary ${
+              onClick={() => handleTabClick(item.id)}
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors hover:bg-muted hover:text-primary ${
                 isHomePage && activeTab === item.id
-                  ? "text-primary border-b-2 border-primary pb-0.5"
-                  : ""
+                  ? "text-primary bg-primary/5"
+                  : "text-foreground/70"
               }`}
             >
               {item.label}
             </button>
           ))}
-          <Link to="/corporate-training" className="text-sm font-medium transition-colors hover:text-primary">
+          <Link to="/corporate-training" className="px-3 py-2 text-sm font-medium rounded-lg transition-colors hover:bg-muted hover:text-primary text-foreground/70">
             Corporate
           </Link>
-          <Link to="/collaborate" className="text-sm font-medium transition-colors hover:text-primary">
+          <Link to="/collaborate" className="px-3 py-2 text-sm font-medium rounded-lg transition-colors hover:bg-muted hover:text-primary text-foreground/70">
             Collaborate
           </Link>
-          {[
-            { id: "faqs" as NavTab, label: "FAQs" },
-            { id: "donate" as NavTab, label: "Donate" },
-          ].map((item) => (
+          {navTabs2.map((item) => (
             <button
               key={item.id}
-              onClick={() => {
-                if (isHomePage && onTabChange) {
-                  onTabChange(item.id);
-                } else {
-                  window.location.href = `/#${item.id}`;
-                }
-              }}
-              className={`text-sm font-medium transition-colors hover:text-primary ${
+              onClick={() => handleTabClick(item.id)}
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors hover:bg-muted hover:text-primary ${
                 isHomePage && activeTab === item.id
-                  ? "text-primary border-b-2 border-primary pb-0.5"
-                  : ""
+                  ? "text-primary bg-primary/5"
+                  : "text-foreground/70"
               }`}
             >
               {item.label}
@@ -178,13 +178,13 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
           <div className="relative" ref={searchRef}>
             <button
               onClick={() => { setSearchOpen(!searchOpen); setSearchQuery(""); setSearchResults([]); }}
-              className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-1"
+              className="p-2 rounded-lg text-foreground/70 hover:bg-muted hover:text-primary transition-colors"
               aria-label="Search courses"
             >
               <Search className="h-4 w-4" />
             </button>
             {searchOpen && (
-              <div className="absolute top-8 right-0 w-80 bg-popover border border-border rounded-lg shadow-lg z-50 p-3">
+              <div className="absolute top-10 right-0 w-80 bg-popover border border-border rounded-xl shadow-xl z-50 p-3 animate-fade-in">
                 <Input
                   autoFocus
                   placeholder="What do you want to learn?"
@@ -205,7 +205,7 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
                       setSearchQuery("");
                       setSearchResults([]);
                     }}
-                    className="w-full text-left px-3 py-2 rounded-md hover:bg-accent text-sm transition-colors"
+                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-accent/10 text-sm transition-colors"
                   >
                     <span className="font-medium">{course.title}</span>
                     <span className="block text-xs text-muted-foreground">{course.school}</span>
@@ -217,100 +217,79 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
         </div>
 
         {/* Right side buttons */}
-        <div className="flex items-center space-x-2 md:space-x-4">
+        <div className="flex items-center gap-2">
           {user && <AccessibilityPanel />}
-          <Button variant="ghost" asChild className="hidden md:inline-flex">
+          <Button variant="ghost" size="sm" asChild className="hidden md:inline-flex text-foreground/70 hover:text-primary">
             <Link to="/lms">LMS</Link>
           </Button>
           {isInstructor && (
-            <Button variant="ghost" asChild className="hidden md:inline-flex">
+            <Button variant="ghost" size="sm" asChild className="hidden md:inline-flex text-foreground/70 hover:text-primary">
               <Link to="/instructor">Instructor</Link>
             </Button>
           )}
           {isAdmin && (
-            <Button variant="ghost" asChild className="hidden md:inline-flex">
+            <Button variant="ghost" size="sm" asChild className="hidden md:inline-flex text-foreground/70 hover:text-primary">
               <Link to="/admin">Admin</Link>
             </Button>
           )}
           {user && !isInstructor && !isAdmin && (
-            <Button variant="ghost" asChild className="hidden md:inline-flex">
+            <Button variant="ghost" size="sm" asChild className="hidden md:inline-flex text-foreground/70 hover:text-primary">
               <Link to="/become-instructor">Teach</Link>
             </Button>
           )}
           {user ? (
             <>
               <Link to="/profile" className="hidden md:inline-flex">
-                <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+                <Avatar className="h-8 w-8 cursor-pointer ring-2 ring-border hover:ring-primary transition-all">
                   <AvatarImage src={profile?.avatar_url || undefined} alt="Profile" />
-                  <AvatarFallback className="text-xs">{getInitials(profile?.full_name)}</AvatarFallback>
+                  <AvatarFallback className="text-xs bg-primary/10 text-primary font-semibold">{getInitials(profile?.full_name)}</AvatarFallback>
                 </Avatar>
               </Link>
-              <Button variant="ghost" onClick={handleSignOut} className="hidden md:inline-flex">
+              <Button variant="ghost" size="sm" onClick={handleSignOut} className="hidden md:inline-flex text-foreground/70">
                 Sign Out
               </Button>
             </>
           ) : (
-            <Button asChild className="hidden md:inline-flex">
+            <Button asChild size="sm" className="hidden md:inline-flex shadow-md hover:shadow-lg transition-shadow">
               <Link to="/signin">Sign In</Link>
             </Button>
           )}
 
           {/* Mobile menu button */}
           <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
       </div>
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="border-t md:hidden">
+        <div className="border-t border-border/60 md:hidden bg-background/95 backdrop-blur-md">
           <div className="container space-y-3 px-4 py-6">
-            <div className="space-y-2">
-              {[
-                { id: "home" as NavTab, label: "Home" },
-                { id: "why" as NavTab, label: "Why Us" },
-                { id: "career" as NavTab, label: "Career" },
-              ].map((item) => (
+            <div className="space-y-1">
+              {navTabs.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => {
-                    if (isHomePage && onTabChange) {
-                      onTabChange(item.id);
-                    } else {
-                      window.location.href = `/#${item.id}`;
-                    }
-                    setIsMenuOpen(false);
-                  }}
-                  className={`block w-full text-left rounded-md px-3 py-2 text-sm font-medium hover:bg-accent ${
-                    isHomePage && activeTab === item.id ? "bg-accent text-primary" : ""
+                  onClick={() => { handleTabClick(item.id); setIsMenuOpen(false); }}
+                  className={`block w-full text-left rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted transition-colors ${
+                    isHomePage && activeTab === item.id ? "bg-primary/5 text-primary" : "text-foreground/70"
                   }`}
                 >
                   {item.label}
                 </button>
               ))}
-              <Link to="/corporate-training" className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-accent" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/corporate-training" className="block rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted text-foreground/70 transition-colors" onClick={() => setIsMenuOpen(false)}>
                 Corporate
               </Link>
-              <Link to="/collaborate" className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-accent" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/collaborate" className="block rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted text-foreground/70 transition-colors" onClick={() => setIsMenuOpen(false)}>
                 Collaborate
               </Link>
-              {[
-                { id: "faqs" as NavTab, label: "FAQs" },
-                { id: "donate" as NavTab, label: "Donate" },
-              ].map((item) => (
+              {navTabs2.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => {
-                    if (isHomePage && onTabChange) {
-                      onTabChange(item.id);
-                    } else {
-                      window.location.href = `/#${item.id}`;
-                    }
-                    setIsMenuOpen(false);
-                  }}
-                  className={`block w-full text-left rounded-md px-3 py-2 text-sm font-medium hover:bg-accent ${
-                    isHomePage && activeTab === item.id ? "bg-accent text-primary" : ""
+                  onClick={() => { handleTabClick(item.id); setIsMenuOpen(false); }}
+                  className={`block w-full text-left rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted transition-colors ${
+                    isHomePage && activeTab === item.id ? "bg-primary/5 text-primary" : "text-foreground/70"
                   }`}
                 >
                   {item.label}
@@ -341,7 +320,7 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
                       setSearchQuery("");
                       setSearchResults([]);
                     }}
-                    className="w-full text-left px-3 py-2 rounded-md hover:bg-accent text-sm transition-colors"
+                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-muted text-sm transition-colors"
                   >
                     <span className="font-medium">{course.title}</span>
                     <span className="block text-xs text-muted-foreground">{course.school}</span>
@@ -349,7 +328,7 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
                 ))}
               </div>
             </div>
-            <div className="space-y-2 border-t pt-3">
+            <div className="space-y-2 border-t border-border/60 pt-3">
               <Button variant="outline" asChild className="w-full">
                 <Link to="/lms">LMS</Link>
               </Button>
