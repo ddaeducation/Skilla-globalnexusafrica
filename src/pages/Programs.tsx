@@ -44,7 +44,7 @@ const categoryMeta: Record<string, { title: string; subtitle: string; duration: 
     color: "from-blue-500 to-cyan-500",
   },
   Professional: {
-    title: "Professional Programs",
+    title: "Professional",
     subtitle: "Comprehensive, instructor-led programs with community and mentorship support",
     duration: "3-12 months (flexible, self-paced)",
     format: "Live classes + recorded lectures",

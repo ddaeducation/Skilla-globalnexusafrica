@@ -47,7 +47,7 @@ const SCHOOLS = [
 ];
 
 const CATEGORIES = [
-  { key: "Professional", label: "Professional Programs", description: "Career-focused programs with mentorship, projects, and 2–6 months of guided learning." },
+  { key: "Professional", label: "Professional", description: "Career-focused programs with mentorship, projects, and 2–6 months of guided learning." },
   { key: "Short-Course", label: "Short Courses", description: "Practical, skill-based courses to quickly build targeted expertise." },
   { key: "Masterclass", label: "Masterclasses", description: "Intensive expert-led sessions for deep dives into specialized topics." },
 ];
