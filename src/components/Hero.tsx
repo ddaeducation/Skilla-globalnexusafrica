@@ -39,14 +39,7 @@ const Hero = () => {
           </div>
 
           <h1 className="mb-6 font-display text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl text-primary-foreground animate-fade-in" id="main-heading" style={{ animationDelay: "0.05s" }}>
-            Master and Monetize{" "}
-            <span className="relative">
-              Skills
-              <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2 8C40 2 100 2 198 8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-accent" />
-              </svg>
-            </span>
-            .
+            Master and Monetize Skills.
           </h1>
           <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-primary-foreground/85 sm:text-xl animate-fade-in" style={{ animationDelay: "0.1s" }}>
             Learn Job-Ready Skills. Monetize Your Professional Experience. Join thousands of Africans building careers that matter.
