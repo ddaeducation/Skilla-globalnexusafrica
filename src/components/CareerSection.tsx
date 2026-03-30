@@ -15,7 +15,7 @@ const CareerSection = () => {
   ];
 
   const stats = [
-    { value: "500+", label: "Alumni Trained" },
+    { value: "300+", label: "Alumni Trained" },
     { value: "40%", label: "Avg. Salary Increase" },
     { value: "20+", label: "Companies Using Skills" },
     { value: "90%", label: "Apply Skills at Work" },
