@@ -502,8 +502,10 @@ const SchoolPrograms = () => {
               <Button size="lg" variant="secondary" asChild>
                 <Link to="/apply">Apply Now</Link>
               </Button>
-              <Button size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white/10">
-                Talk to an Advisor
+              <Button size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white/10" asChild>
+                <a href="https://wa.me/250787406140" target="_blank" rel="noopener noreferrer">
+                  Talk to an Advisor
+                </a>
               </Button>
             </div>
           </div>
