@@ -46,7 +46,6 @@ const Index = () => {
           {activeTab === "why" && <WhySection />}
           {activeTab === "career" && <CareerSection />}
           {activeTab === "faqs" && <FAQSection />}
-          {activeTab === "donate" && <DonateSection />}
         </main>
         <Footer />
         <WelcomePopup />
