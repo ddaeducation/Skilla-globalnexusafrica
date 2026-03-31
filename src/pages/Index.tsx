@@ -7,13 +7,13 @@ import SchoolsSection from "@/components/SchoolsSection";
 import WhySection from "@/components/WhySection";
 import CareerSection from "@/components/CareerSection";
 import FAQSection from "@/components/FAQSection";
-import DonateSection from "@/components/DonateSection";
+
 import Footer from "@/components/Footer";
 import CourseAssistant from "@/components/CourseAssistant";
 import SkipNavigation from "@/components/SkipNavigation";
 import WelcomePopup from "@/components/WelcomePopup";
 
-export type NavTab = "home" | "why" | "career" | "faqs" | "donate";
+export type NavTab = "home" | "why" | "career" | "faqs";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<NavTab>("home");
@@ -46,7 +46,6 @@ const Index = () => {
           {activeTab === "why" && <WhySection />}
           {activeTab === "career" && <CareerSection />}
           {activeTab === "faqs" && <FAQSection />}
-          {activeTab === "donate" && <DonateSection />}
         </main>
         <Footer />
         <WelcomePopup />

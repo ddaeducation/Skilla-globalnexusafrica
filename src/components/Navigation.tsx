@@ -121,7 +121,6 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
 
   const navTabs2: { id: NavTab; label: string }[] = [
     { id: "faqs", label: "FAQs" },
-    { id: "donate", label: "Donate" },
   ];
 
   const handleTabClick = (id: NavTab) => {
