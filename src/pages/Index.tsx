@@ -13,7 +13,7 @@ import CourseAssistant from "@/components/CourseAssistant";
 import SkipNavigation from "@/components/SkipNavigation";
 import WelcomePopup from "@/components/WelcomePopup";
 
-export type NavTab = "home" | "why" | "career" | "faqs" | "donate";
+export type NavTab = "home" | "why" | "career" | "faqs";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<NavTab>("home");
