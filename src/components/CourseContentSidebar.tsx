@@ -260,17 +260,21 @@ export function CourseContentSidebar({
             ? "opacity-50 cursor-not-allowed"
             : isActive
             ? "bg-primary text-primary-foreground"
+            : isCompleted
+            ? "bg-green-50 dark:bg-green-950/20 hover:bg-green-100 dark:hover:bg-green-950/30"
             : "hover:bg-muted"
         }`}
       >
         {locked ? (
           <Lock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
         ) : isCompleted ? (
-          <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
+          <span className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-xs font-bold">
+            ✓
+          </span>
         ) : (
           <span className="flex-shrink-0">{icon}</span>
         )}
-        <span className="break-words flex-1 min-w-0">{label}</span>
+        <span className={`break-words flex-1 min-w-0 ${isCompleted && !isActive ? "text-green-700 dark:text-green-400" : ""}`}>{label}</span>
         {badgeContent && (
           <Badge
             variant="outline"
