@@ -38,6 +38,8 @@ import {
   User,
   ChevronDown,
   StickyNote,
+  Maximize,
+  Minimize,
 } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
