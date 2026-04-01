@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/sidebar";
 import {
   BookOpen, Users, Shield, GraduationCap, Clock, Award, Settings, LogOut,
-  HelpCircle, User, Ticket, DollarSign, Building2, Handshake, Megaphone, Heart,
+  HelpCircle, User, Ticket, DollarSign, Building2, Handshake, Megaphone, Heart, ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
