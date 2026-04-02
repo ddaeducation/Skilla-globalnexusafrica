@@ -74,6 +74,7 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
         <NoteReader />
+        <OfflineIndicator />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
