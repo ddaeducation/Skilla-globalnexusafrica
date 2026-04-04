@@ -414,6 +414,25 @@ const Profile = () => {
     e.preventDefault();
     if (!user) return;
 
+    // Validate username if provided
+    if (username.trim()) {
+      if (username.trim().length < 3) {
+        setUsernameError("Username must be at least 3 characters");
+        return;
+      }
+      if (!/^[a-zA-Z0-9_]+$/.test(username.trim())) {
+        setUsernameError("Username can only contain letters, numbers, and underscores");
+        return;
+      }
+      // Check uniqueness
+      const { data: existingEmail } = await supabase.rpc('get_email_by_username', { p_username: username.trim() });
+      if (existingEmail && existingEmail !== user.email) {
+        setUsernameError("This username is already taken");
+        return;
+      }
+    }
+    setUsernameError("");
+
     setSaving(true);
 
     const { error } = await supabase
@@ -421,22 +440,26 @@ const Profile = () => {
       .update({
         full_name: fullName,
         phone: phone,
-      })
+        username: username.trim() || null,
+      } as any)
       .eq("id", user.id);
 
     if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      if (error.message?.includes('profiles_username_unique')) {
+        setUsernameError("This username is already taken");
+      } else {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     } else {
       toast({
         title: "Profile updated",
         description: "Your profile has been saved successfully.",
       });
       await logActivity("profile_update", "Updated profile information");
-      // Refresh profile data
       await fetchProfile(user.id);
     }
 
