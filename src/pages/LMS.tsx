@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import CourseAssistant from "@/components/CourseAssistant";
@@ -18,6 +18,7 @@ import { LiveSessionsPanel } from "@/components/communication/LiveSessionsPanel"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -81,6 +82,8 @@ const LMS = () => {
   const [selectedSchool, setSelectedSchool] = useState<string | null>(null);
   const [selectedAssignment, setSelectedAssignment] = useState<any | null>(null);
   const [selectedQuiz, setSelectedQuiz] = useState<any | null>(null);
+  const [assignmentCourseFilter, setAssignmentCourseFilter] = useState<string>("all");
+  const [quizCourseFilter, setQuizCourseFilter] = useState<string>("all");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -780,14 +783,33 @@ const LMS = () => {
       case "assignments":
         return (
           <div>
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold mb-2">Assignments</h1>
-              <p className="text-muted-foreground">
-                View and submit your assignments
-              </p>
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-bold mb-2">Assignments</h1>
+                <p className="text-muted-foreground">
+                  View and submit your assignments
+                </p>
+              </div>
+              {assignments.length > 0 && (
+                <Select value={assignmentCourseFilter} onValueChange={setAssignmentCourseFilter}>
+                  <SelectTrigger className="w-full sm:w-[220px]">
+                    <SelectValue placeholder="Filter by course" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Courses</SelectItem>
+                    {[...new Map(assignments.map((a: any) => [a.course_id, a.courses?.title])).entries()]
+                      .filter(([, title]) => title)
+                      .map(([id, title]) => (
+                        <SelectItem key={id} value={id as string}>{title as string}</SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
-            {assignments.length === 0 ? (
+            {(() => {
+              const filtered = assignmentCourseFilter === "all" ? assignments : assignments.filter((a: any) => a.course_id === assignmentCourseFilter);
+              return filtered.length === 0 ? (
               <div className="text-center py-12">
                 <ClipboardCheck className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
                 <p className="text-xl text-muted-foreground mb-2">No assignments yet</p>
@@ -795,7 +817,7 @@ const LMS = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {assignments.map((assignment) => (
+                {filtered.map((assignment: any) => (
                   <Card key={assignment.id} className="flex flex-col hover:shadow-md transition-shadow">
                     <CardHeader className="flex-1">
                       <div className="flex items-start justify-between gap-2">
@@ -823,7 +845,8 @@ const LMS = () => {
                   </Card>
                 ))}
               </div>
-            )}
+            );
+            })()}
 
             {/* Assignment Submission Dialog */}
             {selectedAssignment && (
@@ -850,14 +873,33 @@ const LMS = () => {
       case "quizzes":
         return (
           <div>
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold mb-2">Quizzes & Exams</h1>
-              <p className="text-muted-foreground">
-                Test your knowledge with quizzes and exams
-              </p>
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-bold mb-2">Quizzes & Exams</h1>
+                <p className="text-muted-foreground">
+                  Test your knowledge with quizzes and exams
+                </p>
+              </div>
+              {quizzes.length > 0 && (
+                <Select value={quizCourseFilter} onValueChange={setQuizCourseFilter}>
+                  <SelectTrigger className="w-full sm:w-[220px]">
+                    <SelectValue placeholder="Filter by course" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Courses</SelectItem>
+                    {[...new Map(quizzes.map((q: any) => [q.course_id, q.courses?.title])).entries()]
+                      .filter(([, title]) => title)
+                      .map(([id, title]) => (
+                        <SelectItem key={id} value={id as string}>{title as string}</SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
-            {quizzes.length === 0 ? (
+            {(() => {
+              const filtered = quizCourseFilter === "all" ? quizzes : quizzes.filter((q: any) => q.course_id === quizCourseFilter);
+              return filtered.length === 0 ? (
               <div className="text-center py-12">
                 <ClipboardCheck className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
                 <p className="text-xl text-muted-foreground mb-2">No quizzes available</p>
@@ -865,7 +907,7 @@ const LMS = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {quizzes.map((quiz) => {
+                {filtered.map((quiz: any) => {
                   const status = getQuizStatus(quiz.id);
                   const bestScore = getQuizBestScore(quiz.id);
                   
@@ -926,7 +968,8 @@ const LMS = () => {
                   );
                 })}
               </div>
-            )}
+            );
+            })()}
 
             {/* Quiz Taker Dialog */}
             {selectedQuiz && (
