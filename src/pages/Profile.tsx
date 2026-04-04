@@ -124,6 +124,7 @@ const Profile = () => {
       setProfile(data);
       setFullName(data.full_name || "");
       setPhone(data.phone || "");
+      setUsername((data as any).username || "");
       setAvatarUrl(data.avatar_url || null);
     }
     setLoading(false);
