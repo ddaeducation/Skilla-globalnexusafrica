@@ -845,7 +845,8 @@ const LMS = () => {
                   </Card>
                 ))}
               </div>
-            )}
+            );
+            })()}
 
             {/* Assignment Submission Dialog */}
             {selectedAssignment && (
