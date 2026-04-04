@@ -133,10 +133,19 @@ const SignUp = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleNext = () => {
-    if (validateStep(step)) {
-      setStep(step + 1);
+  const handleNext = async () => {
+    if (!validateStep(step)) return;
+    // Check username uniqueness on step 1
+    if (step === 1 && username.trim()) {
+      setCheckingUsername(true);
+      const { data } = await supabase.rpc('get_email_by_username', { p_username: username.trim() });
+      setCheckingUsername(false);
+      if (data) {
+        setStepErrors(prev => ({ ...prev, username: "This username is already taken" }));
+        return;
+      }
     }
+    setStep(step + 1);
   };
 
   const handleBack = () => {
