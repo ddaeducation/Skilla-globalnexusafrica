@@ -783,14 +783,33 @@ const LMS = () => {
       case "assignments":
         return (
           <div>
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold mb-2">Assignments</h1>
-              <p className="text-muted-foreground">
-                View and submit your assignments
-              </p>
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-bold mb-2">Assignments</h1>
+                <p className="text-muted-foreground">
+                  View and submit your assignments
+                </p>
+              </div>
+              {assignments.length > 0 && (
+                <Select value={assignmentCourseFilter} onValueChange={setAssignmentCourseFilter}>
+                  <SelectTrigger className="w-full sm:w-[220px]">
+                    <SelectValue placeholder="Filter by course" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Courses</SelectItem>
+                    {[...new Map(assignments.map((a: any) => [a.course_id, a.courses?.title])).entries()]
+                      .filter(([, title]) => title)
+                      .map(([id, title]) => (
+                        <SelectItem key={id} value={id as string}>{title as string}</SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
-            {assignments.length === 0 ? (
+            {(() => {
+              const filtered = assignmentCourseFilter === "all" ? assignments : assignments.filter((a: any) => a.course_id === assignmentCourseFilter);
+              return filtered.length === 0 ? (
               <div className="text-center py-12">
                 <ClipboardCheck className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
                 <p className="text-xl text-muted-foreground mb-2">No assignments yet</p>
@@ -798,7 +817,7 @@ const LMS = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {assignments.map((assignment) => (
+                {filtered.map((assignment: any) => (
                   <Card key={assignment.id} className="flex flex-col hover:shadow-md transition-shadow">
                     <CardHeader className="flex-1">
                       <div className="flex items-start justify-between gap-2">
