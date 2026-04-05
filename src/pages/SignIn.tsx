@@ -4,13 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { logActivity } from "@/hooks/useActivityLog";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Loader2, ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import { Loader2, ArrowLeft, Eye, EyeOff, LogIn, Mail, Lock, User } from "lucide-react";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -39,7 +37,6 @@ const SignIn = () => {
     e.preventDefault();
     setLoading(true);
     let loginEmail = email.trim();
-    // If input doesn't look like an email, treat it as a username
     if (!loginEmail.includes('@')) {
       const { data } = await supabase.rpc('get_email_by_username', { p_username: loginEmail });
       if (!data) {
@@ -81,103 +78,193 @@ const SignIn = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <div className="container mx-auto px-4 py-16 flex items-center justify-center min-h-[80vh]">
-        <Card className="w-full max-w-md">
-          {showForgotPassword ? (
-            <>
-              <CardHeader>
-                <CardTitle>Reset Password</CardTitle>
-                <CardDescription>
-                  {resetEmailSent
-                    ? "Check your email for a password reset link."
-                    : "Enter your email to receive a password reset link."}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+      <div className="flex items-center justify-center min-h-[85vh] px-4 py-12">
+        {/* Decorative background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative w-full max-w-[440px]">
+          {/* Card */}
+          <div className="bg-card border border-border/60 rounded-2xl shadow-xl shadow-primary/5 overflow-hidden">
+            {showForgotPassword ? (
+              <div className="p-8">
+                {/* Header */}
+                <div className="text-center mb-8">
+                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 mb-4">
+                    <Mail className="h-7 w-7 text-primary" />
+                  </div>
+                  <h1 className="font-display text-2xl font-bold text-foreground">
+                    Reset Password
+                  </h1>
+                  <p className="text-sm text-muted-foreground mt-1.5">
+                    {resetEmailSent
+                      ? "Check your email for a password reset link."
+                      : "Enter your email to receive a reset link."}
+                  </p>
+                </div>
+
                 {resetEmailSent ? (
-                  <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                      We've sent a password reset link to <strong>{email}</strong>.
-                    </p>
-                    <Button variant="outline" className="w-full" onClick={() => { setShowForgotPassword(false); setResetEmailSent(false); }}>
+                  <div className="space-y-5">
+                    <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 text-center">
+                      <p className="text-sm text-foreground">
+                        We've sent a reset link to <strong className="text-primary">{email}</strong>
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="w-full h-11 rounded-xl"
+                      onClick={() => { setShowForgotPassword(false); setResetEmailSent(false); }}
+                    >
                       <ArrowLeft className="mr-2 h-4 w-4" /> Back to Sign In
                     </Button>
                   </div>
                 ) : (
-                  <form onSubmit={handleForgotPassword} className="space-y-4">
+                  <form onSubmit={handleForgotPassword} className="space-y-5">
                     <div className="space-y-2">
-                      <Label htmlFor="reset-email">Email</Label>
-                      <Input id="reset-email" type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                      <Label htmlFor="reset-email" className="text-sm font-medium text-foreground">
+                        Email address
+                      </Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="reset-email"
+                          type="email"
+                          placeholder="your@email.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          className="h-11 pl-10 rounded-xl border-border/60 focus:border-primary"
+                        />
+                      </div>
                     </div>
-                    <Button type="submit" className="w-full" disabled={loading}>
+                    <Button type="submit" className="w-full h-11 rounded-xl font-semibold" disabled={loading}>
                       {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending...</> : "Send Reset Link"}
                     </Button>
-                    <Button type="button" variant="ghost" className="w-full" onClick={() => setShowForgotPassword(false)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="w-full h-10 text-muted-foreground hover:text-foreground"
+                      onClick={() => setShowForgotPassword(false)}
+                    >
                       <ArrowLeft className="mr-2 h-4 w-4" /> Back to Sign In
                     </Button>
                   </form>
                 )}
-              </CardContent>
-            </>
-          ) : (
-            <>
-              <CardHeader>
-                <CardTitle>Sign In</CardTitle>
-                <CardDescription>Sign in to access courses and your learning dashboard</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <Separator className="w-full" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-2 text-muted-foreground">continue with email</span>
+              </div>
+            ) : (
+              <div className="p-8">
+                {/* Header */}
+                <div className="text-center mb-8">
+                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 mb-4">
+                    <LogIn className="h-7 w-7 text-primary" />
+                  </div>
+                  <h1 className="font-display text-2xl font-bold text-foreground">
+                    Welcome back
+                  </h1>
+                  <p className="text-sm text-muted-foreground mt-1.5">
+                    Sign in to access your courses and dashboard
+                  </p>
+                </div>
+
+                {/* Divider */}
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-border/60" />
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-card px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                      continue with email
+                    </span>
+                  </div>
+                </div>
+
+                <form onSubmit={handleSignIn} className="space-y-4">
+                  {/* Email / Username */}
+                  <div className="space-y-2">
+                    <Label htmlFor="signin-email" className="text-sm font-medium text-foreground">
+                      Email or Username
+                    </Label>
+                    <div className="relative">
+                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="signin-email"
+                        type="text"
+                        placeholder="your@email.com or username"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="h-11 pl-10 rounded-xl border-border/60 focus:border-primary transition-colors"
+                      />
                     </div>
                   </div>
 
-                  <form onSubmit={handleSignIn} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-email">Email or Username</Label>
-                      <Input id="signin-email" type="text" placeholder="your@email.com or username" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  {/* Password */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="signin-password" className="text-sm font-medium text-foreground">
+                        Password
+                      </Label>
+                      <button
+                        type="button"
+                        className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                        onClick={() => setShowForgotPassword(true)}
+                      >
+                        Forgot password?
+                      </button>
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="signin-password">Password</Label>
-                        <Button type="button" variant="link" className="px-0 h-auto text-sm" onClick={() => setShowForgotPassword(true)}>
-                          Forgot password?
-                        </Button>
-                      </div>
-                      <div className="relative">
-                        <Input
-                          id="signin-password"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="••••••••"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                        />
-                        <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-full px-3" onClick={() => setShowPassword(!showPassword)}>
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
-                      </div>
+                    <div className="relative">
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="signin-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="h-11 pl-10 pr-11 rounded-xl border-border/60 focus:border-primary transition-colors"
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
-                    <Button type="submit" className="w-full" disabled={loading}>
-                      {loading ? "Signing in..." : "Sign In"}
-                    </Button>
-                  </form>
+                  </div>
 
-                  <p className="text-center text-sm text-muted-foreground">
-                    Don't have an account?{" "}
-                    <Link to="/signup" className="text-primary font-medium hover:underline">
-                      Sign up
-                    </Link>
-                  </p>
-                </div>
-              </CardContent>
-            </>
-          )}
-        </Card>
+                  {/* Submit */}
+                  <Button
+                    type="submit"
+                    className="w-full h-12 rounded-xl font-semibold text-base mt-2 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing in...</>
+                    ) : (
+                      "Sign In"
+                    )}
+                  </Button>
+                </form>
+
+                {/* Footer link */}
+                <p className="text-center text-sm text-muted-foreground mt-6">
+                  Don't have an account?{" "}
+                  <Link to="/signup" className="text-primary font-semibold hover:underline transition-colors">
+                    Sign up
+                  </Link>
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Bottom accent */}
+          <p className="text-center text-xs text-muted-foreground/50 mt-6">
+            Global Nexus Institute &middot; Secure Login
+          </p>
+        </div>
       </div>
       <Footer />
     </div>
