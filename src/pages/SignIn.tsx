@@ -8,7 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { logActivity } from "@/hooks/useActivityLog";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Loader2, ArrowLeft, Eye, EyeOff, LogIn, Mail, Lock, User } from "lucide-react";
+import { Loader2, ArrowLeft, Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import logoImg from "@/assets/logo.png";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
