@@ -135,6 +135,7 @@ interface InstructorUser {
   role: string;
   created_at: string;
   profiles?: { full_name: string | null; email: string | null; ai_course_generation_enabled?: boolean };
+  course_count?: number;
 }
 
 interface InstructorApplication {
