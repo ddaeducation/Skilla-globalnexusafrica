@@ -164,7 +164,7 @@ Return ONLY valid JSON, no additional text.`;
     return new Response(JSON.stringify({
       score,
       feedback: gradeResult.feedback || "Answer graded.",
-      isCorrect: gradeResult.isCorrect ?? score >= maxPoints * 0.8,
+      isCorrect: gradeResult.isCorrect ?? score >= maxPoints * 0.6,
       strengths: gradeResult.strengths || [],
       improvements: gradeResult.improvements || [],
     }), {
