@@ -286,6 +286,9 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
               <Link to="/collaborate" className="block rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted text-foreground/70 transition-colors" onClick={() => setIsMenuOpen(false)}>
                 Collaborate
               </Link>
+              <Link to="/blog" className="block rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted text-foreground/70 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                Blog
+              </Link>
               {navTabs2.map((item) => (
                 <button
                   key={item.id}
