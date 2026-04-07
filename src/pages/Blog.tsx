@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+
 import { Button } from "@/components/ui/button";
 import { Loader2, CalendarDays, ArrowLeft, Newspaper } from "lucide-react";
 import { format } from "date-fns";
