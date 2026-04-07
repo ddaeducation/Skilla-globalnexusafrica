@@ -375,8 +375,8 @@ const SchoolPrograms = () => {
                 <Button size="lg" variant="secondary" asChild>
                   <Link to="/apply">Apply Now</Link>
                 </Button>
-                <Button size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white/10">
-                  Download Brochure
+                <Button size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white/10" asChild>
+                  <Link to={`/schools/${school}/brochure`}>Open Brochure</Link>
                 </Button>
               </div>
             </div>
