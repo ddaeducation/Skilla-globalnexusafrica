@@ -11,6 +11,7 @@ import Programs from "./pages/Programs";
 import AllPrograms from "./pages/AllPrograms";
 import Apply from "./pages/Apply";
 import SchoolPrograms from "./pages/SchoolPrograms";
+import SchoolBrochure from "./pages/SchoolBrochure";
 import Auth from "./pages/Auth";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
@@ -54,6 +55,7 @@ const App = () => {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/schools/:school" element={<SchoolPrograms />} />
+          <Route path="/schools/:school/brochure" element={<SchoolBrochure />} />
           <Route path="/apply" element={<Apply />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<Admin />} />
