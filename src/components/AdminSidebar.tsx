@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/sidebar";
 import {
   BookOpen, Users, Shield, GraduationCap, Clock, Award, Settings, LogOut,
-  HelpCircle, User, Ticket, DollarSign, Building2, Handshake, Megaphone, Heart, ArrowLeft,
+  HelpCircle, User, Ticket, DollarSign, Building2, Handshake, Megaphone, Heart, ArrowLeft, Newspaper,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -34,6 +34,7 @@ const navigationItems = [
   { id: "certificates", title: "Templates", icon: Award },
   { id: "promotions", title: "Promotions", icon: Megaphone },
   { id: "donations", title: "Donations", icon: Heart },
+  { id: "blog", title: "Blog / News", icon: Newspaper },
 ];
 
 const accountItems = [
