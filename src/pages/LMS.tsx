@@ -13,6 +13,7 @@ import { AnnouncementsPanel } from "@/components/communication/AnnouncementsPane
 import { useLearningTimeStats } from "@/hooks/useLessonTimeTracking";
 import WeeklyLearningChart from "@/components/WeeklyLearningChart";
 import StudentAnalytics from "@/components/StudentAnalytics";
+import GamificationPanel from "@/components/GamificationPanel";
 import { DiscussionForums } from "@/components/communication/DiscussionForums";
 import { MessagesPanel } from "@/components/communication/MessagesPanel";
 import { LiveSessionsPanel } from "@/components/communication/LiveSessionsPanel";
