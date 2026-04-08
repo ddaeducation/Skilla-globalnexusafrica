@@ -12,6 +12,7 @@ import LeaderboardSection from "@/components/LeaderboardSection";
 import { AnnouncementsPanel } from "@/components/communication/AnnouncementsPanel";
 import { useLearningTimeStats } from "@/hooks/useLessonTimeTracking";
 import WeeklyLearningChart from "@/components/WeeklyLearningChart";
+import StudentAnalytics from "@/components/StudentAnalytics";
 import { DiscussionForums } from "@/components/communication/DiscussionForums";
 import { MessagesPanel } from "@/components/communication/MessagesPanel";
 import { LiveSessionsPanel } from "@/components/communication/LiveSessionsPanel";
