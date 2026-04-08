@@ -59,6 +59,7 @@ import HighlightedHTML from "@/components/HighlightedHTML";
 import { useVideoWatchProgress } from "@/hooks/useVideoWatchProgress";
 import { VideoQuizPopup } from "@/components/VideoQuizPopup";
 import { VideoQuizMarkers } from "@/components/VideoQuizMarkers";
+import CourseReviews from "@/components/CourseReviews";
 
 interface CourseSection {
   id: string;
@@ -2181,6 +2182,9 @@ const CourseDetail = () => {
                                     <p className="text-sm text-muted-foreground">Loading preview...</p>
                                   </div>
                                 )}
+
+                                {/* Student Reviews */}
+                                {courseId && <CourseReviews courseId={courseId} />}
 
                                 <div className="text-center">
                                   {course.publish_status === "upcoming" ? (
