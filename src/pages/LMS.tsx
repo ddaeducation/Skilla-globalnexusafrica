@@ -12,6 +12,8 @@ import LeaderboardSection from "@/components/LeaderboardSection";
 import { AnnouncementsPanel } from "@/components/communication/AnnouncementsPanel";
 import { useLearningTimeStats } from "@/hooks/useLessonTimeTracking";
 import WeeklyLearningChart from "@/components/WeeklyLearningChart";
+import StudentAnalytics from "@/components/StudentAnalytics";
+import GamificationPanel from "@/components/GamificationPanel";
 import { DiscussionForums } from "@/components/communication/DiscussionForums";
 import { MessagesPanel } from "@/components/communication/MessagesPanel";
 import { LiveSessionsPanel } from "@/components/communication/LiveSessionsPanel";
@@ -493,6 +495,17 @@ const LMS = () => {
 
             {/* Weekly Learning Chart */}
             <WeeklyLearningChart userId={user?.id} />
+
+            {/* Learning Analytics */}
+            <StudentAnalytics
+              enrolledCourses={enrolledCourses}
+              progress={progress}
+              quizAttempts={quizAttempts}
+              totalTimeSpent={totalTimeSpent}
+            />
+
+            {/* Gamification */}
+            {user && <GamificationPanel userId={user.id} />}
           </div>
         );
 

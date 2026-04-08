@@ -1772,6 +1772,61 @@ export type Database = {
         }
         Relationships: []
       }
+      lesson_comments: {
+        Row: {
+          content: string
+          course_id: string
+          created_at: string
+          id: string
+          lesson_id: string
+          parent_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          course_id: string
+          created_at?: string
+          id?: string
+          lesson_id: string
+          parent_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          course_id?: string
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          parent_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_comments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_comments_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_content"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_content: {
         Row: {
           content_text: string | null
@@ -2609,6 +2664,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      student_xp: {
+        Row: {
+          created_at: string
+          id: string
+          reason: string
+          source_id: string | null
+          source_type: string
+          user_id: string
+          xp_points: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reason: string
+          source_id?: string | null
+          source_type?: string
+          user_id: string
+          xp_points?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reason?: string
+          source_id?: string | null
+          source_type?: string
+          user_id?: string
+          xp_points?: number
+        }
+        Relationships: []
       }
       user_badges: {
         Row: {
