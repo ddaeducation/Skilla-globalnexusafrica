@@ -16,6 +16,8 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { CreditCard, CheckCircle, Loader2, Shield, Tag, X } from "lucide-react";
+import PaymentReceiptGenerator from "@/components/PaymentReceiptGenerator";
+import { sendEnrollmentNotification } from "@/components/EnrollmentNotification";
 import { User } from "@supabase/supabase-js";
 import { useFlutterwave, closePaymentModal } from "flutterwave-react-v3";
 
@@ -633,7 +635,14 @@ const calculateFullPriceExpiry = (duration: string | null): Date => {
             }
           }
 
-          // Success - go to confirmation step
+          // Success - send enrollment email & go to confirmation step
+          sendEnrollmentNotification({
+            userEmail: user.email || "",
+            userName: `${formData.firstName} ${formData.lastName}`,
+            courseName: selectedCourse.title,
+            amountPaid: 0,
+            currency: "USD",
+          });
           setStep(3);
           toast({
             title: "Enrollment Successful!",
@@ -695,6 +704,14 @@ const calculateFullPriceExpiry = (duration: string | null): Date => {
                 }
                 
                 setStep(3);
+                // Send enrollment confirmation email
+                sendEnrollmentNotification({
+                  userEmail: user?.email || "",
+                  userName: `${formData.firstName} ${formData.lastName}`,
+                  courseName: selectedCourse?.title || "",
+                  amountPaid: totalPriceUSD,
+                  currency: "USD",
+                });
                 toast({
                   title: "Payment Successful! 🎉",
                   description: "Your access has been granted immediately. Start learning now!",
