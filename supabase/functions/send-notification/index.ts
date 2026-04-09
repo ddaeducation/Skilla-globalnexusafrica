@@ -10,7 +10,7 @@ const corsHeaders = {
 };
 
 interface NotificationRequest {
-  type: "announcement" | "message" | "user_status" | "enrollment_status";
+  type: "announcement" | "message" | "user_status" | "enrollment_status" | "enrollment_confirmation";
   announcement?: {
     title: string;
     content: string;
@@ -36,6 +36,14 @@ interface NotificationRequest {
     course_name: string;
     instructor_name: string;
     action: "suspended" | "removed" | "reactivated";
+    platform_name?: string;
+  };
+  enrollment_confirmation?: {
+    user_email: string;
+    user_name: string;
+    course_name: string;
+    amount_paid: number;
+    currency: string;
     platform_name?: string;
   };
 }
