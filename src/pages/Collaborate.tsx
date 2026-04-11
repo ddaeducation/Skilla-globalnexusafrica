@@ -76,7 +76,7 @@ const Collaborate = () => {
               </div>
               <h1 className="text-3xl md:text-4xl font-bold mb-4">Collaborate with Us</h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Join forces with Global Nexus Institute to shape the future of education in Africa. Whether you're a company, organization, or institution, let's create impact together.
+                Join forces with Global Nexus to shape the future of education in Africa. Whether you're a company, organization, or institution, let's create impact together.
               </p>
             </div>
 
